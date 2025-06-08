@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Brain, Eye, EyeOff, Mail, Lock, User, Building, Phone, ArrowRight, Shield, Zap, CheckCircle, AlertCircle, Github, Twitter, Chrome } from 'lucide-react';
-
+import { Link } from 'react-router-dom';
 // Animated Background SVG
 const AuthBackgroundSVG = () => (
     <svg viewBox="0 0 1200 800" className="absolute inset-0 w-full h-full">
@@ -527,7 +527,7 @@ const SignIn = () => {
                                 </div>
 
                                 {/* Submit Button */}
-                                <button
+                                <Link to="/my-profile"
                                     onClick={handleSubmit}
                                     disabled={isLoading}
                                     className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
@@ -540,7 +540,7 @@ const SignIn = () => {
                                             <ArrowRight className="w-5 h-5" />
                                         </>
                                     )}
-                                </button>
+                                </Link>
                             </div>
 
                             {/* Footer */}
