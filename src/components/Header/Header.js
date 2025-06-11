@@ -40,7 +40,7 @@ const Header = () => {
                                     <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                                         HAI-DSS
                                     </h1>
-                                    <p className="text-xs text-purple-300/80">Որոշումների Համակարգ</p>
+                                    {/* <p className="text-xs text-purple-300/80">Որոշումների Համակարգ</p> */}
                                 </Link>
                             </div>
                         </div>
@@ -104,7 +104,7 @@ const Header = () => {
                 }`}>
                 <div className="p-6">
                     {/* Mobile Header */}
-                    <div className="flex items-center justify-between mb-8">
+                    {/* <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
                                 <Brain className="w-5 h-5 text-white" />
@@ -120,7 +120,7 @@ const Header = () => {
                         >
                             <X className="w-5 h-5" />
                         </button>
-                    </div>
+                    </div> */}
 
                     {/* Mobile Menu Items */}
                     <div className="space-y-4">

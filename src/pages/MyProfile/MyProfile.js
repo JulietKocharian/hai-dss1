@@ -412,9 +412,9 @@ const MyProfile = () => {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
+                            {/* <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
                                 <Brain className="w-7 h-7 text-white" />
-                            </div>
+                            </div> */}
                             <div>
                                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                                     Իմ հաշիվը

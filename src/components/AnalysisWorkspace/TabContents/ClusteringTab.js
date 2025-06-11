@@ -151,12 +151,12 @@ const ClusteringTab = () => {
                                 {/* <option value="kmeans">🎯 K-Means</option>
                                 <option value="hierarchical">🌳 Հիերարխիկ</option>
                                 <option value="dbscan">🔍 DBSCAN</option> */}
+                                <option value="acas">🤖 ACAS (Ավտոմատ ընտրություն)</option>
                                 <option value="kmeans">🎯 K-Միջիններ (K-Means)</option>
                                 <option value="fuzzy_cmeans">🌸 Fuzzy C-Միջիններ</option>
                                 <option value="hierarchical">🌳 Հիերարխիկ կլաստերացում</option>
                                 <option value="dbscan">🔍 DBSCAN</option>
                                 <option value="spectral">🌈 Սպեկտրալ կլաստերացում</option>
-                                <option value="acas">🤖 ACAS (Ավտոմատ ընտրություն)</option>
                             </select>
                         </div>
 
