@@ -279,41 +279,41 @@ const Home = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
 
-    const heroSlides = [
-        {
-            title: "Անորոշության Պայմաններում",
-            subtitle: "Հուսալի Որոշումներ",
-            description: "Արհեստական բանականությամբ աջակցվող համակարգ բիզնես լիդերների համար"
-        },
-        {
-            title: "Տվյալների Հիման Վրա",
-            subtitle: "Ռազմավարական Մոտեցում",
-            description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում"
-        },
-        {
-            title: "Ռիսկերի Կառավարում",
-            subtitle: "Գիտական Մեթոդներով",
-            description: "Հավանականության տեսության և մաշինային ուսուցման կիրառում"
-        }
-    ];
+const heroSlides = [
+    {
+        title: "Անորոշության Պայմաններում",
+        subtitle: "Հուսալի Որոշումներ",
+        description: "Անորոշության պայմաններում հուսալի որոշումների կայացում մենեջերների համար"
+    },
+    {
+        title: "Տվյալների Վրա Հիմնված",
+        subtitle: "Ռազմավարական Մոտեցում", 
+        description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում"
+    },
+    {
+        title: "Ռիսկերի Կառավարում",
+        subtitle: "Գիտական Մեթոդներով",
+        description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում"
+    }
+];
 
     const features = [
         {
             icon: Brain,
             title: "Արհեստական Բանականություն",
-            description: "Խորը ուսուցում և նեյրոցանցեր անորոշ իրավիճակների վերլուծության համար",
+            description: "Խորը ուսուցում և նեյրոնային ցանցեր անորոշ իրավիճակների վերլուծության համար",
             SVGComponent: AINetworkSVG
         },
         {
             icon: BarChart3,
-            title: "Տվյալների Վիզուալիզացիա",
-            description: "Ինտերակտիվ գրաֆիկներ և աղյուսակներ որոշումների համար",
+            title: "Տվյալների Վիզուալ",
+            description: "Որոշումների համար ինտերակտիվ գրաֆիկներ և աղյուսակներ",
             SVGComponent: DataVisualizationSVG
         },
         {
             icon: Shield,
             title: "Ռիսկերի Գնահատում",
-            description: "Բազմաչափանի ռիսկերի վերլուծություն և մեղմացման ռազմավարություններ",
+            description: "Բազմաչափ ռիսկերի վերլուծություն և մեղմացման ռազմավարություններ",
             SVGComponent: SecuritySVG
         },
         {
@@ -331,7 +331,7 @@ const Home = () => {
         {
             icon: Users,
             title: "Թիմային Համագործակցություն",
-            description: "Կոլեկտիվ որոշումների ընդունման գործիքներ",
+            description: "Թիմային որոշումների ընդունման գործիքներ",
             SVGComponent: TeamSVG
         }
     ];
@@ -516,7 +516,7 @@ const Home = () => {
             </section>
 
             {/* Testimonials Section */}
-            <section className="py-20">
+            {/* <section className="py-20">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
@@ -556,7 +556,7 @@ const Home = () => {
                         ))}
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* Process Section */}
             <section className="py-20 bg-gradient-to-r from-purple-900/20 to-blue-900/20">

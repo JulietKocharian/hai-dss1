@@ -168,7 +168,7 @@ const ManagerPhase = () => {
                         className="w-full"
                         disabled={!projectName || !dataType || !rawData}
                     >
-                        📤 Ուղարկել վերլուծաբանին
+                        📤 Վերլուծել
                     </Button>
 
                     <div className="mt-3 text-xs text-white-500" style={{color: "#fff"}}>

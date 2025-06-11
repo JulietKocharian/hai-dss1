@@ -143,7 +143,7 @@ const MyProfile = () => {
         company: 'TechCorp Armenia',
         position: 'Senior Developer',
         location: 'Yerevan, Armenia',
-        bio: 'Փորձառու մշակող, որը մասնագիտանում է արհեստական բանականության և մեքենական ուսուցման բնագավառում:',
+        bio: 'Փորձառու ծրագրավորող, որը մասնագիտանում է արհեստական բանականության և մեքենայական ուսուցման ոլորտում:',
         avatar: null,
         joinDate: '2023-01-15',
         lastActive: '2024-12-15',
@@ -385,7 +385,7 @@ const MyProfile = () => {
         { id: 'new-project', label: 'Նոր նախագիծ', icon: Plus },
         { id: 'security', label: 'Անվտանգություն', icon: Shield },
         { id: 'notifications', label: 'Ծանուցումներ', icon: Bell },
-        { id: 'preferences', label: 'Նախընտրություններ', icon: Settings }
+        { id: 'preferences', label: 'Կարգավորումներ', icon: Settings }
     ];
 
     const stats = [
@@ -417,9 +417,9 @@ const MyProfile = () => {
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                                    Իմ պրոֆիլը
+                                    Իմ հաշիվը
                                 </h1>
-                                <p className="text-gray-400">Կառավարեք ձեր հաշվի տվյալները և նախընտրությունները</p>
+                                <p className="text-gray-400">Կառավարեք ձեր հաշվի տվյալները և կարգավորումները</p>
                             </div>
                         </div>
                     </div>
@@ -1144,14 +1144,14 @@ const MyProfile = () => {
                             {/* Preferences Tab */}
                             {activeTab === 'preferences' && (
                                 <div className="space-y-8">
-                                    <h2 className="text-2xl font-bold text-white mb-6">Նախընտրություններ</h2>
+                                    <h2 className="text-2xl font-bold text-white mb-6">Կարգավորումներ</h2>
 
                                     <div className="space-y-6">
                                         {/* Theme Selection */}
                                         <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
                                             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                                                 <Moon className="w-5 h-5 mr-2" />
-                                                Թեմա
+                                                Ռեժիմ
                                             </h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${profileData.theme === 'dark'
@@ -1163,7 +1163,7 @@ const MyProfile = () => {
                                                     <div className="flex items-center space-x-3">
                                                         <Moon className="w-6 h-6 text-purple-400" />
                                                         <div>
-                                                            <h4 className="text-white font-medium">Մուգ թեմա</h4>
+                                                            <h4 className="text-white font-medium">Գիշերային ռեժիմ</h4>
                                                             <p className="text-gray-400 text-sm">Ակտիվ</p>
                                                         </div>
                                                     </div>
@@ -1177,7 +1177,7 @@ const MyProfile = () => {
                                                     <div className="flex items-center space-x-3">
                                                         <Sun className="w-6 h-6 text-yellow-400" />
                                                         <div>
-                                                            <h4 className="text-white font-medium">Բաց թեմա</h4>
+                                                            <h4 className="text-white font-medium">Ցերեկեային ռեժիմ</h4>
                                                             <p className="text-gray-400 text-sm">Անհասանելի</p>
                                                         </div>
                                                     </div>

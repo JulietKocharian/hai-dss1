@@ -192,7 +192,7 @@ const SignIn = () => {
     const socialLogins = [
         { icon: Chrome, name: 'Google', color: 'from-red-500 to-orange-500' },
         { icon: Github, name: 'GitHub', color: 'from-gray-600 to-gray-800' },
-        { icon: Twitter, name: 'Twitter', color: 'from-blue-400 to-blue-600' }
+        // { icon: Twitter, name: 'Twitter', color: 'from-blue-400 to-blue-600' }
     ];
 
     return (
@@ -211,14 +211,14 @@ const SignIn = () => {
 
                     {/* Left Side - Branding */}
                     <div className="text-center lg:text-left space-y-8">
-                        <div className="flex items-center justify-center lg:justify-start space-x-3 mb-8">
+                        {/* <div className="flex items-center justify-center lg:justify-start space-x-3 mb-8">
                             <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
                                 <Brain className="w-7 h-7 text-white" />
                             </div>
                             <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                                DecisionAI
+                                HAI-DSS Որոշումների Համակարգ
                             </h1>
-                        </div>
+                        </div> */}
 
                         <div className="space-y-6">
                             <h2 className="text-4xl lg:text-5xl font-bold">
@@ -226,14 +226,11 @@ const SignIn = () => {
                                     Բարի գալուստ
                                 </span>
                                 <br />
-                                <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                                    Ապագայի մեջ
-                                </span>
                             </h2>
 
-                            <p className="text-xl text-gray-300 leading-relaxed">
-                                Մտեք ձեր հաշիվ և սկսեք կայացնել ավելի խելացի որոշումներ արհեստական բանականության օգնությամբ
-                            </p>
+                            {/* <p className="text-xl text-gray-300 leading-relaxed">
+                                Մուտք գործեք ձեր հաշիվ և սկսեք կայացնել ավելի խելացի որոշումներ արհեստական բանականության օգնությամբ
+                            </p> */}
                         </div>
 
                         {/* Security illustration */}
@@ -487,7 +484,7 @@ const SignIn = () => {
                                                     onChange={handleInputChange}
                                                     className="w-4 h-4 text-purple-600 bg-slate-800 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
                                                 />
-                                                <span className="text-sm text-gray-300">Հիշել ինձ</span>
+                                                <span className="text-sm text-gray-300">Հիշել</span>
                                             </label>
                                             <button className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
                                                 Մոռացե՞լ եք գաղտնաբառը
@@ -551,7 +548,7 @@ const SignIn = () => {
                                         onClick={() => switchTab(activeTab === 'login' ? 'signup' : 'login')}
                                         className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
                                     >
-                                        {activeTab === 'login' ? 'Գրանցվեք այստեղ' : 'Մուտք գործեք այստեղ'}
+                                        {activeTab === 'login' ? 'Գրանցվել' : 'Մուտք գործել'}
                                     </button>
                                 </p>
                             </div>
