@@ -6,8 +6,8 @@ const AINetworkSVG = () => (
     <svg viewBox="0 0 400 300" className="w-full h-full">
         <defs>
             <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="#1c92d2" />
+                <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
             <filter id="glow">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -50,8 +50,8 @@ const DataVisualizationSVG = () => (
     <svg viewBox="0 0 400 300" className="w-full h-full">
         <defs>
             <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="#1c92d2" />
+                <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
         </defs>
         {/* Chart bars */}
@@ -88,8 +88,8 @@ const SecuritySVG = () => (
     <svg viewBox="0 0 400 300" className="w-full h-full">
         <defs>
             <linearGradient id="shieldGradient" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="#1c92d2" />
+                <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
         </defs>
         {/* Shield shape */}
@@ -107,7 +107,7 @@ const SecuritySVG = () => (
                 cy="135"
                 r={60 + i * 30}
                 fill="none"
-                stroke="#8B5CF6"
+                stroke="#1c92d2"
                 strokeWidth="2"
                 opacity={0.6 - i * 0.2}
                 className="animate-ping"
@@ -125,8 +125,8 @@ const TargetingSVG = () => (
     <svg viewBox="0 0 400 300" className="w-full h-full">
         <defs>
             <linearGradient id="targetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="#1c92d2" />
+                <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
         </defs>
         {/* Target circles */}
@@ -156,8 +156,8 @@ const ActivitySVG = () => (
     <svg viewBox="0 0 400 300" className="w-full h-full">
         <defs>
             <linearGradient id="activityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="#1c92d2" />
+                <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
         </defs>
         {/* Activity line */}
@@ -187,8 +187,8 @@ const TeamSVG = () => (
     <svg viewBox="0 0 400 300" className="w-full h-full">
         <defs>
             <linearGradient id="teamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="#1c92d2" />
+                <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
         </defs>
         {/* Team members */}
@@ -237,8 +237,8 @@ const HeroBackgroundSVG = () => (
     <svg viewBox="0 0 1200 800" className="absolute inset-0 w-full h-full">
         <defs>
             <radialGradient id="heroGradient" cx="50%" cy="50%" r="70%">
-                <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.1" />
-                <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.05" />
+                <stop offset="0%" stopColor="#1c92d2" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.3" />
                 <stop offset="100%" stopColor="transparent" />
             </radialGradient>
         </defs>
@@ -259,7 +259,7 @@ const HeroBackgroundSVG = () => (
             </g>
         ))}
         {/* Neural network pattern */}
-        <g opacity="0.1">
+        <g opacity="0.2">
             {[...Array(50)].map((_, i) => (
                 <line
                     key={i}
@@ -267,7 +267,7 @@ const HeroBackgroundSVG = () => (
                     y1={Math.random() * 800}
                     x2={Math.random() * 1200}
                     y2={Math.random() * 800}
-                    stroke="#8B5CF6"
+                    stroke="#1c92d2"
                     strokeWidth="1"
                 />
             ))}
@@ -279,23 +279,23 @@ const Home = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
 
-const heroSlides = [
-    {
-        title: "Անորոշության Պայմաններում",
-        subtitle: "Հուսալի Որոշումներ",
-        description: "Անորոշության պայմաններում հուսալի որոշումների կայացում մենեջերների համար"
-    },
-    {
-        title: "Տվյալների Վրա Հիմնված",
-        subtitle: "Ռազմավարական Մոտեցում", 
-        description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում"
-    },
-    {
-        title: "Ռիսկերի Կառավարում",
-        subtitle: "Գիտական Մեթոդներով",
-        description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում"
-    }
-];
+    const heroSlides = [
+        {
+            title: "Անորոշության Պայմաններում",
+            subtitle: "Հուսալի Որոշումներ",
+            description: "Անորոշության պայմաններում հուսալի որոշումների կայացում մենեջերների համար"
+        },
+        {
+            title: "Տվյալների Վրա Հիմնված",
+            subtitle: "Ռազմավարական Մոտեցում",
+            description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում"
+        },
+        {
+            title: "Ռիսկերի Կառավարում",
+            subtitle: "Գիտական Մեթոդներով",
+            description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում"
+        }
+    ];
 
     const features = [
         {
@@ -371,46 +371,46 @@ const heroSlides = [
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
+        <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe]">
             {/* Hero Section */}
             <section className="relative overflow-hidden min-h-screen flex items-center">
                 <HeroBackgroundSVG />
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20"></div>
 
                 <div className="absolute inset-0">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
                 <div className="relative max-w-7xl mx-auto px-4 py-20">
                     <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                         <div className="mb-6">
-                            <span className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-purple-300 text-sm font-medium backdrop-blur-sm border border-purple-500/20">
+                            <span className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20 text-white text-sm font-medium backdrop-blur-sm border border-[#f2fcfe]/20">
                                 <Zap className="w-4 h-4 mr-2" />
                                 Նորարարական Լուծում
                             </span>
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                            <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-white via-blue-100 to-[#f2fcfe] bg-clip-text text-transparent">
                                 {heroSlides[currentSlide].title}
                             </span>
                             <br />
-                            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                            <span className="text-white font-bold">
                                 {heroSlides[currentSlide].subtitle}
                             </span>
                         </h1>
 
-                        <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-xl from-white via-blue-100 to-[#f2fcfe] mb-8 max-w-3xl mx-auto leading-relaxed">
                             {heroSlides[currentSlide].description}
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                            <button className="group px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25">
+                            <button className="group px-8 py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25">
                                 Սկսել Վերլուծությունը
                                 <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
-                            <button className="group px-8 py-4 border-2 border-purple-400/50 text-purple-300 rounded-full font-semibold text-lg hover:bg-purple-600/10 transition-all duration-300 backdrop-blur-sm flex items-center">
+                            <button className="group px-8 py-4 border-2 border-[#f2fcfe]/50 text-[#f2fcfe] rounded-full font-semibold text-lg hover:bg-[#1c92d2]/10 transition-all duration-300 backdrop-blur-sm flex items-center">
                                 <Play className="w-5 h-5 mr-2" />
                                 Ծանոթանալ Համակարգին
                             </button>
@@ -423,8 +423,8 @@ const heroSlides = [
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
                                     className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                                        ? 'bg-purple-400 scale-125'
-                                        : 'bg-gray-600 hover:bg-gray-500'
+                                        ? 'bg-[#1c92d2] scale-125'
+                                        : 'bg-[#f2fcfe] hover:bg-blue-500'
                                         }`}
                                 />
                             ))}
@@ -434,15 +434,15 @@ const heroSlides = [
             </section>
 
             {/* Metrics Section */}
-            <section className="py-20 bg-black/20 backdrop-blur-sm">
+            <section className="py-20 bg-white/20 backdrop-blur-sm">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                         {metrics.map((metric, index) => (
                             <div key={index} className="text-center group">
-                                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300">
+                                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300">
                                     {metric.value}
                                 </div>
-                                <div className="text-gray-300 font-medium">{metric.label}</div>
+                                <div className="text-white font-medium">{metric.label}</div>
                             </div>
                         ))}
                     </div>
@@ -453,10 +453,10 @@ const heroSlides = [
             <section className="py-20">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
+                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                             Համակարգի Հնարավորություններ
                         </h2>
-                        <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+                        <p className="text-xl text-white/80 max-w-3xl mx-auto">
                             Ժամանակակից տեխնոլոգիաների միության արդյունքում ստեղծված առաջադեմ գործիքներ
                         </p>
                     </div>
@@ -465,19 +465,19 @@ const heroSlides = [
                         {features.map((feature, index) => (
                             <div
                                 key={index}
-                                className="group p-8 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/50 transition-all duration-500 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 overflow-hidden"
+                                className="group p-8 rounded-2xl bg-gradient-to-br from-slate-800/80 to-[#1c92d2]/40 backdrop-blur-sm border border-white/50 hover:border-[#1c92d2] transition-all duration-500 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-[#1c92d2]/30 overflow-hidden"
                             >
-                                <div className="relative mb-6 h-40 rounded-xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+                                <div className="relative mb-6 h-40 rounded-xl overflow-hidden bg-gradient-to-br from-white/20 to-[#1c92d2]/30">
                                     <feature.SVGComponent />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
-                                    <div className="absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600/80 to-blue-600/80 backdrop-blur-sm flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#1c92d2]/20 to-transparent"></div>
+                                    <div className="absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-gradient-to-br from-[#1c92d2] to-[#0ea5e9] backdrop-blur-sm flex items-center justify-center shadow-lg">
                                         <feature.icon className="w-6 h-6 text-white" />
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-purple-200 transition-colors">
+                                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-[#d5e3eb] transition-colors drop-shadow-sm">
                                     {feature.title}
                                 </h3>
-                                <p className="text-gray-400 group-hover:text-gray-300 transition-colors leading-relaxed">
+                                <p className="text-white/90 group-hover:text-white transition-colors leading-relaxed drop-shadow-sm">
                                     {feature.description}
                                 </p>
                             </div>
@@ -487,12 +487,12 @@ const heroSlides = [
             </section>
 
             {/* Demo Video Section */}
-            <section className="py-20 bg-gradient-to-r from-purple-900/10 to-blue-900/10">
+            <section className="py-20 bg-gradient-to-r from-[#1c92d2]/10 to-[#0ea5e9]/10">
                 <div className="max-w-5xl mx-auto px-4 text-center">
-                    <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
-                        Տեսեք Ինչպես Է Աշխատում
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                        Համակարգի Աշխատանքը
                     </h2>
-                    <p className="text-xl text-gray-400 mb-12">
+                    <p className="text-xl text-white/80 mb-12">
                         3 րոպեանոց դեմո վիդեո՝ համակարգի հիմնական հնարավորությունների մասին
                     </p>
 
@@ -502,7 +502,7 @@ const heroSlides = [
                             alt="Demo Video Thumbnail"
                             className="w-full h-96 object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c92d2]/60 to-transparent flex items-center justify-center">
                             <button className="group w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300 hover:scale-110">
                                 <Play className="w-8 h-8 text-white ml-1" />
                             </button>
@@ -515,54 +515,11 @@ const heroSlides = [
                 </div>
             </section>
 
-            {/* Testimonials Section */}
-            {/* <section className="py-20">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
-                            Մեր Հաճախորդները
-                        </h2>
-                        <p className="text-xl text-gray-400">
-                            Ինչ են ասում մեր համակարգն օգտագործող ընկերությունները
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {testimonials.map((testimonial, index) => (
-                            <div key={index} className="p-8 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50">
-                                <div className="flex items-center mb-6">
-                                    <img
-                                        src={testimonial.avatar}
-                                        alt={testimonial.name}
-                                        className="w-16 h-16 rounded-full object-cover mr-4"
-                                    />
-                                    <div>
-                                        <h4 className="text-white font-bold text-lg">{testimonial.name}</h4>
-                                        <p className="text-gray-400">{testimonial.role}</p>
-                                        <p className="text-purple-400 text-sm">{testimonial.company}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex mb-4">
-                                    {[...Array(testimonial.rating)].map((_, i) => (
-                                        <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                                    ))}
-                                </div>
-
-                                <p className="text-gray-300 leading-relaxed italic">
-                                    "{testimonial.content}"
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section> */}
-
             {/* Process Section */}
-            <section className="py-20 bg-gradient-to-r from-purple-900/20 to-blue-900/20">
+            <section className="py-20 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
+                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                             Աշխատանքի Գործընթաց
                         </h2>
                     </div>
@@ -601,14 +558,14 @@ const heroSlides = [
                                         alt={item.title}
                                         className="w-full h-40 object-cover rounded-2xl opacity-70 group-hover:opacity-90 transition-opacity duration-300"
                                     />
-                                    <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg">
+                                    <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-[#1c92d2] to-[#0ea5e9] rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg">
                                         {item.step}
                                     </div>
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-4">{item.title}</h3>
-                                <p className="text-gray-400">{item.desc}</p>
+                                <p className="text-white/80">{item.desc}</p>
                                 {index < 3 && (
-                                    <div className="hidden md:block absolute top-20 left-full w-full h-0.5 bg-gradient-to-r from-purple-600/50 to-transparent transform translate-x-4"></div>
+                                    <div className="hidden md:block absolute top-20 left-full w-full h-0.5 bg-gradient-to-r from-[#1c92d2]/50 to-transparent transform translate-x-4"></div>
                                 )}
                             </div>
                         ))}
@@ -617,7 +574,7 @@ const heroSlides = [
             </section>
 
             {/* Awards Section */}
-            <section className="py-20">
+            {/* <section className="py-20">
                 <div className="max-w-7xl mx-auto px-4 text-center">
                     <h2 className="text-3xl font-bold text-white mb-12">
                         Ճանաչում և Պարգևներ
@@ -625,24 +582,24 @@ const heroSlides = [
                     <div className="flex justify-center items-center space-x-12 opacity-60">
                         <div className="flex items-center space-x-3">
                             <Award className="w-8 h-8 text-yellow-400" />
-                            <span className="text-gray-300">AI Innovation Award 2024</span>
+                            <span className="text-white">AI Innovation Award 2024</span>
                         </div>
                         <div className="flex items-center space-x-3">
                             <Award className="w-8 h-8 text-yellow-400" />
-                            <span className="text-gray-300">Best Business Solution</span>
+                            <span className="text-white">Best Business Solution</span>
                         </div>
                         <div className="flex items-center space-x-3">
                             <Award className="w-8 h-8 text-yellow-400" />
-                            <span className="text-gray-300">Top Rated Platform</span>
+                            <span className="text-white">Top Rated Platform</span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* CTA Section */}
             <section className="py-20">
                 <div className="max-w-4xl mx-auto px-4 text-center">
-                    <div className="relative p-12 rounded-3xl bg-gradient-to-br from-purple-900/30 to-blue-900/30 backdrop-blur-sm border border-purple-500/20 overflow-hidden">
+                    <div className="relative p-12 rounded-3xl bg-gradient-to-br from-[#1c92d2]/30 to-[#0ea5e9]/30 backdrop-blur-sm border border-[#1c92d2]/20 overflow-hidden">
                         <div className="absolute inset-0">
                             <img
                                 src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=400&fit=crop&auto=format"
@@ -651,18 +608,18 @@ const heroSlides = [
                             />
                         </div>
                         <div className="relative z-10">
-                            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
+                            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                                 Պատրա՞ստ եք սկսելու
                             </h2>
-                            <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                            <p className="text-xl text-white/80 mb-8 leading-relaxed">
                                 Միացե՛ք հազարավոր մենեջերների, ովքեր արդեն օգտագործում են մեր համակարգը
                                 ավելի խելացի որոշումներ կայացնելու համար
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25">
+                                <button className="px-8 py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25">
                                     Անվճար Փորձարկում
                                 </button>
-                                <button className="px-8 py-4 border-2 border-purple-400/50 text-purple-300 rounded-full font-semibold text-lg hover:bg-purple-600/10 transition-all duration-300">
+                                <button className="px-8 py-4 border-2 border-[#1c92d2]/50 text-[#1c92d2] rounded-full font-semibold text-lg hover:bg-[#1c92d2]/10 transition-all duration-300">
                                     Դեմո Դիտել
                                 </button>
                             </div>

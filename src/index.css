@@ -10,16 +10,16 @@
 
 /* Գլոբալ CSS փոփոխականներ */
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --primary-gradient: linear-gradient(135deg, #1c92d2 0%, #f2fcfe 100%);
+  --secondary-gradient: linear-gradient(135deg, #1c92d2 0%, #89d6f0 100%);
   --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
   --danger-gradient: linear-gradient(135deg, #ff8a80 0%, #ea4f48 100%);
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 2px 4px rgba(28, 146, 210, 0.1);
+  --shadow-md: 0 4px 8px rgba(28, 146, 210, 0.15);
+  --shadow-lg: 0 8px 16px rgba(28, 146, 210, 0.2);
+  --shadow-xl: 0 12px 24px rgba(28, 146, 210, 0.25);
 
   --border-radius-sm: 0.5rem;
   --border-radius-md: 0.75rem;
@@ -33,17 +33,17 @@
 
 /* Տարբեր թեմաների համար */
 [data-theme="dark"] {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --text-primary: #f2fcfe;
+  --text-secondary: #89d6f0;
 }
 
 [data-theme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #333333;
-  --text-secondary: #666666;
+  --bg-primary: #f2fcfe;
+  --bg-secondary: #e6f7fc;
+  --text-primary: #0f4c75;
+  --text-secondary: #1c92d2;
 }
 
 /* Հիմնական ոճեր */
@@ -62,8 +62,8 @@ html {
 body {
   font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   font-weight: 400;
-  color: var(--text-primary, #333333);
-  background-color: var(--bg-primary, #ffffff);
+  color: var(--text-primary, #0f4c75);
+  background-color: var(--bg-primary, #f2fcfe);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -80,7 +80,7 @@ body {
 
 /* Ֆոկուսի ոճեր */
 :focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid #1c92d2;
   outline-offset: 2px;
 }
 
@@ -90,7 +90,7 @@ body {
 
 /* Ընտրության ոճեր */
 ::selection {
-  background-color: rgba(102, 126, 234, 0.2);
+  background-color: rgba(28, 146, 210, 0.2);
   color: inherit;
 }
 
@@ -101,37 +101,37 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #e6f7fc;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #89d6f0;
   border-radius: 4px;
   transition: background-color var(--transition-normal);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #1c92d2;
 }
 
 /* Բացասական մարժներ Firefox-ի համար */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-color: #89d6f0 #e6f7fc;
 }
 
 /* Utility դասեր */
 .text-shadow-sm {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(28, 146, 210, 0.1);
 }
 
 .text-shadow-md {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 2px 4px rgba(28, 146, 210, 0.15);
 }
 
 .text-shadow-lg {
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 4px 8px rgba(28, 146, 210, 0.25);
 }
 
 .backdrop-blur-sm {
@@ -300,7 +300,7 @@ body {
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 20px rgba(28, 146, 210, 0.4);
 }
 
 /* Responsive typography */
@@ -412,8 +412,8 @@ body {
   position: absolute;
   top: -40px;
   left: 6px;
-  background: #000;
-  color: #fff;
+  background: #1c92d2;
+  color: #f2fcfe;
   padding: 8px;
   text-decoration: none;
   z-index: 9999;
@@ -426,7 +426,7 @@ body {
 
 /* Loading states */
 .loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #e6f7fc 25%, #cef0f8 50%, #e6f7fc 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
 }
@@ -448,10 +448,10 @@ body {
 }
 
 .success-border {
-  border-color: #10b981 !important;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  border-color: #1c92d2 !important;
+  box-shadow: 0 0 0 3px rgba(28, 146, 210, 0.1);
 }
 
 .mainBlock {
-  background-color: #fff;
+  background-color: #f2fcfe;
 }

@@ -10,29 +10,32 @@ module.exports = {
             // Գույներ
             colors: {
                 primary: {
-                    50: '#f0f4ff',
-                    100: '#e0e9ff',
-                    200: '#c7d6fe',
-                    300: '#a5b8fc',
-                    400: '#8b94f8',
-                    500: '#667eea', // Հիմնական primary գույն
-                    600: '#5a67d8',
-                    700: '#4c51bf',
-                    800: '#434190',
-                    900: '#3a3472',
+                    50: '#0f4c75',   // было 900
+                    100: '#105582',  // было 800  
+                    200: '#146ba0',  // было 700
+                    300: '#1783c1',  // было 600
+                    400: '#1c92d2',  // было 500
+                    500: '#f2fcfe',  // было 50 - теперь основной цвет светлый
+                    600: '#6bc8e0',  // было 400
+                    700: '#a7e1f1',  // было 300
+                    800: '#cef0f8',  // было 200
+                    900: '#e6f7fc',  // было 100
                 },
+                
+                // Также в secondary цветах (если нужно):
                 secondary: {
-                    50: '#fdf4ff',
-                    100: '#fae8ff',
-                    200: '#f5d0fe',
-                    300: '#f0abfc',
-                    400: '#e879f9',
-                    500: '#764ba2', // Հիմնական secondary գույն
-                    600: '#c026d3',
-                    700: '#a21caf',
-                    800: '#86198f',
-                    900: '#701a75',
+                    50: '#164f6b',   // было 900
+                    100: '#1a6589',  // было 800
+                    200: '#1f7da8',  // было 700  
+                    300: '#2591c1',  // было 600
+                    400: '#2ba3d4',  // было 500
+                    500: '#f2fcfe',  // было 50
+                    600: '#4fb8e3',  // было 400
+                    700: '#89d6f0',  // было 300
+                    800: '#b3e8f7',  // было 200
+                    900: '#ddf5fc',  // было 100
                 },
+                
                 accent: {
                     50: '#f0fdfa',
                     100: '#ccfbf1',
@@ -46,16 +49,16 @@ module.exports = {
                     900: '#134e4a',
                 },
                 success: {
-                    50: '#f0fdf4',
-                    100: '#dcfce7',
-                    200: '#bbf7d0',
-                    300: '#86efac',
-                    400: '#4ade80',
-                    500: '#22c55e',
-                    600: '#16a34a',
-                    700: '#15803d',
-                    800: '#166534',
-                    900: '#14532d',
+                    50: '#f2fcfe',
+                    100: '#e6f7fc',
+                    200: '#cef0f8',
+                    300: '#a7e1f1',
+                    400: '#6bc8e0',
+                    500: '#1c92d2',
+                    600: '#1783c1',
+                    700: '#146ba0',
+                    800: '#105582',
+                    900: '#0f4c75',
                 },
                 warning: {
                     50: '#fffbeb',
@@ -82,16 +85,16 @@ module.exports = {
                     900: '#7f1d1d',
                 },
                 neutral: {
-                    50: '#fafafa',
-                    100: '#f5f5f5',
-                    200: '#e5e5e5',
-                    300: '#d4d4d4',
-                    400: '#a3a3a3',
-                    500: '#737373',
-                    600: '#525252',
-                    700: '#404040',
-                    800: '#262626',
-                    900: '#171717',
+                    50: '#183942',   // было 900
+                    100: '#1f4a5b',  // было 800
+                    200: '#285e77',  // было 700
+                    300: '#337a96',  // было 600
+                    400: '#439bb8',  // было 500
+                    500: '#f2fcfe',  // было 50
+                    600: '#6bc8e0',  // было 400
+                    700: '#a7e1f1',  // было 300
+                    800: '#cef0f8',  // было 200
+                    900: '#e6f7fc',  // было 100
                 }
             },
 
@@ -189,8 +192,8 @@ module.exports = {
                     '50%': { transform: 'translateY(-10px)' },
                 },
                 glow: {
-                    '0%': { boxShadow: '0 0 5px rgba(102, 126, 234, 0.5)' },
-                    '100%': { boxShadow: '0 0 20px rgba(102, 126, 234, 0.8)' },
+                    '0%': { boxShadow: '0 0 5px rgba(28, 146, 210, 0.5)' },
+                    '100%': { boxShadow: '0 0 20px rgba(28, 146, 210, 0.8)' },
                 },
             },
 
@@ -208,11 +211,11 @@ module.exports = {
 
             // Box shadow
             boxShadow: {
-                'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-                'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.05)',
-                'hard': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 20px 50px -15px rgba(0, 0, 0, 0.1)',
-                'glow': '0 0 20px rgba(102, 126, 234, 0.4)',
-                'glow-lg': '0 0 40px rgba(102, 126, 234, 0.6)',
+                'soft': '0 2px 15px -3px rgba(28, 146, 210, 0.07), 0 10px 20px -2px rgba(28, 146, 210, 0.04)',
+                'medium': '0 4px 25px -5px rgba(28, 146, 210, 0.1), 0 10px 30px -5px rgba(28, 146, 210, 0.05)',
+                'hard': '0 10px 40px -10px rgba(28, 146, 210, 0.15), 0 20px 50px -15px rgba(28, 146, 210, 0.1)',
+                'glow': '0 0 20px rgba(28, 146, 210, 0.4)',
+                'glow-lg': '0 0 40px rgba(28, 146, 210, 0.6)',
             },
 
             // Backdrop blur
@@ -291,13 +294,13 @@ module.exports = {
             // Custom utilities
             addUtilities({
                 '.text-shadow': {
-                    textShadow: '0 2px 4px rgba(0,0,0,0.10)',
+                    textShadow: '0 2px 4px rgba(28, 146, 210, 0.10)',
                 },
                 '.text-shadow-md': {
-                    textShadow: '0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
+                    textShadow: '0 4px 8px rgba(28, 146, 210, 0.12), 0 2px 4px rgba(28, 146, 210, 0.08)',
                 },
                 '.text-shadow-lg': {
-                    textShadow: '0 15px 30px rgba(0,0,0,0.11), 0 5px 15px rgba(0,0,0,0.08)',
+                    textShadow: '0 15px 30px rgba(28, 146, 210, 0.11), 0 5px 15px rgba(28, 146, 210, 0.08)',
                 },
                 '.text-shadow-none': {
                     textShadow: 'none',
@@ -331,11 +334,11 @@ module.exports = {
                     },
                 },
                 '.card': {
-                    backgroundColor: theme('colors.white'),
+                    backgroundColor: theme('colors.primary.50'),
                     borderRadius: theme('borderRadius.lg'),
                     padding: theme('spacing.6'),
                     boxShadow: theme('boxShadow.soft'),
-                    border: `1px solid ${theme('colors.gray.200')}`,
+                    border: `1px solid ${theme('colors.primary.200')}`,
                 },
                 '.gradient-text': {
                     background: `linear-gradient(135deg, ${theme('colors.primary.500')}, ${theme('colors.secondary.500')})`,

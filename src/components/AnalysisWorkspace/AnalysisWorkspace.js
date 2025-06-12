@@ -70,7 +70,7 @@ const AnalysisWorkspace = () => {
     };
 
     return (
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl mt-8">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl mt-8 w-full">
             {/* Վերլուծական տարածքի վերնագիր */}
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
