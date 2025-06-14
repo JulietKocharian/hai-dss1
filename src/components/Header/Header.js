@@ -20,7 +20,7 @@ const Header = () => {
     return (
         <>
             <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-                ? 'bg-slate-900/95 backdrop-blur-md shadow-2xl shadow-[#1c92d2]/10'
+                ? 'bg-slate-900/95 backdrop-blur-md shadow-2xl shadow-bg-slate-900/95'
                 : 'bg-transparent'
                 }`}>
                 <div className=" mx-auto px-4">
@@ -157,7 +157,7 @@ const Header = () => {
                         </a>
 
                         <a
-                            href="/"
+                            href="/sign-in"
                             onClick={toggleMenu}
                             className="group flex items-center space-x-4 p-4 rounded-xl bg-slate-800/30 hover:bg-slate-700/50 transition-all duration-300 border border-slate-700/50 hover:border-[#1c92d2]/30"
                         >
@@ -165,20 +165,22 @@ const Header = () => {
                                 <LogIn className="w-5 h-5 text-[#1c92d2]" />
                             </div>
                             <div>
-                                <div className="text-white font-medium">Մուտք</div>
+                                <div className="text-white font-medium">
+                                    <Link to="/sign-in">Մուտք</Link>
+                                </div>
                                 <div className="text-xs text-gray-400">Անձնական հաշիվ</div>
                             </div>
                         </a>
 
                         {/* CTA Button */}
-                        <div className="pt-6">
+                        {/* <div className="pt-6">
                             <button
                                 onClick={toggleMenu}
                                 className="w-full p-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl font-semibold hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25"
                             >
                                 Անվճար Փորձարկում
                             </button>
-                        </div>
+                        </div> */}
 
                         {/* Additional Info */}
                         <div className="pt-6 border-t border-slate-700/50">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Brain, Eye, EyeOff, Mail, Lock, User, Building, Phone, ArrowRight, Shield, Zap, CheckCircle, AlertCircle, Github, Twitter, Chrome } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { login, register } from '../../api/AuthService';
+
 // Animated Background SVG
 const AuthBackgroundSVG = () => (
     <svg viewBox="0 0 1200 800" className="absolute inset-0 w-full h-full">
@@ -155,16 +157,58 @@ const SignIn = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
         if (!validateForm()) return;
 
         setIsLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsLoading(false);
 
-        // Success message simulation
-        alert(activeTab === 'login' ? 'Բարեգալուստ!' : 'Գրանցումը հաջողվեց!');
+        try {
+            if (activeTab === 'login') {
+                // Login flow
+                const response = await login(formData.email, formData.password);
+
+                window.location.href = '/my-profile'; // for direct redirect
+
+            } else {
+                // Register flow
+                const userData = {
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    email: formData.email,
+                    password: formData.password,
+                    company: formData.company || undefined, // Optional field
+                    phone: formData.phone || undefined, // Optional field
+                    status: "accepted",
+                    roles: ["student"]
+                };
+
+                const response = await register(userData);
+
+                // Success message
+                alert('Գրանցումը հաջողվեց!');
+
+                setActiveTab('login')
+            }
+
+            // Clear form on success (optional)
+            // resetForm();
+
+        } catch (error) {
+            // Handle errors
+            console.error('Authentication error:', error);
+
+            // Show user-friendly error message
+            const errorMessage = error.message || 'Սխալ է տեղի ունեցել';
+            alert(errorMessage);
+
+            // Optional: Set error state to display in UI instead of alert
+            // setErrors({ submit: errorMessage });
+
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleKeyPress = (e) => {
@@ -196,23 +240,23 @@ const SignIn = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe] flex items-center justify-center p-3 sm:p-4 lg:p-8">
             {/* Background */}
             <AuthBackgroundSVG />
 
-            {/* Animated background elements */}
+            {/* Animated background elements - Responsive */}
             <div className="absolute inset-0">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                <div className="absolute top-1/4 left-1/4 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
             </div>
 
-            <div className={`relative w-full max-w-6xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className={`relative w-full max-w-sm sm:max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
 
-                    {/* Left Side - Branding */}
-                    <div className="text-center lg:text-left space-y-8">
-                        <div className="space-y-6">
-                            <h2 className="text-4xl lg:text-5xl font-bold">
+                    {/* Left Side - Branding - Responsive */}
+                    <div className="text-center lg:text-left space-y-6 sm:space-y-8 order-2 lg:order-1">
+                        <div className="space-y-4 sm:space-y-6">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
                                 <span className="text-white">
                                     Բարի գալուստ
                                 </span>
@@ -220,37 +264,42 @@ const SignIn = () => {
                             </h2>
                         </div>
 
-                        {/* Security illustration */}
-                        <div className="hidden lg:block w-64 h-64 mx-auto lg:mx-0">
+                        {/* Security illustration - Responsive sizing */}
+                        <div className="hidden lg:block w-48 h-48 xl:w-64 xl:h-64 mx-auto lg:mx-0">
                             <SecurityIconSVG />
                         </div>
 
-                        {/* Features */}
-                        <div className="space-y-4">
+                        {/* Mobile Security illustration */}
+                        <div className="lg:hidden w-32 h-32 sm:w-40 sm:h-40 mx-auto">
+                            <SecurityIconSVG />
+                        </div>
+
+                        {/* Features - Responsive */}
+                        <div className="space-y-3 sm:space-y-4 max-w-sm mx-auto lg:mx-0">
                             {[
                                 { icon: Shield, text: 'Բարձր մակարդակի անվտանգություն' },
                                 { icon: Zap, text: 'Ակնթարթային վերլուծություն' },
                                 { icon: CheckCircle, text: '24/7 հասանելիություն' }
                             ].map((feature, index) => (
                                 <div key={index} className="flex items-center space-x-3 text-gray-300">
-                                    <div className="w-8 h-8 bg-gradient-to-br from-[#1c92d2]/20 to-[#0ea5e9]/20 rounded-lg flex items-center justify-center">
-                                        <feature.icon className="w-4 h-4 text-white" />
+                                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#1c92d2]/20 to-[#0ea5e9]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <feature.icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                                     </div>
-                                    <span className="text-white">{feature.text}</span>
+                                    <span className="text-slate-800 text-sm sm:text-base">{feature.text}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Right Side - Auth Form */}
-                    <div className="relative">
-                        <div className="mt-20 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+                    {/* Right Side - Auth Form - Responsive */}
+                    <div className="relative order-1 lg:order-2 mt-20">
+                        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl">
 
-                            {/* Tab Switcher */}
-                            <div className="flex bg-slate-800/50 rounded-2xl p-1 mb-8">
+                            {/* Tab Switcher - Responsive */}
+                            <div className="flex bg-slate-800/50 rounded-xl sm:rounded-2xl p-1 mb-6 sm:mb-8">
                                 <button
                                     onClick={() => switchTab('login')}
-                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${activeTab === 'login'
+                                    className={`flex-1 py-2 sm:py-3 px-3 sm:px-6 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 ${activeTab === 'login'
                                         ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white shadow-lg'
                                         : 'text-[#f2fcfe] hover:text-white'
                                         }`}
@@ -259,7 +308,7 @@ const SignIn = () => {
                                 </button>
                                 <button
                                     onClick={() => switchTab('signup')}
-                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${activeTab === 'signup'
+                                    className={`flex-1 py-2 sm:py-3 px-3 sm:px-6 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 ${activeTab === 'signup'
                                         ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white shadow-lg'
                                         : 'text-gray-400 hover:text-white'
                                         }`}
@@ -268,49 +317,49 @@ const SignIn = () => {
                                 </button>
                             </div>
 
-                            {/* Social Login */}
-                            <div className="space-y-3 mb-8">
+                            {/* Social Login - Responsive */}
+                            <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                                 {socialLogins.map((social, index) => (
                                     <button
                                         key={index}
-                                        className="w-full flex items-center justify-center space-x-3 py-3 px-4 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/50 rounded-xl transition-all duration-300 group"
+                                        className="w-full flex items-center justify-center space-x-2 sm:space-x-3 py-2.5 sm:py-3 px-3 sm:px-4 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/50 rounded-lg sm:rounded-xl transition-all duration-300 group"
                                     >
-                                        <social.icon className="w-5 h-5 text-gray-400 group-hover:text-white" />
-                                        <span className="text-[#f2fcfe] group-hover:text-white">
+                                        <social.icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-white" />
+                                        <span className="text-[#f2fcfe] group-hover:text-white text-sm sm:text-base">
                                             {activeTab === 'login' ? 'Մուտք' : 'Գրանցում'} {social.name}-ով
                                         </span>
                                     </button>
                                 ))}
                             </div>
 
-                            {/* Divider */}
-                            <div className="flex items-center mb-8">
+                            {/* Divider - Responsive */}
+                            <div className="flex items-center mb-6 sm:mb-8">
                                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
-                                <span className="px-4 text-white text-sm">կամ</span>
+                                <span className="px-3 sm:px-4 text-white text-xs sm:text-sm">կամ</span>
                                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
                             </div>
 
-                            <div className="space-y-6" onKeyPress={handleKeyPress}>
+                            <div className="space-y-4 sm:space-y-6" onKeyPress={handleKeyPress}>
                                 {activeTab === 'signup' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                         {/* First Name */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-white">Անուն *</label>
+                                            <label className="text-xs sm:text-sm font-medium text-white">Անուն *</label>
                                             <div className="relative">
-                                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                                 <input
                                                     type="text"
                                                     name="firstName"
                                                     value={formData.firstName}
                                                     onChange={handleInputChange}
-                                                    className={`w-full pl-12 pr-4 py-3 bg-slate-800/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.firstName ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
+                                                    className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-slate-800/50 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.firstName ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
                                                         }`}
                                                     placeholder="Ձեր անունը"
                                                 />
                                             </div>
                                             {errors.firstName && (
-                                                <div className="flex items-center space-x-2 text-red-400 text-sm">
-                                                    <AlertCircle className="w-4 h-4" />
+                                                <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
+                                                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                                     <span>{errors.firstName}</span>
                                                 </div>
                                             )}
@@ -318,22 +367,22 @@ const SignIn = () => {
 
                                         {/* Last Name */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-white">Ազգանուն *</label>
+                                            <label className="text-xs sm:text-sm font-medium text-white">Ազգանուն *</label>
                                             <div className="relative">
-                                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                                 <input
                                                     type="text"
                                                     name="lastName"
                                                     value={formData.lastName}
                                                     onChange={handleInputChange}
-                                                    className={`w-full pl-12 pr-4 py-3 bg-slate-800/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.lastName ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
+                                                    className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-slate-800/50 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.lastName ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
                                                         }`}
                                                     placeholder="Ձեր ազգանունը"
                                                 />
                                             </div>
                                             {errors.lastName && (
-                                                <div className="flex items-center space-x-2 text-red-400 text-sm">
-                                                    <AlertCircle className="w-4 h-4" />
+                                                <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
+                                                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                                     <span>{errors.lastName}</span>
                                                 </div>
                                             )}
@@ -341,24 +390,24 @@ const SignIn = () => {
                                     </div>
                                 )}
 
-                                {/* Email */}
+                                {/* Email - Responsive */}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-white">Էլ․ հասցե *</label>
+                                    <label className="text-xs sm:text-sm font-medium text-white">Էլ․ հասցե *</label>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                         <input
                                             type="email"
                                             name="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-12 pr-4 py-3 bg-slate-800/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.email ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
+                                            className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-slate-800/50 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.email ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
                                                 }`}
                                             placeholder="your@email.com"
                                         />
                                     </div>
                                     {errors.email && (
-                                        <div className="flex items-center space-x-2 text-red-400 text-sm">
-                                            <AlertCircle className="w-4 h-4" />
+                                        <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
+                                            <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                             <span>{errors.email}</span>
                                         </div>
                                     )}
@@ -366,33 +415,33 @@ const SignIn = () => {
 
                                 {activeTab === 'signup' && (
                                     <>
-                                        {/* Company */}
+                                        {/* Company - Responsive */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-white">Ընկերություն</label>
+                                            <label className="text-xs sm:text-sm font-medium text-white">Ընկերություն</label>
                                             <div className="relative">
-                                                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                                 <input
                                                     type="text"
                                                     name="company"
                                                     value={formData.company}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400"
+                                                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-slate-800/50 border border-slate-600/50 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base"
                                                     placeholder="Ձեր ընկերությունը"
                                                 />
                                             </div>
                                         </div>
 
-                                        {/* Phone */}
+                                        {/* Phone - Responsive */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-white">Հեռախոս</label>
+                                            <label className="text-xs sm:text-sm font-medium text-white">Հեռախոս</label>
                                             <div className="relative">
-                                                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                                 <input
                                                     type="tel"
                                                     name="phone"
                                                     value={formData.phone}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400"
+                                                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-slate-800/50 border border-slate-600/50 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base"
                                                     placeholder="+374 XX XXX XXX"
                                                 />
                                             </div>
@@ -400,30 +449,31 @@ const SignIn = () => {
                                     </>
                                 )}
 
-                                {/* Password */}
+                                {/* Password - Responsive */}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-white">Գաղտնաբառ *</label>
+                                    <label className="text-xs sm:text-sm font-medium text-white">Գաղտնաբառ *</label>
                                     <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             name="password"
                                             value={formData.password}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-12 pr-12 py-3 bg-slate-800/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.password ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
+                                            className={`w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 bg-slate-800/50 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.password ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
                                                 }`}
                                             placeholder="••••••••"
                                         />
                                         <button
+                                            type="button"
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                                         >
-                                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                            {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                                         </button>
                                     </div>
                                     {errors.password && (
-                                        <div className="flex items-center space-x-2 text-red-400 text-sm">
-                                            <AlertCircle className="w-4 h-4" />
+                                        <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
+                                            <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                             <span>{errors.password}</span>
                                         </div>
                                     )}
@@ -431,39 +481,40 @@ const SignIn = () => {
 
                                 {activeTab === 'signup' && (
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-white">Կրկնել գաղտնաբառը *</label>
+                                        <label className="text-xs sm:text-sm font-medium text-white">Կրկնել գաղտնաբառը *</label>
                                         <div className="relative">
-                                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                                             <input
                                                 type={showConfirmPassword ? 'text' : 'password'}
                                                 name="confirmPassword"
                                                 value={formData.confirmPassword}
                                                 onChange={handleInputChange}
-                                                className={`w-full pl-12 pr-12 py-3 bg-slate-800/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.confirmPassword ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
+                                                className={`w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 bg-slate-800/50 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.confirmPassword ? 'border-red-500' : 'border-slate-600/50 focus:border-[#1c92d2]'
                                                     }`}
                                                 placeholder="••••••••"
                                             />
                                             <button
+                                                type="button"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                                             >
-                                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                                             </button>
                                         </div>
                                         {errors.confirmPassword && (
-                                            <div className="flex items-center space-x-2 text-red-400 text-sm">
-                                                <AlertCircle className="w-4 h-4" />
+                                            <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
+                                                <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                                 <span>{errors.confirmPassword}</span>
                                             </div>
                                         )}
                                     </div>
                                 )}
 
-                                {/* Remember Me / Accept Terms */}
-                                <div className="space-y-4">
+                                {/* Remember Me / Accept Terms - Responsive */}
+                                <div className="space-y-3 sm:space-y-4">
                                     {activeTab === 'login' ? (
-                                        <div className="flex items-center justify-between">
-                                            <label className="flex items-center space-x-3 cursor-pointer">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                                            <label className="flex items-center space-x-2 sm:space-x-3 cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     name="rememberMe"
@@ -471,24 +522,24 @@ const SignIn = () => {
                                                     onChange={handleInputChange}
                                                     className="w-4 h-4 text-[#1c92d2] bg-slate-800 border-slate-600 rounded focus:ring-[#1c92d2] focus:ring-2"
                                                 />
-                                                <span className="text-sm text-gray-300">Հիշել</span>
+                                                <span className="text-xs sm:text-sm text-gray-300">Հիշել</span>
                                             </label>
-                                            <button className="text-sm text-white hover:text-[#0ea5e9] transition-colors">
+                                            <button className="text-xs sm:text-sm text-white hover:text-[#0ea5e9] transition-colors text-left sm:text-right">
                                                 Մոռացե՞լ եք գաղտնաբառը
                                             </button>
                                         </div>
                                     ) : (
                                         <div className="space-y-2">
-                                            <label className="flex items-start space-x-3 cursor-pointer">
+                                            <label className="flex items-start space-x-2 sm:space-x-3 cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     name="acceptTerms"
                                                     checked={formData.acceptTerms}
                                                     onChange={handleInputChange}
-                                                    className={`w-4 h-4 text-[#1c92d2] bg-slate-800 border-slate-600 rounded focus:ring-[#1c92d2] focus:ring-2 mt-0.5 ${errors.acceptTerms ? 'border-red-500' : ''
+                                                    className={`w-4 h-4 text-[#1c92d2] bg-slate-800 border-slate-600 rounded focus:ring-[#1c92d2] focus:ring-2 mt-0.5 flex-shrink-0 ${errors.acceptTerms ? 'border-red-500' : ''
                                                         }`}
                                                 />
-                                                <span className="text-sm text-white">
+                                                <span className="text-xs sm:text-sm text-white leading-relaxed">
                                                     Ես համաձայն եմ{' '}
                                                     <button type="button" className="text-[#9ac4db] hover:text-[#b3cddb] underline">
                                                         Ծառայության պայմանների
@@ -501,8 +552,8 @@ const SignIn = () => {
                                                 </span>
                                             </label>
                                             {errors.acceptTerms && (
-                                                <div className="flex items-center space-x-2 text-red-400 text-sm">
-                                                    <AlertCircle className="w-4 h-4" />
+                                                <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
+                                                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                                     <span>{errors.acceptTerms}</span>
                                                 </div>
                                             )}
@@ -510,26 +561,26 @@ const SignIn = () => {
                                     )}
                                 </div>
 
-                                {/* Submit Button */}
-                                <Link to="/my-profile"
+                                {/* Submit Button - Responsive */}
+                                <Link
+                                    // to="/my-profile"
                                     onClick={handleSubmit}
-                                    disabled={isLoading}
-                                    className="w-full py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl font-semibold text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:ring-offset-2 focus:ring-offset-slate-800 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+                                    className="w-full py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:ring-offset-2 focus:ring-offset-slate-800 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
                                 >
                                     {isLoading ? (
-                                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                     ) : (
                                         <>
                                             <span>{activeTab === 'login' ? 'Մուտք գործել' : 'Գրանցվել'}</span>
-                                            <ArrowRight className="w-5 h-5" />
+                                            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                                         </>
                                     )}
                                 </Link>
                             </div>
 
-                            {/* Footer */}
-                            <div className="mt-8 text-center">
-                                <p className="text-sm text-[#9ac4db]">
+                            {/* Footer - Responsive */}
+                            <div className="mt-6 sm:mt-8 text-center">
+                                <p className="text-xs sm:text-sm text-[#9ac4db]">
                                     {activeTab === 'login' ? 'Չունե՞ք հաշիվ' : 'Արդեն ունե՞ք հաշիվ'}{' '}
                                     <button
                                         onClick={() => switchTab(activeTab === 'login' ? 'signup' : 'login')}

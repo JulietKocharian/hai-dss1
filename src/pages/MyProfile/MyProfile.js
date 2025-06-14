@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    Brain,
     User,
     Mail,
     Phone,
     Building,
-    Calendar,
     MapPin,
     Edit3,
     Save,
@@ -30,227 +28,20 @@ import {
     Trash2,
     FolderOpen,
     Plus,
-    Play,
     Clock,
-    TrendingUp,
-    Target,
     MoreVertical,
     FileText,
     ArrowRight,
-    File,
-    Download,
-    Database
+    Menu,
+    ChevronDown,
+    ChevronLeft
 } from 'lucide-react';
 
 import ManagerPhase from '../../components/WorkflowPhases/ManagerPhase';
 import AnalystPhase from '../../components/WorkflowPhases/AnalystPhase';
 import ExpertPhase from '../../components/WorkflowPhases/ExpertPhase';
 import AnalysisWorkspace from '../../components/AnalysisWorkspace/AnalysisWorkspace';
-import EnhancedPhaseContainerr from '../../components/WorkflowPhases/PhaseContainer';
 import DecisionLevelPhase from '../../components/WorkflowPhases/DesicionPhase';
-
-// CSV Uploader Component
-const CSVUploader = ({ onFileUpload, maxSize = 10 }) => {
-    const [dragActive, setDragActive] = useState(false);
-    const [uploadedFile, setUploadedFile] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [error, setError] = useState('');
-    const fileInputRef = useRef(null);
-
-    const handleDrag = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.type === "dragenter" || e.type === "dragover") {
-            setDragActive(true);
-        } else if (e.type === "dragleave") {
-            setDragActive(false);
-        }
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragActive(false);
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleFile(e.dataTransfer.files[0]);
-        }
-    };
-
-    const handleFileSelect = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            handleFile(e.target.files[0]);
-        }
-    };
-
-    const handleFile = (file) => {
-        setError('');
-        if (!file.name.toLowerCase().endsWith('.csv')) {
-            setError('Խնդրում ենք ընտրել CSV ֆայլ');
-            return;
-        }
-        if (file.size > maxSize * 1024 * 1024) {
-            setError(`Ֆայլի չափը չպետք է գերազանցի ${maxSize}MB`);
-            return;
-        }
-        setUploadedFile(file);
-    };
-
-    const handleUpload = async () => {
-        if (!uploadedFile) return;
-        setUploading(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            if (onFileUpload) {
-                onFileUpload(uploadedFile);
-            }
-            setUploading(false);
-        } catch (err) {
-            setError('Ֆայլի վերբեռնումը ձախողվեց');
-            setUploading(false);
-        }
-    };
-
-    const removeFile = () => {
-        setUploadedFile(null);
-        setError('');
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
-
-    const formatFileSize = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
-
-    return (
-        <div className="space-y-4">
-            <div
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${dragActive
-                        ? 'border-[#1c92d2] bg-[#1c92d2]/10'
-                        : uploadedFile
-                            ? 'border-green-400 bg-green-400/10'
-                            : error
-                                ? 'border-red-400 bg-red-400/10'
-                                : 'border-[#1c92d2]/50 hover:border-[#1c92d2] hover:bg-[#1c92d2]/5'
-                    }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-            >
-                {!uploadedFile ? (
-                    <>
-                        <div className="space-y-4">
-                            <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${error ? 'bg-red-400/20' : 'bg-[#1c92d2]/20'
-                                }`}>
-                                {error ? (
-                                    <AlertCircle className="w-8 h-8 text-red-400" />
-                                ) : (
-                                    <Upload className="w-8 h-8 text-[#1c92d2]" />
-                                )}
-                            </div>
-
-                            <div>
-                                <h3 className="text-lg font-semibold text-white mb-2">
-                                    Վերբեռնել CSV ֆայլ
-                                </h3>
-                                <p className="text-white mb-4">
-                                    Քաշեք և թողեք ֆայլը այստեղ կամ սեղմեք ընտրելու համար
-                                </p>
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105"
-                                >
-                                    <Upload className="w-4 h-4 mr-2" />
-                                    Ընտրել ֆայլ
-                                </button>
-                            </div>
-
-                            <div className="text-sm text-white/60">
-                                Ճանդառատ չափը: {maxSize}MB, Ֆայլի տեսակ: CSV
-                            </div>
-                        </div>
-
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileSelect}
-                            className="hidden"
-                        />
-                    </>
-                ) : (
-                    <div className="space-y-4">
-                        <div className="w-16 h-16 mx-auto bg-green-400/20 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-8 h-8 text-green-400" />
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-semibold text-white mb-2">
-                                Ֆայլը պատրաստ է վերբեռնման
-                            </h3>
-                            <p className="text-green-400">
-                                {uploadedFile.name} ({formatFileSize(uploadedFile.size)})
-                            </p>
-                        </div>
-
-                        <div className="flex justify-center space-x-3">
-                            <button
-                                onClick={handleUpload}
-                                disabled={uploading}
-                                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {uploading ? (
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                ) : (
-                                    <Upload className="w-4 h-4 mr-2" />
-                                )}
-                                {uploading ? 'Վերբեռնում...' : 'Վերբեռնել'}
-                            </button>
-
-                            <button
-                                onClick={removeFile}
-                                className="inline-flex items-center px-4 py-3 border border-white text-white rounded-xl hover:bg-white/10 transition-all duration-300"
-                            >
-                                <X className="w-4 h-4 mr-2" />
-                                Հեռացնել
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {error && (
-                <div className="flex items-center space-x-2 p-4 bg-red-900/20 border border-red-800/30 rounded-xl">
-                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                    <span className="text-red-400">{error}</span>
-                </div>
-            )}
-
-            <div className="bg-[#1c92d2]/10 border border-[#1c92d2]/30 rounded-xl p-4">
-                <h4 className="text-white font-medium mb-2 flex items-center">
-                    <File className="w-4 h-4 mr-2 text-[#1c92d2]" />
-                    CSV ֆորմատի պահանջներ
-                </h4>
-                <ul className="text-sm text-white space-y-1">
-                    <li>• Առաջին տողը պետք է պարունակի վերնագրեր</li>
-                    <li>• Տվյալները բաժանված լինեն ստորակետով (,)</li>
-                    <li>• UTF-8 կոդավորում</li>
-                    <li>• Ֆայլի չափը ≤ {maxSize}MB</li>
-                </ul>
-
-                <button className="mt-3 inline-flex items-center text-sm text-[#1c92d2] hover:text-[#0ea5e9] transition-colors">
-                    <Download className="w-4 h-4 mr-1" />
-                    Ներբեռնել օրինակ
-                </button>
-            </div>
-        </div>
-    );
-};
 
 // Animated Background SVG
 const ProfileBackgroundSVG = () => (
@@ -304,6 +95,7 @@ const MyProfile = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isNavigating, setIsNavigating] = useState(false);
     const [uploadedCSV, setUploadedCSV] = useState(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const [profileData, setProfileData] = useState({
         firstName: 'Նարեկ',
@@ -381,14 +173,43 @@ const MyProfile = () => {
         }
     ]);
 
+    // NEW: Sequential workflow state
+    const [currentPhase, setCurrentPhase] = useState(0); // 0: Manager, 1: Analyst, 2: Expert, 3: Decision
+    const [completedPhases, setCompletedPhases] = useState(new Set());
+    const [allPhasesCompleted, setAllPhasesCompleted] = useState(false);
+
+    console.log(profileData, 'profileDataprofileData')
+
+    const phases = ['manager', 'analyst', 'expert', 'decision'];
+
+    // NEW: Phase completion handler
+    const handlePhaseComplete = (phaseIndex) => {
+        const newCompleted = new Set(completedPhases);
+        newCompleted.add(phaseIndex);
+        setCompletedPhases(newCompleted);
+
+        // Move to next phase if not the last one
+        if (phaseIndex < phases.length - 1) {
+            setTimeout(() => {
+                setCurrentPhase(phaseIndex + 1);
+            }, 1000);
+        } else {
+            // All phases completed, show AnalysisWorkspace
+            setTimeout(() => {
+                setAllPhasesCompleted(true);
+            }, 1500);
+        }
+    };
+
+    // NEW: Phase status checker
+    const getPhaseStatus = (phaseIndex) => ({
+        isActive: currentPhase === phaseIndex,
+        isCompleted: completedPhases.has(phaseIndex)
+    });
+
     useEffect(() => {
         setIsVisible(true);
     }, []);
-
-    const handleCSVUpload = (file) => {
-        setUploadedCSV(file);
-        console.log('CSV файл загружен:', file.name);
-    };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -546,6 +367,7 @@ const MyProfile = () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setActiveTab('new-project');
         setIsNavigating(false);
+        setIsMobileMenuOpen(false); // Close mobile menu on navigation
     };
 
     const tabs = [
@@ -564,24 +386,101 @@ const MyProfile = () => {
         { label: 'Ձեռքբերումներ', value: '24', icon: Award, color: 'from-pink-500 to-violet-500' }
     ];
 
+    const renderCurrentPhase = () => {
+        switch (currentPhase) {
+            case 0:
+                return <ManagerPhase />;
+            case 1:
+                return <AnalystPhase />;
+            case 2:
+                return <ExpertPhase />;
+            case 3:
+                return <DecisionLevelPhase />;
+            default:
+                return <ManagerPhase />;
+        }
+    };
+
+    // Add this function to get the current phase name for display
+    const getCurrentPhaseName = () => {
+        const phaseNames = {
+            0: 'Մենեջերի փուլ',
+            1: 'Վերլուծաբանի փուլ',
+            2: 'Փորձագետի փուլ',
+            3: 'Որոշումների փուլ'
+        };
+        return phaseNames[currentPhase] || 'Մենեջերի փուլ';
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe] p-4" style={{ paddingTop: 80 }}>
+        <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe] p-2 sm:p-4" style={{ paddingTop: '5rem' }}>
             {/* Background */}
             <ProfileBackgroundSVG />
 
             {/* Animated background elements */}
             <div className="absolute inset-0">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
             </div>
 
             <div className={`relative mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
 
                 {/* Special layout for new-project tab */}
                 {activeTab === 'new-project' ? (
-                    <div className="w-full">
-                        {/* Horizontal Profile Info - Full Width */}
-                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 mb-8 w-full">
+                    <div className="w-full max-w-7xl mx-auto">
+                        {/* Mobile Profile Header */}
+                        <div className="lg:hidden bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-4 mb-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-[#1c92d2] to-[#0ea5e9] rounded-full flex items-center justify-center overflow-hidden">
+                                        {profileData.avatar ? (
+                                            <img src={profileData.avatar} alt="Profile" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User className="w-6 h-6 text-white" />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-white">
+                                            {profileData.firstName} {profileData.lastName}
+                                        </h3>
+                                        <p className="text-white/80 text-sm">{profileData.position}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                    className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+                                >
+                                    <Menu className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* Mobile Navigation Menu */}
+                            {isMobileMenuOpen && (
+                                <div className="border-t border-white/20 pt-4">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {tabs.map((tab) => (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => {
+                                                    setActiveTab(tab.id);
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 text-sm ${activeTab === tab.id
+                                                    ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white'
+                                                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                <tab.icon className="w-4 h-4" />
+                                                <span className="truncate">{tab.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Desktop Horizontal Profile Info */}
+                        <div className="hidden lg:block bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 mb-8 w-full">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-6">
                                     {/* Profile Avatar */}
@@ -607,7 +506,7 @@ const MyProfile = () => {
                                 </div>
 
                                 {/* Navigation Tabs */}
-                                <div className="flex items-center space-x-1 bg-slate-800/60 backdrop-blur-xl rounded-xl p-2 border border-white/20">
+                                <div className="hidden xl:flex items-center space-x-1 bg-slate-800/60 backdrop-blur-xl rounded-xl p-2 border border-white/20">
                                     {tabs.map((tab) => (
                                         <button
                                             key={tab.id}
@@ -622,79 +521,287 @@ const MyProfile = () => {
                                         </button>
                                     ))}
                                 </div>
+
+                                {/* Large screen dropdown for navigation */}
+                                <div className="xl:hidden relative">
+                                    <button
+                                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                        className="flex items-center space-x-2 px-4 py-2 bg-slate-800/60 border border-white/20 rounded-xl text-white hover:bg-white/10 transition-colors"
+                                    >
+                                        <Settings className="w-5 h-5" />
+                                        <span className="text-sm">Նավիգացիա</span>
+                                        <ChevronDown className="w-4 h-4" />
+                                    </button>
+
+                                    {isMobileMenuOpen && (
+                                        <div className="absolute right-0 top-full mt-2 w-64 bg-slate-800/90 backdrop-blur-xl border border-white/20 rounded-xl p-2 z-50">
+                                            {tabs.map((tab) => (
+                                                <button
+                                                    key={tab.id}
+                                                    onClick={() => {
+                                                        setActiveTab(tab.id);
+                                                        setIsMobileMenuOpen(false);
+                                                    }}
+                                                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 text-left ${activeTab === tab.id
+                                                        ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white'
+                                                        : 'text-white/60 hover:text-white hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    <tab.icon className="w-4 h-4" />
+                                                    <span className="text-sm">{tab.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Stats Cards - Centered with max width */}
-                        <div className="mb-8 w-full">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Stats Cards - Responsive Grid */}
+                        <div className="mb-6 lg:mb-8 w-full">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                                 {stats.map((stat, index) => (
-                                    <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 hover:border-white/50 transition-all duration-300 group">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                                                <stat.icon className="w-6 h-6 text-white" />
+                                    <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl sm:rounded-2xl p-3 sm:p-6 hover:border-white/50 transition-all duration-300 group">
+                                        <div className="flex items-center justify-between mb-2 sm:mb-4">
+                                            <div className={`w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r ${stat.color} rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                                                <stat.icon className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                                             </div>
                                         </div>
-                                        <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                                        <div className="text-sm text-white">{stat.label}</div>
+                                        <div className="text-lg sm:text-2xl font-bold text-white mb-1">{stat.value}</div>
+                                        <div className="text-xs sm:text-sm text-white leading-tight">{stat.label}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Workflow Phases - Full Width */}
-                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 mb-8 w-full">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <ManagerPhase />
-                                <AnalystPhase />
-                                <ExpertPhase />
-                                <DecisionLevelPhase />
+                        {/* Sequential Workflow Progress Bar */}
+                        <div className="mb-6 lg:mb-8">
+                            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                                <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 text-center">
+                                    Աշխատանքային գործընթացի կարգավիճակ
+                                </h3>
+
+                                {/* Progress Indicators - Responsive */}
+                                <div className="flex justify-center items-center space-x-2 sm:space-x-8 mb-4 sm:mb-6 overflow-x-auto">
+                                    {phases.map((phase, index) => (
+                                        <div key={phase} className="flex items-center">
+                                            <div className={`flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-500 ${completedPhases.has(index)
+                                                ? 'bg-green-500 border-green-500 text-white'
+                                                : currentPhase === index
+                                                    ? 'border-blue-400 text-blue-400 bg-blue-400/10'
+                                                    : 'border-gray-600 text-gray-600'
+                                                }`}>
+                                                {completedPhases.has(index) ? (
+                                                    <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />
+                                                ) : (
+                                                    <span className="font-bold text-xs sm:text-base">{index + 1}</span>
+                                                )}
+                                            </div>
+                                            {index < phases.length - 1 && (
+                                                <div className={`w-8 sm:w-16 h-1 mx-2 sm:mx-4 transition-all duration-500 ${completedPhases.has(index) ? 'bg-green-500' : 'bg-gray-600'
+                                                    }`} />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Current Phase Status */}
+                                <div className="text-center">
+                                    {allPhasesCompleted ? (
+                                        <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
+                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                            <span className="text-center">Բոլոր փուլերը հաջողությամբ ավարտվել են - Վերլուծությունը պատրաստ է</span>
+                                        </div>
+                                    ) : (
+                                        <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg sm:rounded-xl text-blue-300 text-xs sm:text-sm">
+                                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse mr-2"></div>
+                                            <span className="text-center">
+                                                {currentPhase === 0 && 'Մենեջերի փուլը պատրաստ է մեկնարկի համար'}
+                                                {currentPhase === 1 && 'Վերլուծաբանի փուլն ակտիվ է'}
+                                                {currentPhase === 2 && 'Փորձագետի փուլն ակտիվ է'}
+                                                {currentPhase === 3 && 'Որոշումների փուլն ակտիվ է'}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            {/* <EnhancedPhaseContainerr /> */}
-
                         </div>
 
-                        {/* Analysis Workspace - Centered with max width */}
-                        <div className="w-full mx-auto">
-                            <AnalysisWorkspace />
-                        </div>
-                    </div>
-                ) : (
-                    /* Regular sidebar layout for other tabs */
-                    <>
-                        {/* Header */}
-                        <div className="mb-8">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center space-x-4">
-                                    <div>
-                                        <h1 className="text-3xl font-bold text-white">
-                                            Իմ հաշիվը
-                                        </h1>
-                                        <p className="text-white">Կառավարեք ձեր հաշվի տվյալները և կարգավորումները</p>
+                        {/* Workflow Phases - Responsive Grid */}
+                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-6 lg:mb-8 w-full">
+                            {/* Phase Header */}
+                            <div className="mb-4 sm:mb-6">
+                                <h3 className="text-lg sm:text-xl font-bold text-white mb-2 text-center">
+                                    Ընթացիկ փուլ: {getCurrentPhaseName()}
+                                </h3>
+                                <div className="text-center">
+                                    {allPhasesCompleted ? (
+                                        <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
+                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                            <span>Բոլոր փուլերը հաջողությամբ ավարտվել են</span>
+                                        </div>
+                                    ) : (
+                                        <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg sm:rounded-xl text-blue-300 text-xs sm:text-sm">
+                                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse mr-2"></div>
+                                            <span>Փուլ {currentPhase + 1} / 4</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Two Column Layout: Current Phase + Analysis Workspace */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                                {/* Left Column - Current Active Phase */}
+                                <div className="space-y-4">
+                                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+                                        <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
+                                            <div className="w-8 h-8 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded-lg flex items-center justify-center mr-3">
+                                                <span className="text-white font-bold text-sm">{currentPhase + 1}</span>
+                                            </div>
+                                            {getCurrentPhaseName()}
+                                        </h4>
+                                        {renderCurrentPhase()}
+                                    </div>
+
+                                    {/* Phase Navigation Buttons */}
+                                    <div className="flex justify-between items-center">
+                                        <button
+                                            onClick={() => currentPhase > 0 && setCurrentPhase(currentPhase - 1)}
+                                            disabled={currentPhase === 0}
+                                            className="flex items-center space-x-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                            <span className="text-sm">Նախորդ</span>
+                                        </button>
+
+                                        <div className="flex space-x-2">
+                                            {phases.map((_, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentPhase
+                                                            ? 'bg-blue-400'
+                                                            : completedPhases.has(index)
+                                                                ? 'bg-green-400'
+                                                                : 'bg-gray-600'
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={() => currentPhase < phases.length - 1 && setCurrentPhase(currentPhase + 1)}
+                                            disabled={currentPhase === phases.length - 1}
+                                            className="flex items-center space-x-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <span className="text-sm">Հաջորդ</span>
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Right Column - Analysis Workspace */}
+                                <div className="space-y-4">
+                                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+                                        <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
+                                            <BarChart3 className="w-5 h-5 mr-2" />
+                                            Վերլուծական աշխատանքային տիրույթ
+                                        </h4>
+                                        <AnalysisWorkspace />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Stats Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            {/* Mobile Stack Layout for smaller screens */}
+                            <div className="lg:hidden mt-6">
+                                <div className="space-y-4">
+                                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+                                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                            <BarChart3 className="w-5 h-5 mr-2" />
+                                            Վերլուծական աշխատանքային տիրույթ
+                                        </h4>
+                                        <AnalysisWorkspace />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    /* Regular sidebar layout for other tabs - Responsive */
+                    <>
+                        {/* Header - Mobile Responsive */}
+                        <div className="mb-6 sm:mb-8 max-w-7xl mx-auto">
+                            <div className="flex items-center justify-between mb-4 sm:mb-6 px-2 sm:px-0">
+                                <div className="flex items-center space-x-4">
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
+                                            Իմ հաշիվը
+                                        </h1>
+                                        <p className="text-white text-sm sm:text-base">Կառավարեք ձեր հաշվի տվյալները և կարգավորումները</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Stats Cards - Responsive */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 px-2 sm:px-0 mb-6 sm:mb-8">
                                 {stats.map((stat, index) => (
-                                    <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 hover:border-white/50 transition-all duration-300 group">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                                                <stat.icon className="w-6 h-6 text-white" />
+                                    <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl sm:rounded-2xl p-3 sm:p-6 hover:border-white/50 transition-all duration-300 group">
+                                        <div className="flex items-center justify-between mb-2 sm:mb-4">
+                                            <div className={`w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r ${stat.color} rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                                                <stat.icon className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                                             </div>
                                         </div>
-                                        <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                                        <div className="text-sm text-white">{stat.label}</div>
+                                        <div className="text-lg sm:text-2xl font-bold text-white mb-1">{stat.value}</div>
+                                        <div className="text-xs sm:text-sm text-white leading-tight">{stat.label}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                            {/* Sidebar */}
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8 max-w-7xl mx-auto px-2 sm:px-0">
+                            {/* Sidebar - Responsive */}
                             <div className="lg:col-span-1">
-                                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 sticky top-4">
+                                {/* Mobile Navigation Dropdown */}
+                                <div className="lg:hidden mb-4">
+                                    <button
+                                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                        className="w-full flex items-center justify-between p-4 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl text-white"
+                                    >
+                                        <div className="flex items-center space-x-2">
+                                            <Menu className="w-5 h-5" />
+                                            <span>Նավիգացիա</span>
+                                        </div>
+                                        <ChevronDown className={`w-5 h-5 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {isMobileMenuOpen && (
+                                        <div className="mt-2 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl p-2">
+                                            {tabs.map((tab) => (
+                                                <button
+                                                    key={tab.id}
+                                                    onClick={() => {
+                                                        setActiveTab(tab.id);
+                                                        setIsMobileMenuOpen(false);
+                                                    }}
+                                                    disabled={isNavigating && tab.id === 'new-project'}
+                                                    className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-300 ${activeTab === tab.id
+                                                        ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white shadow-lg'
+                                                        : 'text-white/60 hover:text-white hover:bg-white/10'
+                                                        } ${isNavigating && tab.id === 'new-project' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    {isNavigating && tab.id === 'new-project' ? (
+                                                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <tab.icon className="w-5 h-5" />
+                                                    )}
+                                                    <span className="font-medium text-sm">{tab.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Desktop Sidebar */}
+                                <div className="hidden lg:block bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-6 sticky top-4">
                                     {/* Profile Card */}
                                     <div className="text-center mb-8">
                                         <div className="relative inline-block mb-4">
@@ -754,19 +861,19 @@ const MyProfile = () => {
                                 </div>
                             </div>
 
-                            {/* Main Content */}
+                            {/* Main Content - Responsive */}
                             <div className="lg:col-span-3">
-                                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-8">
+                                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl sm:rounded-2xl p-4 sm:p-8">
 
                                     {/* Profile Tab */}
                                     {activeTab === 'profile' && (
-                                        <div className="space-y-8">
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-2xl font-bold text-white">Անձնական տվյալներ</h2>
+                                        <div className="space-y-6 sm:space-y-8">
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                                <h2 className="text-xl sm:text-2xl font-bold text-white">Անձնական տվյալներ</h2>
                                                 <button
                                                     onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
                                                     disabled={isLoading}
-                                                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50"
+                                                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50 w-full sm:w-auto"
                                                 >
                                                     {isLoading ? (
                                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -784,7 +891,8 @@ const MyProfile = () => {
                                                 </button>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                                {/* Form fields with responsive styling */}
                                                 {/* First Name */}
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium text-white">Անուն</label>
@@ -796,7 +904,7 @@ const MyProfile = () => {
                                                             value={profileData.firstName}
                                                             onChange={handleInputChange}
                                                             disabled={!isEditing}
-                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                                 } ${errors.firstName ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'}`}
                                                         />
                                                     </div>
@@ -819,7 +927,7 @@ const MyProfile = () => {
                                                             value={profileData.lastName}
                                                             onChange={handleInputChange}
                                                             disabled={!isEditing}
-                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                                 } ${errors.lastName ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'}`}
                                                         />
                                                     </div>
@@ -842,7 +950,7 @@ const MyProfile = () => {
                                                             value={profileData.email}
                                                             onChange={handleInputChange}
                                                             disabled={!isEditing}
-                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                                 } ${errors.email ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'}`}
                                                         />
                                                     </div>
@@ -865,7 +973,7 @@ const MyProfile = () => {
                                                             value={profileData.phone}
                                                             onChange={handleInputChange}
                                                             disabled={!isEditing}
-                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                                 }`}
                                                         />
                                                     </div>
@@ -882,7 +990,7 @@ const MyProfile = () => {
                                                             value={profileData.company}
                                                             onChange={handleInputChange}
                                                             disabled={!isEditing}
-                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                                 }`}
                                                         />
                                                     </div>
@@ -899,14 +1007,14 @@ const MyProfile = () => {
                                                             value={profileData.position}
                                                             onChange={handleInputChange}
                                                             disabled={!isEditing}
-                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                            className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                                 }`}
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Location */}
+                                            {/* Location - Full Width */}
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium text-white">Գտնվելու վայր</label>
                                                 <div className="relative">
@@ -917,13 +1025,13 @@ const MyProfile = () => {
                                                         value={profileData.location}
                                                         onChange={handleInputChange}
                                                         disabled={!isEditing}
-                                                        className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                        className={`w-full pl-12 pr-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                             }`}
                                                     />
                                                 </div>
                                             </div>
 
-                                            {/* Bio */}
+                                            {/* Bio - Full Width */}
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium text-white">Ինքնանկարագրություն</label>
                                                 <textarea
@@ -932,25 +1040,25 @@ const MyProfile = () => {
                                                     onChange={handleInputChange}
                                                     disabled={!isEditing}
                                                     rows="4"
-                                                    className={`w-full px-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 resize-none ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
+                                                    className={`w-full px-4 py-3 bg-white/10 border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 resize-none text-sm sm:text-base ${!isEditing ? 'cursor-not-allowed opacity-60' : ''
                                                         }`}
                                                     placeholder="Գրեք ձեր մասին..."
                                                 />
                                             </div>
 
                                             {isEditing && (
-                                                <div className="flex items-center space-x-4 pt-4">
+                                                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
                                                     <button
                                                         onClick={handleSaveProfile}
                                                         disabled={isLoading}
-                                                        className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50"
+                                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50"
                                                     >
                                                         <Save className="w-4 h-4" />
                                                         <span>Պահպանել</span>
                                                     </button>
                                                     <button
                                                         onClick={() => setIsEditing(false)}
-                                                        className="flex items-center space-x-2 px-6 py-3 border border-white text-white rounded-xl hover:bg-white/10 transition-all duration-300"
+                                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 border border-white text-white rounded-xl hover:bg-white/10 transition-all duration-300"
                                                     >
                                                         <X className="w-4 h-4" />
                                                         <span>Չեղարկել</span>
@@ -962,13 +1070,13 @@ const MyProfile = () => {
 
                                     {/* Projects Tab */}
                                     {activeTab === 'projects' && (
-                                        <div className="space-y-8">
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-2xl font-bold text-white">Իմ նախագծերը</h2>
+                                        <div className="space-y-6 sm:space-y-8">
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                                <h2 className="text-xl sm:text-2xl font-bold text-white">Իմ նախագծերը</h2>
                                                 <button
                                                     onClick={handleNewProject}
                                                     disabled={isNavigating}
-                                                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     {isNavigating ? (
                                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -979,20 +1087,20 @@ const MyProfile = () => {
                                                 </button>
                                             </div>
 
-                                            {/* Projects Grid */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Projects Grid - Responsive */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                                 {projects.map((project) => {
                                                     const statusBadge = getProjectStatusBadge(project.status);
                                                     const StatusIcon = statusBadge.icon;
 
                                                     return (
-                                                        <div key={project.id} className="bg-white/20 rounded-2xl p-6 border border-white hover:border-white/50 transition-all duration-300 group cursor-pointer">
+                                                        <div key={project.id} className="bg-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white hover:border-white/50 transition-all duration-300 group cursor-pointer">
                                                             <div className="flex items-start justify-between mb-4">
-                                                                <div className={`w-12 h-12 bg-gradient-to-r ${getProjectTypeColor(project.type)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                                                                    <BarChart3 className="w-6 h-6 text-white" />
+                                                                <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${getProjectTypeColor(project.type)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                                                                    <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                                                                 </div>
                                                                 <div className="flex items-center space-x-2">
-                                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${statusBadge.color}`} >
+                                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${statusBadge.color}`}>
                                                                         <StatusIcon className="w-3 h-3 mr-1" />
                                                                         {statusBadge.label}
                                                                     </span>
@@ -1002,7 +1110,7 @@ const MyProfile = () => {
                                                                 </div>
                                                             </div>
 
-                                                            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#1c92d2] transition-colors">
+                                                            <h3 className="text-base sm:text-lg font-semibold text-white mb-2 group-hover:text-[#1c92d2] transition-colors line-clamp-2">
                                                                 {project.name}
                                                             </h3>
                                                             <p className="text-white text-sm mb-4 line-clamp-2">
@@ -1012,13 +1120,13 @@ const MyProfile = () => {
                                                             {/* Project Stats */}
                                                             <div className="grid grid-cols-2 gap-4 mb-4">
                                                                 <div className="text-center">
-                                                                    <div className="text-lg font-bold text-white">
+                                                                    <div className="text-base sm:text-lg font-bold text-white">
                                                                         {project.accuracy > 0 ? `${project.accuracy}%` : '--'}
                                                                     </div>
                                                                     <div className="text-xs text-white/60">Ճշգրտություն</div>
                                                                 </div>
                                                                 <div className="text-center">
-                                                                    <div className="text-lg font-bold text-white">{project.decisions}</div>
+                                                                    <div className="text-base sm:text-lg font-bold text-white">{project.decisions}</div>
                                                                     <div className="text-xs text-white/60">Որոշումներ</div>
                                                                 </div>
                                                             </div>
@@ -1040,12 +1148,12 @@ const MyProfile = () => {
 
                                             {/* Empty State */}
                                             {projects.length === 0 && (
-                                                <div className="text-center py-16">
-                                                    <div className="w-16 h-16 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                        <FolderOpen className="w-8 h-8 text-white" />
+                                                <div className="text-center py-12 sm:py-16">
+                                                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                        <FolderOpen className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                                                     </div>
-                                                    <h3 className="text-lg font-medium text-white mb-2">Դեռ նախագծեր չկան</h3>
-                                                    <p className="text-white/60 mb-6">Սկսեք ձեր առաջին վերլուծական նախագիծը</p>
+                                                    <h3 className="text-base sm:text-lg font-medium text-white mb-2">Դեռ նախագծեր չկան</h3>
+                                                    <p className="text-white/60 mb-6 text-sm sm:text-base">Սկսեք ձեր առաջին վերլուծական նախագիծը</p>
                                                     <button
                                                         onClick={handleNewProject}
                                                         disabled={isNavigating}
@@ -1065,12 +1173,12 @@ const MyProfile = () => {
 
                                     {/* Security Tab */}
                                     {activeTab === 'security' && (
-                                        <div className="space-y-8">
-                                            <h2 className="text-2xl font-bold text-white mb-6">Անվտանգություն</h2>
+                                        <div className="space-y-6 sm:space-y-8">
+                                            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Անվտանգություն</h2>
 
                                             {/* Change Password */}
-                                            <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-                                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                            <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
+                                                <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                                     <Key className="w-5 h-5 mr-2" />
                                                     Գաղտնաբառի փոփոխություն
                                                 </h3>
@@ -1086,7 +1194,7 @@ const MyProfile = () => {
                                                                 name="currentPassword"
                                                                 value={passwordData.currentPassword}
                                                                 onChange={handlePasswordChange}
-                                                                className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.currentPassword ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'
+                                                                className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.currentPassword ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'
                                                                     }`}
                                                                 placeholder="••••••••"
                                                             />
@@ -1115,7 +1223,7 @@ const MyProfile = () => {
                                                                 name="newPassword"
                                                                 value={passwordData.newPassword}
                                                                 onChange={handlePasswordChange}
-                                                                className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.newPassword ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'
+                                                                className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.newPassword ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'
                                                                     }`}
                                                                 placeholder="••••••••"
                                                             />
@@ -1144,7 +1252,7 @@ const MyProfile = () => {
                                                                 name="confirmPassword"
                                                                 value={passwordData.confirmPassword}
                                                                 onChange={handlePasswordChange}
-                                                                className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 ${errors.confirmPassword ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'
+                                                                className={`w-full pl-12 pr-4 py-3 bg-white/10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] transition-all duration-300 text-white placeholder-gray-400 text-sm sm:text-base ${errors.confirmPassword ? 'border-red-500' : 'border-white focus:border-[#1c92d2]'
                                                                     }`}
                                                                 placeholder="••••••••"
                                                             />
@@ -1160,7 +1268,7 @@ const MyProfile = () => {
                                                     <button
                                                         onClick={handleChangePassword}
                                                         disabled={isLoading}
-                                                        className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50"
+                                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-xl hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 disabled:opacity-50"
                                                     >
                                                         {isLoading ? (
                                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1175,8 +1283,8 @@ const MyProfile = () => {
                                             </div>
 
                                             {/* Login History */}
-                                            <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-                                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                            <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
+                                                <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                                     <Activity className="w-5 h-5 mr-2" />
                                                     Մուտքի պատմություն
                                                 </h3>
@@ -1209,18 +1317,18 @@ const MyProfile = () => {
 
                                     {/* Notifications Tab */}
                                     {activeTab === 'notifications' && (
-                                        <div className="space-y-8">
-                                            <h2 className="text-2xl font-bold text-white mb-6">Ծանուցումներ</h2>
+                                        <div className="space-y-6 sm:space-y-8">
+                                            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Ծանուցումներ</h2>
 
-                                            <div className="space-y-6">
+                                            <div className="space-y-4 sm:space-y-6">
                                                 {/* Email Notifications */}
-                                                <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
+                                                <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center space-x-3">
                                                             <Mail className="w-5 h-5 text-[#1c92d2]" />
                                                             <div>
-                                                                <h3 className="text-white font-medium">Էլ․ նամակներ</h3>
-                                                                <p className="text-white/60 text-sm">Ստանալ ծանուցումներ էլ․ նամակով</p>
+                                                                <h3 className="text-white font-medium text-sm sm:text-base">Էլ․ նամակներ</h3>
+                                                                <p className="text-white/60 text-xs sm:text-sm">Ստանալ ծանուցումներ էլ․ նամակով</p>
                                                             </div>
                                                         </div>
                                                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1236,13 +1344,13 @@ const MyProfile = () => {
                                                 </div>
 
                                                 {/* Push Notifications */}
-                                                <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
+                                                <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center space-x-3">
                                                             <Bell className="w-5 h-5 text-[#0ea5e9]" />
                                                             <div>
-                                                                <h3 className="text-white font-medium">Push ծանուցումներ</h3>
-                                                                <p className="text-white/60 text-sm">Ստանալ ակնթարթային ծանուցումներ</p>
+                                                                <h3 className="text-white font-medium text-sm sm:text-base">Push ծանուցումներ</h3>
+                                                                <p className="text-white/60 text-xs sm:text-sm">Ստանալ ակնթարթային ծանուցումներ</p>
                                                             </div>
                                                         </div>
                                                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1258,13 +1366,13 @@ const MyProfile = () => {
                                                 </div>
 
                                                 {/* Marketing Notifications */}
-                                                <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
+                                                <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center space-x-3">
                                                             <Globe className="w-5 h-5 text-green-400" />
                                                             <div>
-                                                                <h3 className="text-white font-medium">Մարքեթինգային ծանուցումներ</h3>
-                                                                <p className="text-white/60 text-sm">Ստանալ նորություններ և առաջարկություններ</p>
+                                                                <h3 className="text-white font-medium text-sm sm:text-base">Մարքեթինգային ծանուցումներ</h3>
+                                                                <p className="text-white/60 text-xs sm:text-sm">Ստանալ նորություններ և առաջարկություններ</p>
                                                             </div>
                                                         </div>
                                                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1284,13 +1392,13 @@ const MyProfile = () => {
 
                                     {/* Preferences Tab */}
                                     {activeTab === 'preferences' && (
-                                        <div className="space-y-8">
-                                            <h2 className="text-2xl font-bold text-white mb-6">Կարգավորումներ</h2>
+                                        <div className="space-y-6 sm:space-y-8">
+                                            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Կարգավորումներ</h2>
 
-                                            <div className="space-y-6">
+                                            <div className="space-y-4 sm:space-y-6">
                                                 {/* Theme Selection */}
-                                                <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-                                                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                                <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
+                                                    <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                                         <Moon className="w-5 h-5 mr-2" />
                                                         Ռեժիմ
                                                     </h3>
@@ -1304,8 +1412,8 @@ const MyProfile = () => {
                                                             <div className="flex items-center space-x-3">
                                                                 <Moon className="w-6 h-6 text-[#1c92d2]" />
                                                                 <div>
-                                                                    <h4 className="text-white font-medium">Գիշերային ռեժիմ</h4>
-                                                                    <p className="text-white/60 text-sm">Ակտիվ</p>
+                                                                    <h4 className="text-white font-medium text-sm sm:text-base">Գիշերային ռեժիմ</h4>
+                                                                    <p className="text-white/60 text-xs sm:text-sm">Ակտիվ</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1318,8 +1426,8 @@ const MyProfile = () => {
                                                             <div className="flex items-center space-x-3">
                                                                 <Sun className="w-6 h-6 text-yellow-400" />
                                                                 <div>
-                                                                    <h4 className="text-white font-medium">Ցերեկեային ռեժիմ</h4>
-                                                                    <p className="text-white/60 text-sm">Անհասանելի</p>
+                                                                    <h4 className="text-white font-medium text-sm sm:text-base">Ցերեկեային ռեժիմ</h4>
+                                                                    <p className="text-white/60 text-xs sm:text-sm">Անհասանելի</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1327,8 +1435,8 @@ const MyProfile = () => {
                                                 </div>
 
                                                 {/* Language Selection */}
-                                                <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-                                                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                                <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
+                                                    <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                                         <Globe className="w-5 h-5 mr-2" />
                                                         Լեզու
                                                     </h3>
@@ -1336,7 +1444,7 @@ const MyProfile = () => {
                                                         name="language"
                                                         value={profileData.language}
                                                         onChange={handleInputChange}
-                                                        className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white"
+                                                        className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:border-[#1c92d2] transition-all duration-300 text-white text-sm sm:text-base"
                                                     >
                                                         <option value="hy">Հայերեն</option>
                                                         <option value="en">English</option>
@@ -1345,8 +1453,8 @@ const MyProfile = () => {
                                                 </div>
 
                                                 {/* Account Actions */}
-                                                <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-                                                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                                <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
+                                                    <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                                         <Settings className="w-5 h-5 mr-2" />
                                                         Հաշվի գործողություններ
                                                     </h3>
