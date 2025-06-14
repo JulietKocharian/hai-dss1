@@ -281,17 +281,17 @@ const Home = () => {
 
     const heroSlides = [
         {
-            title: "Անորոշության Պայմաններում",
-            subtitle: "Հուսալի Որոշումներ",
-            description: "Անորոշության պայմաններում հուսալի որոշումների կայացում մենեջերների համար"
+            title: "Անորոշության պայմաններում",
+            subtitle: "Որոշումների ընդունում",
+            description: "Անորոշության պայմաններում մենեջերի որոշումների ընդունմանն աջակցող համակարգ"
         },
         {
-            title: "Տվյալների Վրա Հիմնված",
+            title: "Տվյալների վրա հիմնված",
             subtitle: "Ռազմավարական Մոտեցում",
             description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում"
         },
         {
-            title: "Ռիսկերի Կառավարում",
+            title: "Ռիսկերի կառավարում",
             subtitle: "Գիտական Մեթոդներով",
             description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում"
         }
@@ -313,7 +313,7 @@ const Home = () => {
         {
             icon: Shield,
             title: "Ռիսկերի Գնահատում",
-            description: "Բազմաչափ ռիսկերի վերլուծություն և մեղմացման ռազմավարություններ",
+            description: "Բազմաչափ ռիսկերի վերլուծություն և ռազմավարություններ",
             SVGComponent: SecuritySVG
         },
         {
@@ -325,7 +325,7 @@ const Home = () => {
         {
             icon: Activity,
             title: "Իրական Ժամանակ",
-            description: "Ուղիղ մոնիտորինգ և ադապտիվ որոշումների ընդունում",
+            description: "Մոնիտորինգ և որոշումների ընդունում",
             SVGComponent: ActivitySVG
         },
         {
@@ -454,10 +454,10 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12 sm:mb-16">
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                            Համակարգի Հնարավորություններ
+                            Համակարգի հնարավորություններ
                         </h2>
                         <p className="text-base sm:text-lg lg:text-xl text-white/80 max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
-                            Ժամանակակից տեխնոլոգիաների միության արդյունքում ստեղծված առաջադեմ գործիքներ
+                            Ժամանակակից տեխնոլոգիաների կիրառման արդյունքում ստեղծված առաջադեմ գործիքներ
                         </p>
                     </div>
 
@@ -490,12 +490,11 @@ const Home = () => {
             <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-[#1c92d2]/10 to-[#0ea5e9]/10">
                 <div className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                        Համակարգի Աշխատանքը
+                        Համակարգի աշխատանքը
                     </h2>
-                    <p className="text-base sm:text-lg lg:text-xl text-white/80 mb-8 sm:mb-12 leading-relaxed">
+                    {/* <p className="text-base sm:text-lg lg:text-xl text-white/80 mb-8 sm:mb-12 leading-relaxed">
                         3 րոպեանոց դեմո վիդեո՝ համակարգի հիմնական հնարավորությունների մասին
-                    </p>
-
+                    </p> */}
                     <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
                         <img
                             src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop&auto=format"
@@ -508,7 +507,7 @@ const Home = () => {
                             </button>
                         </div>
                         <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 text-white">
-                            <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">Համակարգի Ցուցադրություն</h3>
+                            <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">Համակարգի ցուցադրություն</h3>
                             <p className="text-xs sm:text-sm opacity-80">3:24 րոպե</p>
                         </div>
                     </div>
@@ -520,7 +519,7 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12 sm:mb-16">
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                            Աշխատանքի Գործընթաց
+                            Աշխատանքի կատարման գործընթացը
                         </h2>
                     </div>
 
@@ -528,7 +527,7 @@ const Home = () => {
                         {[
                             {
                                 step: "01",
-                                title: "Տվյալների Հավաքում",
+                                title: "Տվյալների հավաքագրում",
                                 desc: "Ներքին և արտաքին աղբյուրներից տվյալների ստացում",
                                 image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop&auto=format"
                             },
@@ -540,13 +539,13 @@ const Home = () => {
                             },
                             {
                                 step: "03",
-                                title: "Սցենարների Մշակում",
+                                title: "Սցենարների մշակում",
                                 desc: "Հնարավոր տարբերակների ստեղծում",
                                 image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop&auto=format"
                             },
                             {
                                 step: "04",
-                                title: "Որոշման Ընդունում",
+                                title: "Որոշման ընդունում",
                                 desc: "Օպտիմալ լուծման ընտրություն",
                                 image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=300&h=200&fit=crop&auto=format"
                             }
@@ -589,8 +588,8 @@ const Home = () => {
                                 Պատրա՞ստ եք սկսելու
                             </h2>
                             <p className="text-base sm:text-lg lg:text-xl text-white/80 mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto">
-                                Միացե՛ք հազարավոր մենեջերների, ովքեր արդեն օգտագործում են մեր համակարգը
-                                ավելի խելացի որոշումներ կայացնելու համար
+                                Միացե՛ք մենեջերներին, ովքեր արդեն օգտագործում են մեր համակարգը
+                                ավելի խելացի որոշումներ ընդունելու համար
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
                                 <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25">
