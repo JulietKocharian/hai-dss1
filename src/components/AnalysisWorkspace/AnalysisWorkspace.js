@@ -1,5 +1,5 @@
 // src/components/AnalysisWorkspace/AnalysisWorkspace.js
-// Հիմնական վերլուծական տարածք - տաբերով ինտերֆեյս
+// Հիմնական վերլուծական տարածք - տաբերով ինտերֆեյս (Fully Responsive)
 
 import React from 'react';
 import { useData } from '../../context/DataContext';
@@ -33,21 +33,58 @@ const AnalysisWorkspace = () => {
      * @returns {JSX.Element|null} Տաբի բովանդակություն
      */
     const renderTabContent = (tabName) => {
+        // Ավելացնում ենք responsive wrapper-ը յուրաքանչյուր տաբի համար
+        const TabWrapper = ({ children }) => (
+            <div className="w-full max-w-full overflow-hidden">
+                <div className="responsive-tab-content">
+                    {children}
+                </div>
+            </div>
+        );
+
         switch (tabName) {
             case 'analysis':
-                return <AnalysisTab />;
+                return (
+                    <TabWrapper>
+                        <AnalysisTab />
+                    </TabWrapper>
+                );
             case 'synthetic':
-                return <SyntheticTab />;
+                return (
+                    <TabWrapper>
+                        <SyntheticTab />
+                    </TabWrapper>
+                );
             case 'fuzzy':
-                return <FuzzyTab />;
+                return (
+                    <TabWrapper>
+                        <FuzzyTab />
+                    </TabWrapper>
+                );
             case 'clustering':
-                return <ClusteringTab />;
+                return (
+                    <TabWrapper>
+                        <ClusteringTab />
+                    </TabWrapper>
+                );
             case 'scenarios':
-                return <ScenariosTab />;
+                return (
+                    <TabWrapper>
+                        <ScenariosTab />
+                    </TabWrapper>
+                );
             case 'results':
-                return <ResultsTab />;
+                return (
+                    <TabWrapper>
+                        <ResultsTab />
+                    </TabWrapper>
+                );
             default:
-                return <AnalysisTab />;
+                return (
+                    <TabWrapper>
+                        <AnalysisTab />
+                    </TabWrapper>
+                );
         }
     };
 
@@ -70,60 +107,176 @@ const AnalysisWorkspace = () => {
     };
 
     return (
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl mt-8 w-full">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 shadow-xl mt-4 lg:mt-8 w-full max-w-full overflow-hidden">
             {/* Վերլուծական տարածքի վերնագիր */}
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            <div className="mb-4 lg:mb-6">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 lg:mb-2 leading-tight">
                     🔬 Վերլուծական աշխատանք
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
                     Ինտերակտիվ վերլուծության հարթակ բոլոր մեթոդաբանական գործիքներով
                 </p>
             </div>
 
-            {/* Տաբերի նավիգացիա */}
-            <TabNavigation
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-            />
-
-            {/* Տաբի բովանդակություն */}
-            <div className="mt-6">
-                <div className="tab-content-container">
-                    {renderTabContent(activeTab)}
+            {/* Տաբերի նավիգացիա - Բարելավված responsive */}
+            <div className="mb-4 lg:mb-6 overflow-hidden">
+                <div className="overflow-x-auto scrollbar-hide">
+                    <TabNavigation
+                        activeTab={activeTab}
+                        onTabChange={setActiveTab}
+                    />
                 </div>
             </div>
 
-            {/* Վերլուծական գործընթացի կարգավիճակ */}
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h4 className="font-bold text-gray-700">📊 Վերլուծական գործընթացի կարգավիճակ</h4>
-                        <p className="text-sm text-gray-600 mt-1">
-                            Ընթացիկ փուլ: {getTabLabel(activeTab)}
+            {/* Տաբի բովանդակություն - Բարելավված responsive */}
+            <div className="mb-6 lg:mb-8 w-full">
+                <div className="tab-content-container min-h-[250px] sm:min-h-[350px] lg:min-h-[400px] w-full max-w-full overflow-hidden relative">
+                    {/* Ավելացնում ենք fade-in անիմացիա */}
+                    <div className="tab-content-wrapper w-full h-full animate-fadeIn">
+                        {renderTabContent(activeTab)}
+                    </div>
+                </div>
+            </div>
+
+            {/* Վերլուծական գործընթացի կարգավիճակ - Բարելավված responsive */}
+            <div className="p-3 sm:p-4 lg:p-5 bg-gray-50 rounded-lg border-l-4 border-blue-500 mb-4 overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-700 text-sm sm:text-base lg:text-lg truncate">
+                            📊 Վերլուծական գործընթացի կարգավիճակ
+                        </h4>
+                        <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1 leading-relaxed break-words">
+                            Ընթացիկ փուլ: <span className="font-medium">{getTabLabel(activeTab)}</span>
                         </p>
                     </div>
 
-                    {/* Առաջընթացի ինդիկատոր */}
-                    <div className="flex items-center space-x-2">
-                        <div className="text-sm font-medium text-gray-700">
+                    {/* Առաջընթացի ինդիկատոր - Բարելավված responsive */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-shrink-0">
+                        <div className="text-xs sm:text-sm lg:text-base font-medium text-gray-700 whitespace-nowrap">
                             Ընդհանուր առաջընթաց:
                         </div>
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div
-                                className="bg-gradient-to-r from-blue-400 to-purple-600 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${getOverallProgress()}%` }}
-                            ></div>
-                        </div>
-                        <div className="text-sm font-bold text-gray-700">
-                            {getOverallProgress()}%
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-24 sm:w-28 lg:w-32 bg-gray-200 rounded-full h-2 lg:h-3 flex-shrink-0">
+                                <div
+                                    className="bg-gradient-to-r from-blue-400 to-purple-600 h-2 lg:h-3 rounded-full transition-all duration-500"
+                                    style={{ width: `${getOverallProgress()}%` }}
+                                ></div>
+                            </div>
+                            <div className="text-xs sm:text-sm lg:text-base font-bold text-gray-700 min-w-[2.5rem] text-right">
+                                {getOverallProgress()}%
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Քավի ծանուցումներ */}
+            {/* Ծանուցումների բաղադրիչ */}
             <AnalysisAlerts />
+
+            {/* Ավելացնում ենք CSS կանոններ responsive բաղադրիչների համար */}
+            <style jsx>{`
+                .responsive-tab-content {
+                    width: 100%;
+                    max-width: 100%;
+                    overflow-x: auto;
+                    overflow-y: visible;
+                }
+
+                .responsive-tab-content > * {
+                    max-width: 100%;
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+                }
+
+                .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .animate-fadeIn {
+                    animation: fadeIn 0.3s ease-in-out;
+                }
+
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                /* Հատուկ responsive կանոններ սցենարների համար */
+                .responsive-tab-content .scenario-container {
+                    display: grid;
+                    gap: 1rem;
+                    grid-template-columns: 1fr;
+                }
+
+                @media (min-width: 640px) {
+                    .responsive-tab-content .scenario-container {
+                        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    }
+                }
+
+                @media (min-width: 1024px) {
+                    .responsive-tab-content .scenario-container {
+                        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    }
+                }
+
+                /* Հատուկ responsive կանոններ աղյուսակների համար */
+                .responsive-tab-content table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 0.875rem;
+                }
+
+                @media (max-width: 640px) {
+                    .responsive-tab-content table {
+                        font-size: 0.75rem;
+                    }
+                    
+                    .responsive-tab-content table th,
+                    .responsive-tab-content table td {
+                        padding: 0.5rem 0.25rem;
+                        word-break: break-word;
+                    }
+                }
+
+                /* Հատուկ responsive կանոններ չարտերի համար */
+                .responsive-tab-content .chart-container {
+                    width: 100%;
+                    height: auto;
+                    min-height: 250px;
+                    overflow: hidden;
+                }
+
+                @media (max-width: 640px) {
+                    .responsive-tab-content .chart-container {
+                        min-height: 200px;
+                    }
+                }
+
+                /* Հատուկ responsive կանոններ form-երի համար */
+                .responsive-tab-content .form-container {
+                    display: grid;
+                    gap: 1rem;
+                    grid-template-columns: 1fr;
+                }
+
+                @media (min-width: 768px) {
+                    .responsive-tab-content .form-container {
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    }
+                }
+            `}</style>
         </div>
     );
 };
@@ -146,7 +299,7 @@ const getTabLabel = (tabName) => {
 };
 
 /**
- * Վերլուծական ծանուցումների բաղադրիչ
+ * Վերլուծական ծանուցումների բաղադրիչ - Բարելավված responsive
  */
 const AnalysisAlerts = () => {
     const {
@@ -207,16 +360,25 @@ const AnalysisAlerts = () => {
     }
 
     return (
-        <div className="mt-4 space-y-2">
-            {alerts.map((alert, index) => (
-                <div
-                    key={index}
-                    className={`flex items-center p-2 rounded-lg text-sm ${getAlertClasses(alert.type)}`}
-                >
-                    <span className="mr-2">{getAlertIcon(alert.type)}</span>
-                    <span>{alert.message}</span>
-                </div>
-            ))}
+        <div className="space-y-2 overflow-hidden">
+            <h5 className="text-sm sm:text-base lg:text-lg font-medium text-gray-700 mb-2 lg:mb-3">
+                Ծանուցումներ:
+            </h5>
+            <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+                {alerts.map((alert, index) => (
+                    <div
+                        key={index}
+                        className={`flex items-start p-2 sm:p-3 lg:p-4 rounded-lg text-xs sm:text-sm lg:text-base ${getAlertClasses(alert.type)} break-words w-full max-w-full overflow-hidden`}
+                    >
+                        <span className="mr-2 sm:mr-3 flex-shrink-0 mt-0.5 text-sm sm:text-base lg:text-lg">
+                            {getAlertIcon(alert.type)}
+                        </span>
+                        <span className="leading-relaxed flex-1 min-w-0 break-words">
+                            {alert.message}
+                        </span>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
@@ -229,15 +391,15 @@ const AnalysisAlerts = () => {
 const getAlertClasses = (type) => {
     switch (type) {
         case 'success':
-            return 'bg-green-100 text-green-800 border border-green-200';
+            return 'bg-green-50 lg:bg-green-100 text-green-700 lg:text-green-800 border border-green-200 lg:border-green-300';
         case 'warning':
-            return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+            return 'bg-yellow-50 lg:bg-yellow-100 text-yellow-700 lg:text-yellow-800 border border-yellow-200 lg:border-yellow-300';
         case 'info':
-            return 'bg-blue-100 text-blue-800 border border-blue-200';
+            return 'bg-blue-50 lg:bg-blue-100 text-blue-700 lg:text-blue-800 border border-blue-200 lg:border-blue-300';
         case 'error':
-            return 'bg-red-100 text-red-800 border border-red-200';
+            return 'bg-red-50 lg:bg-red-100 text-red-700 lg:text-red-800 border border-red-200 lg:border-red-300';
         default:
-            return 'bg-gray-100 text-gray-800 border border-gray-200';
+            return 'bg-gray-50 lg:bg-gray-100 text-gray-700 lg:text-gray-800 border border-gray-200 lg:border-gray-300';
     }
 };
 

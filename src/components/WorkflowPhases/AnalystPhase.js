@@ -1,7 +1,7 @@
 // src/components/WorkflowPhases/AnalystPhase.js
 // Վերլուծաբանի փուլի բաղադրիչ - տվյալների մշակում և վերլուծություն
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
@@ -12,9 +12,8 @@ import { getDataTypeLabel } from '../../utils/dataHelpers';
  * AnalystPhase բաղադրիչ - վերլուծաբանի աշխատանքային փուլ
  * Պատասխանատու է տվյալների որակի գնահատման և առաջնային վերլուծության համար
  */
-const AnalystPhase = () => {
+const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
     const {
-        analystActive,
         currentData,
         projectName,
         dataType,
@@ -22,26 +21,45 @@ const AnalystPhase = () => {
         setQualityMetrics
     } = useData();
 
+    const [isAnalyzing, setIsAnalyzing] = useState(false); // New loading state
+
     /**
      * Տվյալների վերլուծության սկիզբ
      * Որակի մետրիկների հաշվարկ և վերլուծական տարածքի ակտիվացում
      */
-    const startAnalysis = () => {
+    const startAnalysis = async () => {
         if (!currentData || currentData.length === 0) {
             alert('Տվյալները բացակայում են վերլուծության համար');
             return;
         }
 
-        // Վերլուծական տարածքի ցուցադրում
-        setAnalysisWorkspace(true);
+        setIsAnalyzing(true); // Start loading
 
-        // Տվյալների որակի գնահատման սիմուլյացիա
-        setTimeout(() => {
+        try {
+            // Simulate analysis processing time
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Վերլուծական տարածքի ցուցադրում
+            setAnalysisWorkspace(true);
+
+            // Տվյալների որակի գնահատման սիմուլյացիա
             const qualityAnalysis = analyzeDataQuality(currentData);
             setQualityMetrics(qualityAnalysis);
 
             console.log('Տվյալների որակի վերլուծություն ավարտված:', qualityAnalysis);
-        }, 1000);
+
+            setIsAnalyzing(false);
+
+            // Trigger automatic phase transition
+            if (onPhaseComplete) {
+                onPhaseComplete();
+            }
+
+        } catch (error) {
+            console.error('Վերլուծության սխալ:', error);
+            alert('Վերլուծության ժամանակ սխալ առաջացավ');
+            setIsAnalyzing(false);
+        }
     };
 
     /**
@@ -131,21 +149,30 @@ const AnalystPhase = () => {
         };
     };
 
-    // Վերլուծաբանի փուլի պայմանական ռենդերինգ
-    if (!analystActive) {
+    // Show inactive state when not active and not completed
+    if (!isActive && !isCompleted) {
         return (
             <PhaseCard
                 title="Վերլուծաբանի փուլ"
                 icon="🔬"
                 phase="analyst"
+                className="opacity-60 w-full max-w-none"
             >
+                {/* Status Badge */}
+                <div className="mb-2 sm:mb-3 lg:mb-4">
+                    <div className="flex items-center space-x-1.5 sm:space-x-2 text-gray-400 text-xs sm:text-sm font-medium">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full opacity-50"></span>
+                        <span>Սպասում</span>
+                    </div>
+                </div>
+
                 <Alert type="info" icon="ℹ️" title="Տվյալները բեռնվում են...">
-                    <div>
+                    <div className="text-xs sm:text-sm lg:text-base">
                         Մենեջերը պետք է մուտքագրի վերլուծության համար անհրաժեշտ տվյալները
                     </div>
-                    <div className="mt-2 text-sm">
-                        <strong>Վերլուծաբանի գործառույթները</strong>
-                        <ul className="list-disc list-inside mt-1 space-y-1">
+                    <div className="mt-2">
+                        <strong className="text-xs sm:text-sm">Վերլուծաբանի գործառույթները</strong>
+                        <ul className="list-disc list-inside mt-1 space-y-0.5 text-xs sm:text-sm">
                             <li>Տվյալների որակի գնահատում</li>
                             <li>Բացակայող արժեքների հայտնաբերում</li>
                             <li>Ոչ ստանդարտ արժեքների բացահայտում</li>
@@ -162,34 +189,69 @@ const AnalystPhase = () => {
             title="Վերլուծաբանի փուլ"
             icon="🔬"
             phase="analyst"
-            active={true}
+            className={`w-full max-w-none transition-all duration-300 ${isCompleted
+                    ? 'bg-green-500/10 border-green-500/30'
+                    : isActive
+                        ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
+                        : 'opacity-60'
+                }`}
         >
-            <div className="space-y-4">
+            {/* Status Badge */}
+            <div className="mb-2 sm:mb-3 lg:mb-4">
+                {isCompleted && (
+                    <div className="flex items-center space-x-1.5 sm:space-x-2 text-green-400 text-xs sm:text-sm font-medium">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"></span>
+                        <span>Ավարտված</span>
+                    </div>
+                )}
+                {isActive && !isCompleted && (
+                    <div className="flex items-center space-x-1.5 sm:space-x-2 text-green-400 text-xs sm:text-sm font-medium">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span>Ընթացքի մեջ</span>
+                    </div>
+                )}
+            </div>
+
+            <div className={`space-y-2 sm:space-y-3 lg:space-y-4 ${!isActive && !isCompleted ? 'pointer-events-none' : ''}`}>
                 {/* Ստացված տվյալների ինֆորմացիա */}
                 <Alert type="success" icon="✅" title="Տվյալները պատրաստ են">
-                    <div className="space-y-2">
-                        <div><strong>Նախագիծ:</strong> {projectName}</div>
-                        <div><strong>Տեսակ:</strong> {getDataTypeLabel(dataType)}</div>
-                        <div><strong>Տողերի քանակ:</strong> {currentData?.length || 0}</div>
-                        <div><strong>Սյունակների քանակ:</strong> {currentData?.length > 0 ? Object.keys(currentData[0]).length : 0}</div>
+                    <div className="space-y-1 sm:space-y-2">
+                        <div className="text-xs sm:text-sm lg:text-base">
+                            <strong className="font-semibold">Նախագիծ:</strong>
+                            <span className="ml-1 break-words">{projectName}</span>
+                        </div>
+                        <div className="text-xs sm:text-sm lg:text-base">
+                            <strong className="font-semibold">Տեսակ:</strong>
+                            <span className="ml-1">{getDataTypeLabel(dataType)}</span>
+                        </div>
+                        <div className="grid grid-cols-1 xs:grid-cols-2 gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base">
+                            <div className="min-w-0">
+                                <strong className="font-semibold">Տողերի քանակ:</strong> 
+                                <span className="ml-1">{currentData?.length || 0}</span>
+                            </div>
+                            <div className="min-w-0">
+                                <strong className="font-semibold">Սյունակների քանակ:</strong> 
+                                <span className="ml-1">{currentData?.length > 0 ? Object.keys(currentData[0]).length : 0}</span>
+                            </div>
+                        </div>
                     </div>
                 </Alert>
 
                 {/* Տվյալների նախադիտում */}
                 {currentData && currentData.length > 0 && (
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="font-bold text-sm text-gray-700 mb-2">📋 Մուտքագրված տվյալներ</h4>
-                        <div className="text-xs font-mono bg-white p-2 rounded border max-h-32 overflow-auto">
-                            <div className="font-bold text-blue-600">
+                    <div className="bg-gray-50 rounded-lg p-2 sm:p-3 lg:p-4">
+                        <h4 className="font-bold text-xs sm:text-sm text-gray-700 mb-2">📋 Մուտքագրված տվյալներ</h4>
+                        <div className="text-xs font-mono bg-white p-2 sm:p-3 rounded border max-h-24 sm:max-h-32 lg:max-h-40 overflow-auto">
+                            <div className="font-bold text-blue-600 break-all text-xs leading-relaxed">
                                 {Object.keys(currentData[0]).join(' | ')}
                             </div>
                             {currentData.slice(0, 3).map((row, index) => (
-                                <div key={index} className="text-gray-600">
+                                <div key={index} className="text-gray-600 break-all text-xs leading-relaxed">
                                     {Object.values(row).map(val => val || 'NULL').join(' | ')}
                                 </div>
                             ))}
                             {currentData.length > 3 && (
-                                <div className="text-gray-400 italic">
+                                <div className="text-gray-400 italic text-xs mt-1">
                                     ... եւ {currentData.length - 3} այլ տող
                                 </div>
                             )}
@@ -198,35 +260,65 @@ const AnalystPhase = () => {
                 )}
 
                 {/* Վերլուծության տեխնիկական մանրամասներ */}
-                <div className="bg-blue-50 rounded-lg p-4">
-                    <h4 className="font-bold text-sm text-blue-800 mb-2">🔍 Վերլուծական գործընթացներ</h4>
-                    <div className="text-xs text-blue-700 space-y-1">
+                <div className="bg-blue-50 rounded-lg p-2 sm:p-3 lg:p-4">
+                    <h4 className="font-bold text-xs sm:text-sm text-blue-800 mb-2">🔍 Վերլուծական գործընթացներ</h4>
+                    <div className="text-xs sm:text-sm text-blue-700 space-y-0.5 sm:space-y-1">
                         <div>• Տվյալների ամբողջականության ստուգում</div>
                         <div>• Ոչ ստանդարտ արժեքների հայտնաբերում</div>
-                        <div>• Պակաս տվյալների դեպքում՝ սինթետիկ տվյալների գեներացում</div>
+                        <div className="break-words">• Պակաս տվյալների դեպքում՝ սինթետիկ տվյալների գեներացում</div>
+                        {isAnalyzing && (
+                            <div className="flex items-center space-x-2 text-blue-600 font-medium mt-2 p-2 bg-blue-100 rounded">
+                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-600 rounded-full animate-pulse flex-shrink-0"></div>
+                                <span className="text-xs sm:text-sm">Վերլուծությունը ընթացքում է...</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {/* Վերլուծության մեկնարկ */}
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-2 sm:pt-3 lg:pt-4 border-t border-gray-200">
                     <Button
                         onClick={startAnalysis}
                         variant="analyst"
                         size="md"
-                        className="w-full"
+                        className={`w-full text-xs sm:text-sm lg:text-base py-2.5 sm:py-3 lg:py-4 transition-all duration-300 ${isCompleted
+                                ? 'bg-green-500 text-white cursor-default'
+                                : ''
+                            }`}
+                        disabled={
+                            isCompleted ||
+                            isAnalyzing ||
+                            !currentData ||
+                            currentData.length === 0
+                        }
                     >
-                        🔬 Սկսել վերլուծությունը
+                        {isAnalyzing ? (
+                            <div className="flex items-center justify-center">
+                                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 flex-shrink-0"></div>
+                                <span className="hidden sm:inline">Վերլուծությունն ընթացքում է...</span>
+                                <span className="sm:hidden">Ընթացքում է...</span>
+                            </div>
+                        ) : isCompleted ? (
+                            <span>✅ Վերլուծությունը ավարտված է</span>
+                        ) : (
+                            <span>🔬 Սկսել վերլուծությունը</span>
+                        )}
                     </Button>
 
-                    {/* <div className="mt-3 text-xs text-gray-500">
-                        💡 <strong>Վերլուծության պրոցեսը ներառում է:</strong>
-                        <ul className="list-disc list-inside mt-1 space-y-1">
-                            <li>Ինտերակտիվ վերլուծական տարածքի բացում</li>
-                            <li>Տվյալների որակի մետրիկների հաշվարկ</li>
-                            <li>Վիզուալ ռեպորտների ստեղծում</li>
-                            <li>Փորձագետի փուլի նախապատրաստում</li>
-                        </ul>
-                    </div> */}
+                    <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-white">
+                        <div className="flex items-start space-x-1">
+                            <span className="flex-shrink-0">💡</span>
+                            <div className="min-w-0">
+                                <strong className="font-semibold">Վերլուծության պրոցեսը ներառում է:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-0.5 sm:space-y-1 pl-0">
+                                    <li className="break-words">Ինտերակտիվ վերլուծական տարածքի բացում</li>
+                                    <li className="break-words">Տվյալների որակի մետրիկների հաշվարկ</li>
+                                    <li className="break-words">Վիզուալ ռեպորտների ստեղծում</li>
+                                    <li className="break-words">Փորձագետի փուլի նախապատրաստում</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </PhaseCard>

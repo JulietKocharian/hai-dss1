@@ -6,7 +6,7 @@ import { parseCSV } from '../../utils/csvUtils';
 import CSVUploaderr from '../csvUploader/csvUploader';
 import { X } from 'lucide-react';
 
-const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression }) => {
+const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
     const {
         projectName,
         setProjectName,
@@ -23,44 +23,45 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
     const [showModal, setShowModal] = useState(false);
     const [currentModalType, setCurrentModalType] = useState('');
     const [selectedCriteria, setSelectedCriteria] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Define criteria for each data type
     const dataTypeCriteria = {
         'demographic': [
             { id: 'births', label: 'Ծնվածների քանակ' },
-            { id: 'immigration', label: 'Ներգաղթօղների քանակ' },
-            { id: 'deaths', label: 'Նահատակների քանակ' },
-            { id: 'infant_deaths', label: 'Ընկ 1 տարեկան նահատակների քանակ' },
-            { id: 'natural_increase', label: 'Բնական հավելյալ (Ծնվածների - Նահատակները)' },
+            { id: 'immigration', label: 'Մեռելածինների քանակ' },
+            { id: 'deaths', label: 'Մահացածների քանակ' },
+            { id: 'infant_deaths', label: 'Մինչև 1 տարեկան մահացածների քանակ' },
+            { id: 'natural_increase', label: 'Բնական հավելաճ (Ծնվածներ - Մահացածներ)' },
             { id: 'marriages', label: 'Ամուսնությունների քանակ' },
             { id: 'divorces', label: 'Ամուսնալուծությունների քանակ' },
         ],
         'healthcare': [
-            { id: 'neonatal_diseases', label: 'Նորահասակ ամորսականք հիվանդությունների թիվ' },
-            { id: 'doctors_per_10k', label: 'Բժիշկներ՝ 10 հազ. բնակիչ հաշվով' },
-            { id: 'nurses_per_10k', label: 'Նահծանակտար՝ 10 հազ. բնակիչ հաշվով' },
-            { id: 'healthcare_total_expenses', label: 'Առողջապահության ընդհանուր ծանուցումր' },
-            { id: 'hospital_investments', label: 'Ներդրումներ՝ հիվանդանա միջոցների համար' },
-            { id: 'impact_expenses', label: 'Ազդուրակարկություն ծանուցումր' },
-            { id: 'covid19_mortality', label: 'COVID-19 բուծծություն դրսում' },
+            { id: 'neonatal_diseases', label: 'Մունիցիպալ ամբուլատոր հիմնարկների թիվ' },
+            { id: 'doctors_per_10k', label: 'Բժիշկներ՝ 10 հազ. մարդու հաշվով' },
+            { id: 'nurses_per_10k', label: 'Մահճակալներ՝ 10 հազ. մարդու հաշվով' },
+            { id: 'healthcare_total_expenses', label: 'Առողջապահության ընդհանուր ծախսեր' },
+            { id: 'hospital_investments', label: 'Ներդրումներ՝ հիմնական միջոցների համար' },
+            { id: 'impact_expenses', label: 'Աշխատավարձային ծախսեր' },
+            { id: 'covid19_mortality', label: 'COVID-19 բուժօգնության որակ*' },
         ],
         'quality_of_life': [
-            { id: 'min_monthly_income', label: 'Ընկ շքի մինիմում ամսական եկամուտ' },
-            { id: 'unemployment_rate', label: 'Արտանցություն ցամանակակ' },
-            { id: 'poverty_rate', label: 'Աղքատությանցունցություն ցամանակակ' },
-            { id: 'education_years', label: 'Կրթության ամտանակիր ունենտությունր' },
-            { id: 'life_expectancy', label: 'Կանթի ունենտությունր ծանանակ ապահի' },
-            { id: 'healthcare_spending_per_capita', label: 'Արտանցահության ծանուցումր ցել շքի հաշվով' },
-            { id: 'internet_penetration', label: 'Ինտերնետ համակիցությունր բնակչություն շրջանակ' },
+            { id: 'min_monthly_income', label: 'Մեկ շնչի միջին ամսական եկամուտ (դրամ)' },
+            { id: 'unemployment_rate', label: 'Աղքատության մակարդակ (%)' },
+            { id: 'poverty_rate', label: 'Աշխատանքազուրկության մակարդակ (%)' },
+            { id: 'education_years', label: 'Կրթության պարտադիր տևողություն (տարի)' },
+            { id: 'life_expectancy', label: 'Կյանքի տևողություն ծննդյան պահին (տարի)' },
+            { id: 'healthcare_spending_per_capita', label: 'Առողջապահության ծախսեր մեկ շնչի հաշվով (USD)' },
+            { id: 'internet_penetration', label: 'Ինտերնետ հասանելիություն բնակչության շրջանում (%)' },
         ],
         'educational': [
-            { id: 'general_education_institutions', label: 'Նանատակական համատարածվության հաստատությունների հաճացակնակ նեգյանական թիվ' },
-            { id: 'higher_education_students', label: 'Հանդումանակական դիգությունների ծանակյունների թիվ' },
-            { id: 'middle_vocational_institutions', label: 'Միջի ցամարագուական ոճանական համատարածվության ոճանական թիվ' },
-            { id: 'technical_institutions', label: 'Բարյանուտանց ոճանական համատարածվության ոճանական թիվ' },
-            { id: 'vocational_students', label: 'Հանդումանակական դիգությունների ոճանցիարին ծնուցուանր թիվ' },
-            { id: 'literacy_statistics', label: 'Նել ոճանցի բարցի ընիռուր ծանակյունների միծի թիվ' },
-            { id: 'education_funding_gdp', label: 'Կրթական դիսուռի ամժանակական ծանուցումր ԷՆԵ-ուսկ' },
+            { id: 'general_education_institutions', label: 'Նախադպրոցական հաստատություններ հաճախող երեխաների թիվ' },
+            { id: 'higher_education_students', label: 'Հանրակրթական դպրոցների աշակերտների թիվ' },
+            { id: 'middle_vocational_institutions', label: 'Միջին մասնագիտական ուսումնական հաստատությունների ուսանողների թիվ' },
+            { id: 'technical_institutions', label: 'Բարձրագույն ուսումնական հաստատությունների ուսանողների թիվ' },
+            { id: 'vocational_students', label: 'Հանրակրթական դպրոցների ուսուցիչների ընդհանուր թիվ' },
+            { id: 'literacy_statistics', label: 'Մեկ ուսուցչի բաժին ընկնող աշակերտների միջին թիվ' },
+            { id: 'education_funding_gdp', label: 'Կրթության ոլորտի պետական ծախսեր ՀՆԱ-ում' },
         ]
     };
 
@@ -68,12 +69,10 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
         const currentDataType = Array.isArray(dataType) ? dataType : [];
 
         if (isChecked) {
-            // Add to array and open modal for criteria selection
             setDataType([...currentDataType, typeValue]);
             setCurrentModalType(typeValue);
             setShowModal(true);
         } else {
-            // Remove from array and clear its criteria
             setDataType(currentDataType.filter(t => t !== typeValue));
             setSelectedCriteria(prev => {
                 const updated = { ...prev };
@@ -98,7 +97,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
         setCurrentModalType('');
     };
 
-    const submitManagerData = () => {
+    const submitManagerData = async () => {
         if (!projectName.trim()) {
             alert('Խնդրում ենք մուտքագրել նախագծի անվանումը');
             return;
@@ -111,22 +110,21 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
             alert('Խնդրում ենք մուտքագրել CSV տվյալները');
             return;
         }
+
+        setIsSubmitting(true);
+
         try {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const parsedData = parseCSV(rawData);
 
             if (parsedData.length === 0) {
                 alert('CSV տվյալները դատարկ են կամ սխալ ֆորմատ ունեն');
+                setIsSubmitting(false);
                 return;
             }
-            setCurrentData(parsedData);
 
-            // Use the new progression system instead of setAnalystActive
-            if (onStartProgression) {
-                onStartProgression();
-            } else {
-                // Fallback to original behavior if not using the new system
-                setAnalystActive(true);
-            }
+            setCurrentData(parsedData);
 
             console.log('Մենեջերի տվյալները հաջողությամբ ուղարկվել են:', {
                 projectName,
@@ -135,9 +133,18 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                 rowCount: parsedData.length
             });
 
+            setIsSubmitting(false);
+
+            if (onPhaseComplete) {
+                onPhaseComplete();
+            } else {
+                setAnalystActive(true);
+            }
+
         } catch (error) {
             console.error('CSV մշակման սխալ:', error);
             alert('CSV տվյալների մշակման ժամանակ սխալ առաջացավ: Ստուգեք ֆորմատը:');
+            setIsSubmitting(false);
         }
     };
 
@@ -157,39 +164,33 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                 title="Մենեջերի փուլ"
                 icon="👨‍💼"
                 phase="manager"
-                className={`h-fit transition-all duration-300 ${
-                    isCompleted 
-                        ? 'bg-green-500/10 border-green-500/30' 
-                        : isActive 
-                        ? 'bg-blue-500/10 border-blue-500/30 shadow-lg' 
+                className={`h-fit transition-all duration-300 ${isCompleted
+                    ? 'bg-green-500/10 border-green-500/30'
+                    : isActive
+                        ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
                         : 'opacity-60'
-                }`}
+                    }`}
             >
                 {/* Status Badge */}
-                <div className="mb-4">
+                <div className="mb-3 sm:mb-4">
                     {isCompleted && (
                         <div className="flex items-center space-x-2 text-green-400 text-sm font-medium">
-                            <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                            <span className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></span>
                             <span>Ավարտված</span>
                         </div>
                     )}
                     {isActive && !isCompleted && (
-                        <div className="flex items-center space-x-2 text-blue-400 text-sm font-medium">
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                            <span>Ակտիվ</span>
-                        </div>
-                    )}
-                    {!isActive && !isCompleted && (
-                        <div className="flex items-center space-x-2 text-gray-400 text-sm font-medium">
-                            <span className="w-2 h-2 bg-gray-400 rounded-full opacity-50"></span>
-                            <span>Սպասում</span>
+                        <div className="flex items-center space-x-2 text-green-400 text-sm font-medium">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span>Ընթացքի մեջ</span>
                         </div>
                     )}
                 </div>
 
-                <div className={`space-y-4 ${!isActive && !isCompleted ? 'pointer-events-none' : ''}`}>
+                <div className={`space-y-4 sm:space-y-6 ${!isActive && !isCompleted ? 'pointer-events-none' : ''}`}>
+                    {/* Project Name Input */}
                     <div>
-                        <label className="block text-sm font-bold text-white-700 mb-2" style={{ color: "#fff" }}>
+                        <label className="block text-sm sm:text-base font-bold text-white mb-2">
                             Նախագծի անվանումը <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -197,21 +198,22 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             placeholder="Մուտքագրեք նախագծի անվանումը"
-                            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
+                            className="w-full p-2.5 sm:p-3 text-sm sm:text-base border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
                             maxLength={100}
-                            disabled={isCompleted}
+                            disabled={isCompleted || isSubmitting}
                         />
-                        <div className="text-xs text-white-500 mt-1" style={{ color: "#fff" }}>
+                        <div className="text-xs text-white mt-1">
                             {projectName.length}/100 նիշ
                         </div>
                     </div>
 
+                    {/* Data Type Selection */}
                     <div>
-                        <label className="block text-sm font-bold text-white-700 mb-2" style={{ color: "#fff" }}>
+                        <label className="block text-sm sm:text-base font-bold text-white mb-2 sm:mb-3">
                             Տվյալների տեսակը <span className="text-red-500">*</span>
                         </label>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2 sm:space-y-3">
                             {[
                                 { value: 'demographic', label: 'Դեմոգրաֆիական', icon: '📊' },
                                 { value: 'healthcare', label: 'Առողջապահական', icon: '🏥' },
@@ -220,23 +222,22 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                             ].map((type) => (
                                 <label
                                     key={type.value}
-                                    className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                                        isCompleted 
-                                            ? 'opacity-75 cursor-not-allowed' 
-                                            : Array.isArray(dataType) && dataType.includes(type.value)
+                                    className={`flex items-center p-2.5 sm:p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${isCompleted || isSubmitting
+                                        ? 'opacity-75 cursor-not-allowed'
+                                        : Array.isArray(dataType) && dataType.includes(type.value)
                                             ? 'border-blue-500 bg-blue-500/10'
                                             : 'border-gray-300 hover:border-blue-400 hover:bg-blue-400/5'
-                                    }`}
+                                        }`}
                                 >
                                     <input
                                         type="checkbox"
                                         checked={Array.isArray(dataType) && dataType.includes(type.value)}
                                         onChange={(e) => handleDataTypeChange(type.value, e.target.checked)}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3"
-                                        disabled={isCompleted}
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-2 sm:mr-3 flex-shrink-0"
+                                        disabled={isCompleted || isSubmitting}
                                     />
-                                    <span className="text-xl mr-3">{type.icon}</span>
-                                    <span className="text-white font-medium">{type.label}</span>
+                                    <span className="text-lg sm:text-xl mr-2 sm:mr-3 flex-shrink-0">{type.icon}</span>
+                                    <span className="text-white font-medium text-sm sm:text-base flex-1 min-w-0">{type.label}</span>
                                     {selectedCriteria[type.value] && Object.values(selectedCriteria[type.value]).some(Boolean) && (
                                         <span className="ml-2 text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-md flex-shrink-0">
                                             {Object.values(selectedCriteria[type.value]).filter(Boolean).length}
@@ -247,47 +248,59 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                         </div>
 
                         {Array.isArray(dataType) && dataType.length > 0 && (
-                            <div className="text-xs text-white mt-3 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                            <div className="text-xs sm:text-sm text-white mt-3 p-2 sm:p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
                                 <strong>Ընտրված տեսակներ:</strong> {dataType.map(type => getDataTypeLabel(type)).join(', ')}
                             </div>
                         )}
                     </div>
 
+                    {/* CSV Uploader */}
                     <div>
                         <CSVUploaderr />
 
                         {rawData && (
-                            <div className="text-xs text-white-600 mt-1" style={{ color: "#fff" }}>
+                            <div className="text-xs sm:text-sm text-white mt-1">
                                 Տողերի քանակ {rawData.split('\n').filter(line => line.trim()).length - 1}
                                 (առանց սյունակների վերնագրերի)
                             </div>
                         )}
                     </div>
 
-                    <div className="pt-4 border-t border-gray-200">
+                    {/* Submit Section */}
+                    <div className="pt-3 sm:pt-4 border-t border-gray-200 space-y-3 sm:space-y-4">
                         <Button
                             onClick={submitManagerData}
                             variant="manager"
                             size="md"
-                            className={`w-full transition-all duration-300 ${
-                                isCompleted 
-                                    ? 'bg-green-500 text-white cursor-default' 
-                                    : ''
-                            }`}
+                            className={`w-full transition-all duration-300 text-sm sm:text-base py-2.5 sm:py-3 ${isCompleted
+                                ? 'bg-green-500 text-white cursor-default'
+                                : ''
+                                }`}
                             disabled={
-                                isCompleted || 
-                                !projectName 
+                                isCompleted ||
+                                isSubmitting ||
+                                !projectName || !rawData
                             }
                         >
-                            {isCompleted ? '✅ Ուղարկված' : '📤 Ուղարկել վերլուծաբանին'}
+                            {isSubmitting ? (
+                                <div className="flex items-center justify-center">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Ուղարկվում է...</span>
+                                </div>
+                            ) : isCompleted ? (
+                                '✅ Ուղարկված'
+                            ) : (
+                                '📤 Ուղարկել վերլուծաբանին'
+                            )}
                         </Button>
 
-                        <div className="mt-3 text-xs text-white-500" style={{ color: "#fff" }}>
-                            💡 <strong>Հուշումներ</strong>
-                            <ul className="list-disc list-inside mt-1 space-y-1">
-                                <li>Առաջին տողը պետք է պարունակի սյունակների անվանումները (Ամսաթիվ, Արժեք, Խումբ, Որոշումների ընդունման փուլ)</li>
+                        {/* Tips Section */}
+                        <div className="text-xs sm:text-sm text-white bg-white/10 rounded-lg p-3 sm:p-4">
+                            <div className="font-medium mb-2">💡 Հուշումներ</div>
+                            <ul className="list-disc list-inside space-y-1 opacity-90 leading-relaxed">
+                                <li>Առաջին տողը պետք է պարունակի սյունակների անվանումները</li>
                                 <li>Յուրաքանչյուր տողի արժեք պետք է համապատասխանի իր սյունակի տեսակին</li>
-                                <li>Տվյալներ մուտքագրելուց հնարավորություն կա որոշ դաշտեր թողնել դատարկ</li>
+                                <li className="sm:block hidden">Տվյալներ մուտքագրելուց հնարավորություն կա որոշ դաշտեր թողնել դատարկ</li>
                                 <li>Որոշումների ընդունման փուլը կարող է լինել՝ Բարձր, Միջին, Ցածր</li>
                             </ul>
                         </div>
@@ -295,53 +308,49 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                 </div>
             </PhaseCard>
 
-            {/* Criteria Selection Modal */}
-            {showModal && !isCompleted && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl">
+            {/* Responsive Criteria Selection Modal */}
+            {showModal && !isCompleted && !isSubmitting && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+                    <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-sm sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-hidden shadow-2xl">
                         {/* Modal Header */}
-                        <div className="bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white p-6 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-xl font-bold">
+                        <div className="bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white p-4 sm:p-6 flex items-start sm:items-center justify-between">
+                            <div className="flex-1 min-w-0 pr-3">
+                                <h3 className="text-lg sm:text-xl font-bold leading-tight">
                                     {getDataTypeLabel(currentModalType)} ցուցանիշները
                                 </h3>
-                                <p className="text-white/80 text-sm mt-1">
+                                <p className="text-white/80 text-sm mt-1 leading-relaxed">
                                     Ընտրեք անհրաժեշտ ցուցանիշներ վերլուծության համար
                                 </p>
                             </div>
                             <button
                                 onClick={closeModal}
-                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                className="p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
                             >
-                                <X className="w-6 h-6" />
+                                <X className="w-5 h-5 sm:w-6 sm:h-6" />
                             </button>
                         </div>
 
                         {/* Modal Content */}
-                        <div className="p-6 max-h-[60vh] overflow-y-auto">
-                            <div className="space-y-3">
+                        <div className="p-3 sm:p-6 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto">
+                            <div className="space-y-2 sm:space-y-3">
                                 {dataTypeCriteria[currentModalType]?.map((criteria, index) => (
                                     <label
                                         key={criteria.id}
-                                        className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${selectedCriteria[currentModalType]?.[criteria.id]
-                                                ? 'border-blue-500 bg-blue-50'
-                                                : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
+                                        className={`flex items-start p-3 sm:p-4 border-2 rounded-lg sm:rounded-xl cursor-pointer transition-all duration-200 ${selectedCriteria[currentModalType]?.[criteria.id]
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
                                             }`}
                                     >
-                                        <div className="flex items-center w-full">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedCriteria[currentModalType]?.[criteria.id] || false}
-                                                onChange={(e) => handleCriteriaChange(criteria.id, e.target.checked)}
-                                                className="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-4"
-                                            />
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="font-medium text-gray-900">
-                                                        {index + 1}. {criteria.label}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCriteria[currentModalType]?.[criteria.id] || false}
+                                            onChange={(e) => handleCriteriaChange(criteria.id, e.target.checked)}
+                                            className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3 sm:mr-4 mt-0.5 flex-shrink-0"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <span className="text-sm sm:text-base font-medium text-gray-900 leading-relaxed block">
+                                                {index + 1}. {criteria.label}
+                                            </span>
                                         </div>
                                     </label>
                                 ))}
@@ -349,20 +358,20 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onStartProgression
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="bg-gray-50 p-6 flex items-center justify-between">
-                            <div className="text-sm text-gray-600">
+                        <div className="bg-gray-50 p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="text-sm text-gray-600 order-2 sm:order-1">
                                 Ընտրված չափանիշներ: {Object.values(selectedCriteria[currentModalType] || {}).filter(Boolean).length}
                             </div>
-                            <div className="flex space-x-3">
+                            <div className="flex space-x-3 order-1 sm:order-2">
                                 <button
                                     onClick={closeModal}
-                                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm sm:text-base"
                                 >
                                     Փակել
                                 </button>
                                 <button
                                     onClick={closeModal}
-                                    className="px-6 py-2 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300"
+                                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 text-sm sm:text-base"
                                 >
                                     Պահպանել
                                 </button>

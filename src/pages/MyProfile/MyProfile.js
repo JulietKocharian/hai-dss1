@@ -173,16 +173,14 @@ const MyProfile = () => {
         }
     ]);
 
-    // NEW: Sequential workflow state
+    // Sequential workflow state
     const [currentPhase, setCurrentPhase] = useState(0); // 0: Manager, 1: Analyst, 2: Expert, 3: Decision
     const [completedPhases, setCompletedPhases] = useState(new Set());
     const [allPhasesCompleted, setAllPhasesCompleted] = useState(false);
 
-    console.log(profileData, 'profileDataprofileData')
-
     const phases = ['manager', 'analyst', 'expert', 'decision'];
 
-    // NEW: Phase completion handler
+    // Phase completion handler
     const handlePhaseComplete = (phaseIndex) => {
         const newCompleted = new Set(completedPhases);
         newCompleted.add(phaseIndex);
@@ -201,7 +199,7 @@ const MyProfile = () => {
         }
     };
 
-    // NEW: Phase status checker
+    // Phase status checker
     const getPhaseStatus = (phaseIndex) => ({
         isActive: currentPhase === phaseIndex,
         isCompleted: completedPhases.has(phaseIndex)
@@ -367,7 +365,7 @@ const MyProfile = () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setActiveTab('new-project');
         setIsNavigating(false);
-        setIsMobileMenuOpen(false); // Close mobile menu on navigation
+        setIsMobileMenuOpen(false);
     };
 
     const tabs = [
@@ -386,22 +384,29 @@ const MyProfile = () => {
         { label: 'Ձեռքբերումներ', value: '24', icon: Award, color: 'from-pink-500 to-violet-500' }
     ];
 
+    // UPDATED: Render current phase with proper props for auto-transition
     const renderCurrentPhase = () => {
+        const commonProps = {
+            onPhaseComplete: () => handlePhaseComplete(currentPhase),
+            isActive: true, // Current phase is always active
+            isCompleted: completedPhases.has(currentPhase)
+        };
+
         switch (currentPhase) {
             case 0:
-                return <ManagerPhase />;
+                return <ManagerPhase {...commonProps} />;
             case 1:
-                return <AnalystPhase />;
+                return <AnalystPhase {...commonProps} />;
             case 2:
-                return <ExpertPhase />;
+                return <ExpertPhase {...commonProps} />;
             case 3:
-                return <DecisionLevelPhase />;
+                return <DecisionLevelPhase {...commonProps} />;
             default:
-                return <ManagerPhase />;
+                return <ManagerPhase {...commonProps} />;
         }
     };
 
-    // Add this function to get the current phase name for display
+    // Get current phase name for display
     const getCurrentPhaseName = () => {
         const phaseNames = {
             0: 'Մենեջերի փուլ',
@@ -427,7 +432,7 @@ const MyProfile = () => {
 
                 {/* Special layout for new-project tab */}
                 {activeTab === 'new-project' ? (
-                    <div className="w-full max-w-7xl mx-auto">
+                    <div className="w-full mx-auto">
                         {/* Mobile Profile Header */}
                         <div className="lg:hidden bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-2xl p-4 mb-6">
                             <div className="flex items-center justify-between mb-4">
@@ -650,9 +655,9 @@ const MyProfile = () => {
                             </div>
 
                             {/* Two Column Layout: Current Phase + Analysis Workspace */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                                {/* Left Column - Current Active Phase */}
-                                <div className="space-y-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                                {/* Left Column - Current Active Phase (1/3 width) */}
+                                <div className="space-y-4 lg:col-span-1">
                                     <div className="bg-white/10 rounded-xl p-4 border border-white/20">
                                         <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                             <div className="w-8 h-8 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded-lg flex items-center justify-center mr-3">
@@ -662,45 +667,25 @@ const MyProfile = () => {
                                         </h4>
                                         {renderCurrentPhase()}
                                     </div>
-
-                                    {/* Phase Navigation Buttons */}
-                                    <div className="flex justify-between items-center">
-                                        <button
-                                            onClick={() => currentPhase > 0 && setCurrentPhase(currentPhase - 1)}
-                                            disabled={currentPhase === 0}
-                                            className="flex items-center space-x-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            <ChevronLeft className="w-4 h-4" />
-                                            <span className="text-sm">Նախորդ</span>
-                                        </button>
-
-                                        <div className="flex space-x-2">
+                                    {/* REMOVED: Manual Phase Navigation Buttons - Only show progress indicators */}
+                                    <div className="flex justify-center items-center">
+                                        <div className="flex space-x-3">
                                             {phases.map((_, index) => (
                                                 <div
                                                     key={index}
-                                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentPhase
-                                                            ? 'bg-blue-400'
-                                                            : completedPhases.has(index)
-                                                                ? 'bg-green-400'
-                                                                : 'bg-gray-600'
+                                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentPhase
+                                                        ? 'bg-blue-400 ring-2 ring-blue-400/30 ring-offset-2 ring-offset-transparent scale-125'
+                                                        : completedPhases.has(index)
+                                                            ? 'bg-green-400 scale-110'
+                                                            : 'bg-gray-600'
                                                         }`}
                                                 />
                                             ))}
                                         </div>
-
-                                        <button
-                                            onClick={() => currentPhase < phases.length - 1 && setCurrentPhase(currentPhase + 1)}
-                                            disabled={currentPhase === phases.length - 1}
-                                            className="flex items-center space-x-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            <span className="text-sm">Հաջորդ</span>
-                                            <ChevronRight className="w-4 h-4" />
-                                        </button>
                                     </div>
                                 </div>
-
-                                {/* Right Column - Analysis Workspace */}
-                                <div className="space-y-4">
+                                {/* Right Column - Analysis Workspace (2/3 width) */}
+                                <div className="space-y-4 lg:col-span-2">
                                     <div className="bg-white/10 rounded-xl p-4 border border-white/20">
                                         <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                             <BarChart3 className="w-5 h-5 mr-2" />
@@ -892,7 +877,6 @@ const MyProfile = () => {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                                                {/* Form fields with responsive styling */}
                                                 {/* First Name */}
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium text-white">Անուն</label>

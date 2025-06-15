@@ -34,6 +34,10 @@ export const DataProvider = ({ children }) => {
     const [fuzzyResults, setFuzzyResults] = useState(null);
     const [scenarios, setScenarios] = useState([]);
 
+    // MISSING FUNCTIONS - ADD THESE 2 LINES
+    const [decisionResults, setDecisionResults] = useState(null);
+    const [finalRecommendations, setFinalRecommendations] = useState(null);
+
     // UI վիճակներ
     const [activeTab, setActiveTab] = useState('analysis');
     const [analysisWorkspace, setAnalysisWorkspace] = useState(false);
@@ -72,6 +76,8 @@ export const DataProvider = ({ children }) => {
         setClusterData(null);
         setFuzzyResults(null);
         setScenarios([]);
+        setDecisionResults(null);           // RESET DECISION RESULTS
+        setFinalRecommendations(null);      // RESET FINAL RECOMMENDATIONS
         setAnalysisWorkspace(false);
         setAnalystActive(false);
         setExpertActive(false);
@@ -105,6 +111,12 @@ export const DataProvider = ({ children }) => {
         setFuzzyResults,
         scenarios,
         setScenarios,
+
+        // MISSING FUNCTIONS - ADD THESE 4 LINES TO EXPORTS
+        decisionResults,
+        setDecisionResults,
+        finalRecommendations,
+        setFinalRecommendations,
 
         // UI վիճակներ
         activeTab,

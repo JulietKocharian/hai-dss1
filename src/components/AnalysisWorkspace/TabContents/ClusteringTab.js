@@ -7,6 +7,8 @@ import { ChartCard, ClusterCard } from '../../UI/Card';
 import Button, { ButtonGroup } from '../../UI/Button';
 import Alert from '../../UI/Alert';
 import { performClustering } from '../../../utils/clustering';
+import ClusterCharts from '../../Charts/ClusterCharts';
+import ClusterPointsChart from '../../Charts/ClusterPointsChart';
 
 /**
  * ClusteringTab բաղադրիչ - կլաստերիզացիայի վերլուծության ինտերֆեյս
@@ -20,9 +22,12 @@ const ClusteringTab = () => {
         dataType
     } = useData();
 
+    const [showVisualization, setShowVisualization] = useState(false);
+
+
     const [clusteringSettings, setClusteringSettings] = useState({
         clusterCount: 4,
-        method: 'kmeans',
+        method: 'acas', // Changed from 'kmeans' to 'acas' as default
         maxIterations: 100
     });
 
@@ -74,6 +79,7 @@ const ClusteringTab = () => {
         );
     }
 
+    console.log(clusterData, 'clusterDataclusterData')
     return (
         <div className="space-y-6">
             {/* Վերնագիր */}
@@ -96,8 +102,8 @@ const ClusteringTab = () => {
                     </p> */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                         <div className="bg-white rounded p-3 border">
-                            <div className="font-bold text-blue-600">K-Means</div>
-                            <div className="text-xs text-gray-600 mt-1">Արագ և արդյունավետ, պահանջում է նախնական k</div>
+                            <div className="font-bold text-blue-600">ACAS</div>
+                            <div className="text-xs text-gray-600 mt-1">Ավտոմատ ընտրություն և օպտիմալ կարգավորում</div>
                         </div>
                         <div className="bg-white rounded p-3 border">
                             <div className="font-bold text-green-600">Hierarchical</div>
@@ -243,8 +249,8 @@ const ClusteringTab = () => {
                             <strong>💡 Հուշումներ:</strong>
                             <ul className="list-disc list-inside mt-1 space-y-1">
                                 <li>Ավելի քիչ կլաստերներ = ավելի շատ ընդհանուր խմբեր</li>
-                                <li>K-Means ալգորիթմը լավագույնս աշխատում է գնդաձև կլաստերների հետ</li>
-                                <li>DBSCAN-ը հայտնաբերում է աղմուկը</li>
+                                <li>ACAS ալգորիթմը ավտոմատ կընտրի լավագույն մեթոդը</li>
+                                <li>Ալգորիթմը կհայտնաբերի աղմուկը և անկանոն կետերը</li>
                             </ul>
                         </div>
                     </div>
@@ -305,6 +311,7 @@ const ClusteringTab = () => {
                 </>
             )}
 
+
             {/* Կլաստերիզացիայի վերլուծության ծանուցում */}
             {clusterData && clusterData.length > 0 && (
                 <Alert type="success" title="🎯 Կլաստերացումը հաջողությամբ ավարտվել է">
@@ -323,6 +330,13 @@ const ClusteringTab = () => {
                         </div>
                     </div>
                 </Alert>
+            )}
+
+            {showVisualization && clusterData.length > 0 && (
+                <ClusterCharts clusters={clusterData} />
+            )}
+              {showVisualization && clusterData.length > 0 && (
+                <ClusterPointsChart clusters={clusterData} />
             )}
         </div>
     );
@@ -356,11 +370,11 @@ const ClusteringTab = () => {
         const dimensions = getDimensionality();
 
         if (size < 50) {
-            return '🌳 Հիերարխիկ կլաստերացում (փոքր տվյալների համար)';
+            return '🤖 ACAS (ավտոմատ մեթոդի ընտրություն փոքր տվյալների համար)';
         } else if (dimensions > 5) {
-            return '🎯 K-Means (բազմաչափ տվյալների համար)';
+            return '🤖 ACAS (բազմաչափ տվյալների համար ավտոմատ օպտիմիզացիա)';
         } else {
-            return '🔍 DBSCAN (աղմուկի հայտնաբերման համար)';
+            return '🤖 ACAS (ավտոմատ կլաստերացման ալգորիթմի ընտրություն)';
         }
     }
 
@@ -399,10 +413,10 @@ const ClusteringTab = () => {
      * Կլաստերների վիզուալիզացիա
      */
     function visualizeClusters() {
-        // Հետագա իրականացում
         console.log('Վիզուալիզացման մեկնարկ...', clusterData);
-        alert('Վիզուալացման ֆունկցիայի ապագա իրականացում');
+        setShowVisualization(true); // Show charts
     }
+
 };
 
 /**
