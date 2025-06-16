@@ -514,7 +514,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <li>🔮 Անորոշ տրամաբանության կիրառում</li>
                             <li>🎯 Խելացի կլաստերացում</li>
                             <li>📊 Գծապատկերային վերլուծություն</li>
-                            <li>🤖 AI-հենց կանխատեսման մոդելներ</li>
+                            <li>🤖 Կանխատեսման մոդելներ</li>
                             <li>📋 Որոշումների սցենարների AI գեներացում</li>
                         </ul>
                     </div>
@@ -631,9 +631,9 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <div>• Գնահատված ժամանակ: {summary.estimatedTime}</div>
                             <div>• Վերլուծության բարդություն: {summary.analysisComplexity}</div>
                         </div>
-                        <div className="text-orange-700 font-medium text-xs">
+                        {/* <div className="text-orange-700 font-medium text-xs">
                             🤖 Ծանուցում: AI սցենարների գեներացումը կարող է պահանջել լրացուցիչ ժամանակ
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 
