@@ -511,12 +511,12 @@ export const generateAIScenarios = async (dataType, analysisResults, clusterData
         console.log('📝 Building context prompt...');
         const contextPrompt = buildContextPrompt(dataType, analysisResults, clusterData, contextData);
         console.log('📄 Generated prompt length:', contextPrompt.length);
-        
+
         // 2. Make single AI request for all scenarios
         console.log('🤖 Making single comprehensive AI request...');
         const aiScenarios = await requestScenariosFromAI(contextPrompt, dataType, clusterData, userId);
         console.log('✅ AI Response received:', aiScenarios);
-        
+
         // 3. Validate and process all scenarios
         if (!aiScenarios || aiScenarios.length === 0) {
             console.warn('⚠️ AI returned no scenarios, using fallback');
@@ -526,17 +526,17 @@ export const generateAIScenarios = async (dataType, analysisResults, clusterData
         console.log('🔄 Processing all scenarios...');
         const processedScenarios = await validateAndEnrichScenarios(aiScenarios, analysisResults);
         console.log('✅ Processed scenarios:', processedScenarios);
-        
+
         // 4. Finalize scenarios
         const finalScenarios = finalizeAIScenarios(processedScenarios);
         console.log('🎉 Final scenarios ready:', finalScenarios);
-        
+
         return finalScenarios;
-        
+
     } catch (error) {
         console.error('❌ AI Scenario Generation Error:', error);
         console.log('🔄 Attempting fallback scenarios...');
-        
+
         try {
             return await getFallbackAIScenarios(dataType, analysisResults, userId);
         } catch (fallbackError) {
@@ -552,20 +552,20 @@ export const generateAIScenarios = async (dataType, analysisResults, clusterData
 const buildContextPrompt = (dataType, analysisResults, clusterData, contextData) => {
     const dataTypeTranslations = {
         demographic: 'դեմոգրաֆիական',
-        healthcare: 'առողջապահական', 
+        healthcare: 'առողջապահական',
         quality_of_life: 'կյանքի որակի',
         educational: 'կրթական'
     };
 
-    let prompt = `Դու անորոշության պայմաններում մենեջերի որոշումների ընդունմանն աջակցող համակարգ ես, որը պետք է տրամադրի առավելագույնը 3 սցենար ${dataTypeTranslations[dataType] || dataType} , կլաստերացման ցուցանիշների հիման վրա, վերադարձրու մանրամասն պատասխան առանց հարցեր տալու և հնարավորինս գրական հայերեն ձևով 
+    let prompt = `Դու անորոշության պայմաններում մենեջերի որոշումների ընդունմանն աջակցող համակարգ ես, որը պետք է տրամադրի առավելագույնը 3 սցենար ${dataTypeTranslations[dataType] || dataType}, կլաստերացման ցուցանիշների հիման վրա։ Վերադարձրու միայն JSON array ձևաչափով պատասխանը՝ հնարավորինս գրական հայերենով:
 
 ԿԱՐԵՎՈՐ: Գործողությունները պետք է լինեն ԻՐԱԿԱՆ և ԿՈՆԿՐԵՏ, ոչ թե ընդհանուր։
 
 ՏՎՅԱԼՆԵՐ:`;
 
-    // Simplified cluster data addition
+
     if (clusterData && Array.isArray(clusterData) && clusterData.length > 0) {
-        prompt += `\nՄարզում հայտնաբերված խմբեր:\n`;
+        prompt += `\nՆպատակային տարածքում հայտնաբերված խմբեր:\n`;
         clusterData.forEach(cluster => {
             if (cluster && cluster.label && cluster.size) {
                 prompt += `• ${cluster.label}: ${cluster.size} մարդ\n`;
@@ -574,101 +574,102 @@ const buildContextPrompt = (dataType, analysisResults, clusterData, contextData)
     }
 
     if (contextData.budget) {
-        prompt += `\nԲյուջետ: ${contextData.budget}`;
+        prompt += `\nԲյուջե: ${contextData.budget}`;
     }
 
-    // Fixed JSON example format to avoid parsing issues
+    // Instruction for AI to return only JSON
     prompt += `
 
-Պատասխանիր ՄԻԱՅՆ JSON array ֆորմատով (առանց markdown backticks):
+Պատասխանիր ՄԻԱՅՆ JSON array ֆորմատով՝ առանց որևէ բացատրության կամ markdown նշանների (օրինակ՝ \`\`\`)։ Յուրաքանչյուր սցենարը պետք է պարունակի հետևյալ դաշտերը՝ 
+"title", "description", "category", "priority", "timeframe", "actions", "indicators", "risks", "estimatedBudget", "expectedOutcomes":
 
-[
-  {
-    "title": "Ցածր եկամուտ ունեցող ընտանիքների սոցիալական աջակցություն",
-    "description": "Կոտայքի մարզում ցածր եկամուտ ունեցող ընտանիքների կյանքի որակի բարելավման համակարգ",
-    "category": "social_support",
-    "priority": "high",
-    "timeframe": "short_term",
-    "actions": ["Ցածր եկամուտ ունեցող ընտանիքների ցուցակի կազմում", "Ամսական 50,000 դրամ սննդային օգնություն", "Երեխաների համար անվճար դպրոցական պարագաներ"],
-    "indicators": ["օգնություն ստացող ընտանիքների քանակ", "եկամտի աճ"],
-    "risks": ["բյուջետի անբավարարություն", "կեղծ հայտերի ռիսկ"],
-    "estimatedBudget": "2-3 միլիոն դրամ",
-    "expectedOutcomes": ["150 ընտանիք օգնություն կստանա", "երեխաների կրթական ցուցանիշների բարելավում"]
-  }
-]
-
-Ստեղծիր 5 նման սցենար JSON array ֆորմատով:`;
+Ստեղծիր 3-5 նման սցենար:`; // Let AI decide the count within that range
 
     return prompt;
 };
+
 
 /**
  * FIXED: AI-ից սցենարների պահանջում with better error handling
  */
 const requestScenariosFromAI = async (prompt, dataType, clusterData = null, userId = 1) => {
-    console.log('🌐 Making AI request...');
-    console.log('📍 URL: http://localhost:6001/api/v1/ai/ask');
-    console.log('👤 User ID:', userId);
-    
     try {
         const requestData = {
             text: prompt,
             userId: userId,
             clusters: clusterData || []
         };
-        
+
         console.log('📤 Request payload:', {
             textLength: prompt.length,
             userId,
             clustersCount: (clusterData || []).length
         });
 
-        // Create axios instance with proper configuration
+        // Axios instance
         const axiosInstance = axios.create({
-            timeout: 30000, // Reduced timeout to 30 seconds
+            timeout: 30000,
             headers: {
                 'Content-Type': 'application/json',
             }
         });
 
+        // API call
         const response = await axiosInstance.post('https://gateway.amracode.am/api/v1/ai/ask', requestData);
 
         console.log('📥 Response status:', response.status);
         console.log('📥 Response headers:', response.headers);
 
-        // Better response validation
-        if (!response.data) {
-            throw new Error('Empty response data from AI API');
+        if (!response.data || !response.data.reply) {
+            throw new Error('Invalid response: missing reply');
         }
 
-        if (!response.data.reply) {
-            console.error('Invalid response structure:', response.data);
-            throw new Error('Invalid response format: missing reply field');
+        let aiReply = response.data.reply;
+
+        // Try to parse if it's a stringified JSON
+        let parsedReply;
+        if (typeof aiReply === 'string') {
+            try {
+                parsedReply = JSON.parse(aiReply);
+                console.log('🔍 Parsed stringified JSON in reply');
+            } catch (err) {
+                console.warn('⚠️ Failed to parse stringified JSON:', err.message);
+                throw new Error('Failed to parse AI reply as JSON');
+            }
+        } else if (typeof aiReply === 'object') {
+            parsedReply = aiReply;
+        } else {
+            throw new Error('Unexpected format in AI reply');
         }
 
-        const aiResponse = response.data.reply;
-        console.log('🤖 AI Reply length:', aiResponse.length);
-        console.log('🤖 AI Reply preview:', aiResponse.substring(0, 200) + '...');
-        
-        // Extract scenarios from the response
-        const extractedScenarios = extractJSONFromResponse(aiResponse);
-        
-        if (!extractedScenarios || extractedScenarios.length === 0) {
-            console.warn('⚠️ No valid scenarios extracted from AI response');
-            console.log('📄 Full AI response for debugging:', aiResponse);
-            throw new Error('No valid scenarios could be extracted from AI response');
+        // If clusters exist in parsed reply
+        if (parsedReply.clusters && Array.isArray(parsedReply.clusters)) {
+            const fixedClusters = parsedReply.clusters.map(cluster => fixScenarioStructure(cluster));
+            console.log(`✅ Extracted and fixed ${fixedClusters.length} cluster scenarios`);
+            return fixedClusters;
         }
-        
-        console.log(`✅ Successfully extracted ${extractedScenarios.length} scenarios`);
-        return extractedScenarios;
-        
+
+        // Fallback: If it looks like an array of scenarios
+        if (Array.isArray(parsedReply)) {
+            const fixed = parsedReply.map(item => fixScenarioStructure(item));
+            console.log(`✅ Parsed reply as direct scenario array (${fixed.length})`);
+            return fixed;
+        }
+
+        // Final fallback: try extracting JSON manually
+        const extracted = extractJSONFromResponse(typeof aiReply === 'string' ? aiReply : JSON.stringify(aiReply));
+        if (extracted.length > 0) {
+            return extracted;
+        }
+
+        console.warn('⚠️ No valid scenarios found in AI reply');
+        throw new Error('No usable scenarios found in AI reply');
+
     } catch (error) {
         console.error('❌ AI API Request failed:');
-        
-        // Better error categorization
+
         if (axios.isAxiosError(error)) {
             if (error.response) {
-                // Server responded with error status
                 console.error('Server Error:', {
                     status: error.response.status,
                     statusText: error.response.statusText,
@@ -676,22 +677,20 @@ const requestScenariosFromAI = async (prompt, dataType, clusterData = null, user
                 });
                 throw new Error(`AI API Server Error: ${error.response.status} - ${error.response.statusText}`);
             } else if (error.request) {
-                // Request was made but no response received
                 console.error('Network Error: No response received');
                 console.error('Request details:', error.request);
                 throw new Error('AI API Network Error: No response from server');
             } else {
-                // Request setup error
                 console.error('Request Setup Error:', error.message);
                 throw new Error(`AI API Request Error: ${error.message}`);
             }
         } else {
-            // Non-axios error
             console.error('Unexpected error:', error);
             throw new Error(`Unexpected error: ${error.message}`);
         }
     }
 };
+
 
 /**
  * FIXED: Enhanced JSON extraction with simplified regex patterns
@@ -700,13 +699,13 @@ const extractJSONFromResponse = (text) => {
     console.log('🔍 Extracting JSON from AI response...');
     console.log('📄 Response length:', text.length);
     console.log('📄 First 300 chars:', text.substring(0, 300));
-    
+
     const jsonBlocks = [];
     let cleanedText = text.trim();
-    
+
     try {
         // Method 1: Try to parse the entire response as JSON first
-        if ((cleanedText.startsWith('[') && cleanedText.endsWith(']')) || 
+        if ((cleanedText.startsWith('[') && cleanedText.endsWith(']')) ||
             (cleanedText.startsWith('{') && cleanedText.endsWith('}'))) {
             console.log('🔍 Trying to parse entire response as JSON...');
             try {
@@ -728,11 +727,11 @@ const extractJSONFromResponse = (text) => {
                 console.log('⚠️ Failed to parse entire response as JSON:', parseError.message);
             }
         }
-        
+
         // Method 2: Look for JSON arrays in code blocks
         const codeBlockArrayPattern = /```(?:json)?\s*(\[\s*\{[\s\S]*?\}\s*\])\s*```/gi;
         let match = codeBlockArrayPattern.exec(cleanedText);
-        
+
         if (match) {
             console.log('🔍 Found JSON array in code block...');
             try {
@@ -750,11 +749,11 @@ const extractJSONFromResponse = (text) => {
                 console.warn('⚠️ Failed to parse JSON array from code block:', parseError.message);
             }
         }
-        
+
         // Method 3: Look for standalone JSON arrays (without code blocks)
         const standaloneArrayPattern = /\[\s*\{[\s\S]*?\}\s*\]/g;
         const arrayMatches = cleanedText.match(standaloneArrayPattern);
-        
+
         if (arrayMatches && arrayMatches.length > 0) {
             console.log(`🔍 Found ${arrayMatches.length} potential JSON arrays...`);
             for (const arrayMatch of arrayMatches) {
@@ -773,13 +772,13 @@ const extractJSONFromResponse = (text) => {
                 }
             }
         }
-        
+
         // Method 4: Look for individual JSON objects
         if (jsonBlocks.length === 0) {
             console.log('🔍 Looking for individual JSON objects...');
             const objectPattern = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
             let objectMatch;
-            
+
             while ((objectMatch = objectPattern.exec(cleanedText)) !== null && jsonBlocks.length < 5) {
                 try {
                     const parsed = JSON.parse(objectMatch[0]);
@@ -793,11 +792,11 @@ const extractJSONFromResponse = (text) => {
                 }
             }
         }
-        
+
     } catch (error) {
         console.error('❌ Critical error during JSON extraction:', error);
     }
-    
+
     console.log(`🎉 Total extracted ${jsonBlocks.length} scenarios from AI response`);
     return jsonBlocks;
 };
@@ -810,25 +809,25 @@ const fixScenarioStructure = (scenario) => {
         console.warn('⚠️ Invalid scenario object provided to fixScenarioStructure');
         return null;
     }
-    
+
     const fixed = { ...scenario };
-    
+
     // Ensure required fields exist with safe defaults
     fixed.title = scenario.title || 'Անանուն սցենար';
     fixed.description = scenario.description || 'Նկարագրություն բացակայում է';
     fixed.category = scenario.category || 'general';
     fixed.priority = ['high', 'medium', 'low'].includes(scenario.priority) ? scenario.priority : 'medium';
     fixed.timeframe = ['short_term', 'medium_term', 'long_term'].includes(scenario.timeframe) ? scenario.timeframe : 'medium_term';
-    
+
     // Safely convert arrays with better error handling
     fixed.actions = ensureArray(scenario.actions, []);
     fixed.indicators = ensureArray(scenario.indicators, []);
     fixed.risks = ensureArray(scenario.risks, []);
     fixed.expectedOutcomes = ensureArray(scenario.expectedOutcomes, []);
-    
+
     // Ensure estimatedBudget is a string
     fixed.estimatedBudget = String(scenario.estimatedBudget || 'Չշահցված');
-    
+
     console.log('🔧 Fixed scenario structure for:', fixed.title);
     return fixed;
 };
@@ -840,17 +839,17 @@ const ensureArray = (value, defaultValue = []) => {
     if (Array.isArray(value)) {
         return value.filter(item => item && String(item).trim()); // Remove empty items
     }
-    
+
     if (typeof value === 'string' && value.trim()) {
         // Try to split by common delimiters
         return value.split(/[,،\n|]/).map(item => item.trim()).filter(item => item);
     }
-    
+
     if (value && typeof value === 'object') {
         // If it's an object, try to extract values
         return Object.values(value).filter(item => item && String(item).trim());
     }
-    
+
     return defaultValue;
 };
 
@@ -859,12 +858,12 @@ const ensureArray = (value, defaultValue = []) => {
  */
 const validateAndEnrichScenarios = async (scenarios, analysisResults) => {
     const validatedScenarios = [];
-    
+
     if (!Array.isArray(scenarios)) {
         console.warn('⚠️ Scenarios is not an array, converting...');
         scenarios = [scenarios];
     }
-    
+
     for (const scenario of scenarios) {
         try {
             // More thorough validation
@@ -872,12 +871,12 @@ const validateAndEnrichScenarios = async (scenarios, analysisResults) => {
                 console.warn('⚠️ Skipping invalid scenario:', scenario);
                 continue;
             }
-            
+
             if (!scenario.title && !scenario.description) {
                 console.warn('⚠️ Skipping scenario without title or description');
                 continue;
             }
-            
+
             // Enhanced enrichment with error handling
             const enrichedScenario = {
                 ...scenario,
@@ -892,9 +891,9 @@ const validateAndEnrichScenarios = async (scenarios, analysisResults) => {
                     validationPassed: true
                 }
             };
-            
+
             validatedScenarios.push(enrichedScenario);
-            
+
         } catch (enrichmentError) {
             console.error('❌ Error enriching scenario:', enrichmentError);
             // Still add the basic scenario if enrichment fails
@@ -912,7 +911,7 @@ const validateAndEnrichScenarios = async (scenarios, analysisResults) => {
             });
         }
     }
-    
+
     return validatedScenarios;
 };
 
@@ -929,29 +928,29 @@ const generateScenarioId = () => {
 const calculateScenarioConfidence = (scenario, analysisResults) => {
     try {
         let confidence = 50; // Base confidence
-        
+
         // Actions quality
         if (scenario.actions && Array.isArray(scenario.actions) && scenario.actions.length >= 3) {
             confidence += 15;
         }
-        
+
         // Risk assessment quality
         if (scenario.risks && Array.isArray(scenario.risks) && scenario.risks.length >= 2) {
             confidence += 10;
         }
-        
+
         // Expected outcomes quality
         if (scenario.expectedOutcomes && Array.isArray(scenario.expectedOutcomes) && scenario.expectedOutcomes.length >= 2) {
             confidence += 10;
         }
-        
+
         // Data-based confidence boost
         if (analysisResults?.fuzzyResults?.high) {
             confidence += (analysisResults.fuzzyResults.high * 0.2);
         }
-        
+
         return Math.min(100, Math.max(0, Math.round(confidence)));
-        
+
     } catch (error) {
         console.warn('⚠️ Error calculating scenario confidence:', error);
         return 50; // Default confidence
@@ -966,15 +965,15 @@ const calculateFeasibilityScore = (scenario) => {
         // Complexity assessment
         const actionsCount = Array.isArray(scenario.actions) ? scenario.actions.length : 0;
         const complexityScore = Math.min(100, Math.max(20, 100 - (actionsCount * 5)));
-        
+
         // Timeframe assessment
         const timeframeScores = {
             'short_term': 85,
-            'medium_term': 65, 
+            'medium_term': 65,
             'long_term': 45
         };
         const timeScore = timeframeScores[scenario.timeframe] || 60;
-        
+
         // Budget assessment
         let budgetScore = 70;
         if (scenario.estimatedBudget && typeof scenario.estimatedBudget === 'string') {
@@ -984,10 +983,10 @@ const calculateFeasibilityScore = (scenario) => {
             else if (budget > 500000) budgetScore = 70;
             else budgetScore = 90;
         }
-        
+
         const finalScore = Math.round((complexityScore * 0.3 + timeScore * 0.4 + budgetScore * 0.3));
         return Math.min(100, Math.max(10, finalScore));
-        
+
     } catch (error) {
         console.warn('⚠️ Error calculating feasibility score:', error);
         return 60; // Default feasibility
@@ -1017,7 +1016,7 @@ const finalizeAIScenarios = (scenarios) => {
     return scenarios.slice(0, 5).map((scenario, index) => {
         const priorityTexts = {
             'high': 'ԲԱՐՁՐ ԿԱՐԵՎՈՐՈՒԹՅՈՒՆ',
-            'medium': 'ՄԻՋԻՆ ԿԱՐԵՎՈՐՈՒԹՅՈՒՆ', 
+            'medium': 'ՄԻՋԻՆ ԿԱՐԵՎՈՐՈՒԹՅՈՒՆ',
             'low': 'ՑԱԾՐ ԿԱՐԵՎՈՐՈՒԹՅՈՒՆ'
         };
 
@@ -1048,18 +1047,18 @@ const finalizeAIScenarios = (scenarios) => {
  */
 const getFallbackAIScenarios = async (dataType, analysisResults, userId = 1) => {
     const simplePrompt = `Մենեջերական որոշումների աջակցության համակարգ: Ստեղծիր  ${dataType}  ոլորտի ռիսկային իրավիճակների կառավարման սցենարներ (3)  JSON array ֆորմատով։ Պատասխանիր միայն JSON array-ով, միանգամից վերադարձրու կոնկրետ վերլուծություն։ տուր առնվազն 3 սցենարային վերլուծություն, տարբեր կարեւորության`;
-    
+
     try {
         const fallbackScenarios = await requestScenariosFromAI(simplePrompt, dataType, null, userId);
-        
+
         if (!fallbackScenarios || fallbackScenarios.length === 0) {
             console.warn('⚠️ Fallback AI also returned empty, using hardcoded');
             return getHardcodedFallbackScenarios(dataType, analysisResults);
         }
-        
+
         const scenarios = Array.isArray(fallbackScenarios) ? fallbackScenarios : [fallbackScenarios];
         return finalizeAIScenarios(scenarios);
-        
+
     } catch (error) {
         console.error('❌ Fallback AI սցենարների սխալ:', error);
         return getHardcodedFallbackScenarios(dataType, analysisResults);
@@ -1133,7 +1132,7 @@ export const testMultipleScenariosExtraction = () => {
     "expectedOutcomes": ["կյանքի որակի բարելավում"]
   }
 ]`;
-    
+
     console.log('🧪 Testing multiple scenarios extraction...');
     const scenarios = extractJSONFromResponse(multipleScenarios);
     console.log(`🎉 Test result: extracted ${scenarios.length} scenarios`);
