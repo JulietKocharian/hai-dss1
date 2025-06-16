@@ -690,7 +690,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                         ) : isCompleted ? (
                             <span className="text-center">✅ Փորձագետի վերլուծությունը ավարտված է</span>
                         ) : (
-                            <span>🧠 Սկսել AI-հենց փորձագետի վերլուծությունը</span>
+                            <span>🧠 Սկսել AI վերլուծությունը</span>
                         )}
                     </Button>
 
