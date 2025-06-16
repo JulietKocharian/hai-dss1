@@ -424,10 +424,10 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
 
             const userId = getCurrentUserId();
             const generatedScenarios = await generateAIScenarios(
-                dataType, 
-                analysisResults, 
-                clusters, 
-                contextData, 
+                dataType,
+                analysisResults,
+                clusters,
+                contextData,
                 userId
             );
             setScenarios(generatedScenarios);
@@ -531,10 +531,10 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
             icon="🧠"
             phase="expert"
             className={`w-full max-w-none transition-all duration-300 ${isCompleted
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : isActive
-                        ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
-                        : 'opacity-60'
+                ? 'bg-green-500/10 border-green-500/30'
+                : isActive
+                    ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
+                    : 'opacity-60'
                 }`}
         >
             {/* Status Badge */}
@@ -583,8 +583,8 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <div className="min-w-0 flex-1">
                                 <div className="font-medium text-blue-800 text-sm break-words">{currentStep}</div>
                                 <div className="text-blue-600 text-xs">
-                                    {currentStep.includes('AI') ? 
-                                        'Արհեստական բանականությունը աշխատում է...' : 
+                                    {currentStep.includes('AI') ?
+                                        'Արհեստական բանականությունը աշխատում է...' :
                                         'Խնդրում ենք սպասել...'
                                     }
                                 </div>
@@ -604,7 +604,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                         </div>
                         <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('կլաստերիզացիա') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                             }`}>
-                            <div className="font-bold text-purple-700 text-xs sm:text-sm">🎯 K-Means++</div>
+                            <div className="font-bold text-purple-700 text-xs sm:text-sm">🤖 ACAS (Ավտոմատ ընտրություն)</div>
                             <div className="text-purple-600 text-xs break-words">Օպտիմալ կլաստերիզացիա</div>
                         </div>
                         <div className="bg-white rounded p-2 sm:p-3 shadow-sm">
@@ -648,7 +648,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <span className="block sm:inline sm:ml-1">Մշակում է տվյալների անորոշությունը և վստահության մակարդակները:</span>
                         </div>
                         <div>
-                            <strong className="block sm:inline">2. Կլաստերիզացիա (K-Means++):</strong>
+                            <strong className="block sm:inline">2. 🤖 ACAS (Ավտոմատ ընտրություն):</strong>
                             <span className="block sm:inline sm:ml-1">Բացահայտում է թաքնված օրինաչափությունները և խմբավորումները:</span>
                         </div>
                         <div>
@@ -669,8 +669,8 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                         variant="expert"
                         size="md"
                         className={`w-full text-sm sm:text-base py-3 sm:py-4 transition-all duration-300 ${isCompleted
-                                ? 'bg-green-500 text-white cursor-default'
-                                : ''
+                            ? 'bg-green-500 text-white cursor-default'
+                            : ''
                             }`}
                         disabled={
                             isCompleted ||
