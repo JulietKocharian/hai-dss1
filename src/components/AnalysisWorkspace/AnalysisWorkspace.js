@@ -109,14 +109,14 @@ const AnalysisWorkspace = () => {
     return (
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 shadow-xl mt-4 lg:mt-8 w-full max-w-full overflow-hidden">
             {/* Վերլուծական տարածքի վերնագիր */}
-            <div className="mb-4 lg:mb-6">
+            {/* <div className="mb-4 lg:mb-6">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 lg:mb-2 leading-tight">
                     🔬 Վերլուծական աշխատանք
                 </h2>
                 <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
                     Ինտերակտիվ վերլուծության հարթակ բոլոր մեթոդաբանական գործիքներով
                 </p>
-            </div>
+            </div> */}
 
             {/* Տաբերի նավիգացիա - Բարելավված responsive */}
             <div className="mb-4 lg:mb-6 overflow-hidden">

@@ -379,10 +379,10 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
             icon="⚖️"
             phase="decision"
             className={`h-fit transition-all duration-300 ${isCompleted
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : isActive
-                        ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
-                        : 'opacity-60'
+                ? 'bg-green-500/10 border-green-500/30'
+                : isActive
+                    ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
+                    : 'opacity-60'
                 }`}
         >
             {/* Status Badge */}
@@ -432,8 +432,8 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                     </div>
                     <div className="mt-2 text-sm space-y-1">
                         <div><strong>Նախագիծ:</strong> {projectName}</div>
-                        <div><strong>Տվյալների կետեր:</strong> {summary.dataPoints} հատ</div>
-                        <div><strong>Չափանիշներ:</strong> {summary.criteriaCount} հատ</div>
+                        <div><strong>Տվյալների կետեր:</strong> {summary.dataPoints}</div>
+                        <div><strong>Չափանիշներ:</strong> {summary.criteriaCount}</div>
                         <div><strong>Վստահություն:</strong> {summary.confidenceLevel}</div>
                         <div><strong>Համատեքստ:</strong> {summary.contextValid ? '✅ Վավեր' : '❌ Անվավեր'}</div>
                     </div>
@@ -488,7 +488,7 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                     <h4 className="font-bold text-sm text-green-800 mb-2">🎯 Որոշումների կանխատեսում</h4>
                     <div className="text-xs text-green-700 space-y-1">
                         <div>• Վերլուծված տվյալներ: {summary.dataPoints} կետ</div>
-                        <div>• Գնահատման չափանիշներ: {summary.criteriaCount} հատ</div>
+                        <div>• Գնահատման չափանիշներ: {summary.criteriaCount}</div>
                         <div>• Մշակման ժամանակ: {summary.estimatedTime}</div>
                         <div>• Որոշման բարդություն: {summary.complexityLevel}</div>
                         <div>• Վստահության մակարդակ: {summary.confidenceLevel}</div>
@@ -498,11 +498,11 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                 {/* Մեթոդաբանական նկարագրություն */}
                 <details className="bg-gray-50 rounded-lg p-3">
                     <summary className="font-bold text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-                        🎓 Կիրառվող որոշումային մեթոդներ
+                        🎓 Կիրառվող որոշումների ընդունման մեթոդներ
                     </summary>
                     <div className="mt-3 text-xs text-gray-600 space-y-2">
                         <div>
-                            <strong>1. Բազմակրիտերիալ վերլուծություն (MCDM):</strong>
+                            <strong>1. Բազմաչափանիշային վերլուծություն (MCDM):</strong>
                             <br />Գնահատում է տարբեր չափանիշների ազդեցությունը որոշումների վրա:
                         </div>
                         <div>
@@ -523,8 +523,8 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                         variant="decision"
                         size="md"
                         className={`w-full transition-all duration-300 bg-white ${isCompleted
-                                ? 'bg-green-500 cursor-default'
-                                : ''
+                            ? 'bg-green-500 cursor-default'
+                            : ''
                             }`}
                         disabled={
                             isCompleted ||
@@ -535,10 +535,10 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                         {isProcessing ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                Որոշումների վերլուծությունն ընթացքում է...
+                                Որոշումների վերլուծությունն ընթացքի մեջ է...
                             </>
                         ) : isCompleted ? (
-                            '✅ Որոշումների վերլուծությունը ամբողջական է'
+                            '✅ Որոշումների վերլուծությունը ավարտվել է'
                         ) : (
                             '⚖️ Սկսել որոշումների վերլուծությունը'
                         )}
@@ -548,7 +548,7 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                         <ul className="list-disc list-inside mt-1 space-y-1 ">
                             🎯 <strong>Վերլուծության արդյունք:</strong>
                             <li>Որոշումային մատրիցի ստեղծում</li>
-                            <li>Ալտերնատիվների գնահատում և դասակարգում</li>
+                            <li>Այլընտրանքային տարբերակների գնահատում և դասակարգում</li>
                             <li>Ռիսկերի վերլուծություն և կառավարման ծրագիր</li>
                             <li>Մենեջերի համար գործողությունների ծրագիր</li>
                         </ul>

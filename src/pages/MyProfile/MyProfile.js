@@ -329,7 +329,7 @@ const MyProfile = () => {
             },
             'in-progress': {
                 color: 'bg-[#1c92d2]/20 text-[#1c92d2] border-[#1c92d2]/30',
-                label: 'Ընթացքում',
+                label: 'Ընթացքի մեջ',
                 icon: Clock
             },
             'draft': {
@@ -415,6 +415,22 @@ const MyProfile = () => {
             3: 'Որոշումների փուլ'
         };
         return phaseNames[currentPhase] || 'Մենեջերի փուլ';
+    };
+
+
+    const handlePhaseNext = () => {
+        if (currentPhase < phases.length - 1) {
+            setCompletedPhases(prev => new Set(prev).add(currentPhase));
+            setCurrentPhase(currentPhase + 1);
+            setAllPhasesCompleted(true);
+        }
+    };
+
+    const handlePhasePrevious = () => {
+        if (currentPhase > 0) {
+            setCurrentPhase(currentPhase - 1);
+            setAllPhasesCompleted(true); // Reset if going back from completed state
+        }
     };
 
     return (
@@ -613,10 +629,11 @@ const MyProfile = () => {
                                 {/* Current Phase Status */}
                                 <div className="text-center">
                                     {allPhasesCompleted ? (
-                                        <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
-                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                                            <span className="text-center">Բոլոր փուլերը հաջողությամբ ավարտվել են - Վերլուծությունը պատրաստ է</span>
-                                        </div>
+                                        <></>
+                                        // <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
+                                        //     <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                        //     <span className="text-center">Բոլոր փուլերը հաջողությամբ ավարտվել են - Վերլուծությունը պատրաստ է</span>
+                                        // </div>
                                     ) : (
                                         <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg sm:rounded-xl text-blue-300 text-xs sm:text-sm">
                                             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse mr-2"></div>
@@ -641,10 +658,11 @@ const MyProfile = () => {
                                 </h3>
                                 <div className="text-center">
                                     {allPhasesCompleted ? (
-                                        <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
-                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                                            <span>Բոլոր փուլերը հաջողությամբ ավարտվել են</span>
-                                        </div>
+                                        // <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
+                                        //     <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                        //     <span>Բոլոր փուլերը հաջողությամբ ավարտվել են</span>
+                                        // </div>
+                                        <></>
                                     ) : (
                                         <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg sm:rounded-xl text-blue-300 text-xs sm:text-sm">
                                             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse mr-2"></div>
@@ -668,20 +686,44 @@ const MyProfile = () => {
                                         {renderCurrentPhase()}
                                     </div>
                                     {/* REMOVED: Manual Phase Navigation Buttons - Only show progress indicators */}
-                                    <div className="flex justify-center items-center">
-                                        <div className="flex space-x-3">
-                                            {phases.map((_, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentPhase
-                                                        ? 'bg-blue-400 ring-2 ring-blue-400/30 ring-offset-2 ring-offset-transparent scale-125'
-                                                        : completedPhases.has(index)
-                                                            ? 'bg-green-400 scale-110'
-                                                            : 'bg-gray-600'
-                                                        }`}
-                                                />
-                                            ))}
+                                    <div className="flex flex-col sm:flex-row items-center gap-3">
+
+                                        <button
+                                            onClick={handlePhasePrevious}
+                                            className={`flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-300 w-full sm:w-auto ${currentPhase === 0 ? 'invisible' : ''}`}
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                            <span className="text-sm">Նախորդ</span>
+                                        </button>
+
+                                        <div className="flex justify-center items-center flex-1">
+                                            <div className="flex space-x-3">
+                                                {phases.map((_, index) => (
+                                                    <button
+                                                        key={index}
+
+                                                        disabled={index > currentPhase && !completedPhases.has(index)}
+                                                        className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentPhase
+                                                            ? 'bg-blue-400 ring-2 ring-blue-400/30 ring-offset-2 ring-offset-transparent scale-125 cursor-pointer'
+                                                            : completedPhases.has(index)
+                                                                ? 'bg-green-400 scale-110 cursor-pointer hover:scale-125'
+                                                                : index < currentPhase
+                                                                    ? 'bg-gray-400 cursor-pointer hover:scale-110'
+                                                                    : 'bg-gray-600 cursor-not-allowed opacity-50'
+                                                            } ${index <= currentPhase || completedPhases.has(index) ? 'hover:scale-125' : ''}`}
+                                                    />
+                                                ))}
+                                            </div>
                                         </div>
+
+                                        {/* Next Button - Always render, toggle visibility */}
+                                        <button
+                                            onClick={handlePhaseNext}
+                                            className={`flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-300 w-full sm:w-auto ${currentPhase === phases.length - 1 ? 'invisible' : ''}`}
+                                        >
+                                            <span className="text-sm">Հաջորդ</span>
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </div>
                                 {/* Right Column - Analysis Workspace (2/3 width) */}
@@ -689,7 +731,7 @@ const MyProfile = () => {
                                     <div className="bg-white/10 rounded-xl p-4 border border-white/20">
                                         <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
                                             <BarChart3 className="w-5 h-5 mr-2" />
-                                            Վերլուծական աշխատանքային տիրույթ
+                                            Աշխատանքային տիրույթ
                                         </h4>
                                         <AnalysisWorkspace />
                                     </div>
@@ -702,7 +744,7 @@ const MyProfile = () => {
                                     <div className="bg-white/10 rounded-xl p-4 border border-white/20">
                                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
                                             <BarChart3 className="w-5 h-5 mr-2" />
-                                            Վերլուծական աշխատանքային տիրույթ
+                                            Աշխատանքային տիրույթ
                                         </h4>
                                         <AnalysisWorkspace />
                                     </div>
@@ -1447,7 +1489,7 @@ const MyProfile = () => {
                                                             <div className="flex items-center space-x-3">
                                                                 <Upload className="w-5 h-5 text-[#0ea5e9]" />
                                                                 <div>
-                                                                    <p className="text-white text-sm font-medium">Արտահանել տվյալները</p>
+                                                                    <p className="text-white text-sm font-medium">Ներբեռնել տվյալները</p>
                                                                     <p className="text-white/60 text-xs">Ստանալ բոլոր տվյալները</p>
                                                                 </div>
                                                             </div>

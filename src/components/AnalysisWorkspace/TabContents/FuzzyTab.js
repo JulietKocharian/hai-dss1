@@ -286,7 +286,7 @@ const FuzzyTab = () => {
                             variant="secondary"
                             size="md"
                         >
-                            🔄 Վերահարցման վերլուծություն
+                            🔄 Վերլուծել
                         </Button>
                     </div>
                 </>

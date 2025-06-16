@@ -9,6 +9,7 @@ import Alert from '../../UI/Alert';
 import { performClustering } from '../../../utils/clustering';
 import ClusterCharts from '../../Charts/ClusterCharts';
 import ClusterPointsChart from '../../Charts/ClusterPointsChart';
+import ClusterScatterChart from '../../Charts/ClusteringScatter';
 
 /**
  * ClusteringTab բաղադրիչ - կլաստերիզացիայի վերլուծության ինտերֆեյս
@@ -87,9 +88,6 @@ const ClusteringTab = () => {
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">
                     🎯 Կլաստերացման մեթոդ
                 </h3>
-                <p className="text-gray-600">
-                    Տվյալների ինտելիգենտ խմբավորում նմանության և օրինակների հիման վրա
-                </p>
             </div>
 
             {/* Մեթոդաբանական ինֆո */}
@@ -116,12 +114,13 @@ const ClusteringTab = () => {
                     </div>
                 </div>
             </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Կլաստերիզացիայի կարգավորումներ */}
                 <ChartCard
                     title="Կլաստերացման կարգավորումներ"
-                    subtitle="Ալգորիթմի պարամետրերի տեղադրում"
                 >
                     <div className="space-y-4">
                         {/* Կլաստերների քանակ */}
@@ -199,9 +198,9 @@ const ClusteringTab = () => {
                 </ChartCard>
 
                 {/* Տվյալների նախապատրաստում */}
+
                 <ChartCard
                     title="Տվյալների նախապատրաստում"
-                    subtitle="Կլաստերացման համար տվյալների գնահատում"
                 >
                     <div className="space-y-4">
                         {/* Տվյալների վիճակագրություն */}
@@ -288,7 +287,7 @@ const ClusteringTab = () => {
                                 variant="success"
                                 size="md"
                             >
-                                📊 Արտահանել կլաստերները
+                                📊 Ներբեռնել կլաստերները
                             </Button>
 
                             <Button
@@ -335,9 +334,12 @@ const ClusteringTab = () => {
             {showVisualization && clusterData.length > 0 && (
                 <ClusterCharts clusters={clusterData} />
             )}
-              {showVisualization && clusterData.length > 0 && (
-                <ClusterPointsChart clusters={clusterData} />
+            {showVisualization && clusterData.length > 0 && (
+                <ClusterScatterChart clusters={clusterData} />
+
             )}
+
+
         </div>
     );
 

@@ -17,7 +17,9 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
         rawData,
         setRawData,
         setCurrentData,
-        setAnalystActive
+        setAnalystActive,
+        setAnalysisWorkspace,
+
     } = useData();
 
     const [showModal, setShowModal] = useState(false);
@@ -117,6 +119,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             const parsedData = parseCSV(rawData);
+            setAnalysisWorkspace(true);
 
             if (parsedData.length === 0) {
                 alert('CSV տվյալները դատարկ են կամ սխալ ֆորմատ ունեն');

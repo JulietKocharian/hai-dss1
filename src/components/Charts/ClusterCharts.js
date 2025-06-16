@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 const ClusterCharts = ({ clusters }) => {
   return (
     <div className="mt-6 bg-white p-4 rounded-lg shadow">
-      <h4 className="text-xl font-bold mb-4">📈 Կլաստերների վիզուալացում</h4>
+      <h4 className="text-xl font-bold mb-4">📈 Կլաստերների վիզուալ ներկայացում</h4>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={clusters}>
           <XAxis dataKey="label" />

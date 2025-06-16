@@ -350,7 +350,7 @@ export const useCSVParser = () => {
      */
     const exportToCSV = useCallback((exportOptions = {}) => {
         if (!parsedData || parsedData.length === 0) {
-            throw new Error('Արտահանելու համար տվյալներ չեն գտնվել');
+            throw new Error('Ներբեռնելու համար տվյալներ չեն գտնվել');
         }
 
         const {

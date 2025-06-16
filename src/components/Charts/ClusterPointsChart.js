@@ -56,7 +56,6 @@ const ClusterProgressChart = ({ clusters }) => {
 
   return (
     <div className="mt-6 bg-white p-4 rounded-lg shadow">
-      <h4 className="text-xl font-bold mb-4">📊 Կլաստերների որակի պրոգրեսս</h4>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
@@ -67,13 +66,13 @@ const ClusterProgressChart = ({ clusters }) => {
             type="number"
             dataKey="index"
             domain={[0, maxX]}
-            label={{ value: 'Հերթական համար', position: 'insideBottomRight' }}
+            label={{ position: 'insideBottomRight' }}
             allowDecimals={false}
           />
           <YAxis
             domain={[0, 100]}
             tickFormatter={(tick) => `${tick}%`}
-            label={{ value: 'Որակի պրոգրեսս (%)', angle: -90, position: 'insideLeft' }}
+            label={{ angle: -90, position: 'insideLeft' }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend />

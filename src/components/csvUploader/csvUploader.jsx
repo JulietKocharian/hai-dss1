@@ -174,18 +174,9 @@ const CSVUploaderr = ({ maxSize = 10 }) => { // REMOVE onFileUpload prop since w
                         </div>
 
                         <div>
-                            <h3 className="text-base font-semibold text-white mb-1">
-                                Ֆայլը բեռնված է
-                            </h3>
                             <p className="text-green-400">
                                 {uploadedFile.name} ({formatFileSize(uploadedFile.size)})
                             </p>
-                            {/* ADD STATUS INFO */}
-                            {rawData && (
-                                <p className="text-xs text-white/70 mt-1">
-                                    📊 Տվյալներ կարդացվել են ({rawData.split('\n').length} տող)
-                                </p>
-                            )}
                         </div>
 
                         <div className="flex justify-center space-x-2">
@@ -206,14 +197,6 @@ const CSVUploaderr = ({ maxSize = 10 }) => { // REMOVE onFileUpload prop since w
                 <div className="flex items-center space-x-2 p-3 bg-red-900/20 border border-red-800/30 rounded-xl">
                     <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                     <span className="text-red-400">{error}</span>
-                </div>
-            )}
-
-            {/* Success Message when data is loaded */}
-            {rawData && uploadedFile && (
-                <div className="flex items-center space-x-2 p-3 bg-green-900/20 border border-green-800/30 rounded-xl">
-                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                    <span className="text-green-400">CSV տվյալները հաջողությամբ բեռնվել են</span>
                 </div>
             )}
         </div>
