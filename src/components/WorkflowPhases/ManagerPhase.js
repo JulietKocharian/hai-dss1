@@ -94,6 +94,38 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
         }));
     };
 
+    // Handle Select All functionality
+    const handleSelectAll = (isChecked) => {
+        const currentCriteria = dataTypeCriteria[currentModalType] || [];
+        const newSelection = {};
+        
+        currentCriteria.forEach(criteria => {
+            newSelection[criteria.id] = isChecked;
+        });
+        
+        setSelectedCriteria(prev => ({
+            ...prev,
+            [currentModalType]: newSelection
+        }));
+    };
+
+    // Check if all criteria are selected
+    const isAllSelected = () => {
+        const currentCriteria = dataTypeCriteria[currentModalType] || [];
+        const currentSelection = selectedCriteria[currentModalType] || {};
+        
+        return currentCriteria.length > 0 && 
+               currentCriteria.every(criteria => currentSelection[criteria.id]);
+    };
+
+    // Check if some criteria are selected (for indeterminate state)
+    const isSomeSelected = () => {
+        const currentCriteria = dataTypeCriteria[currentModalType] || [];
+        const currentSelection = selectedCriteria[currentModalType] || {};
+        
+        return currentCriteria.some(criteria => currentSelection[criteria.id]);
+    };
+
     const closeModal = () => {
         setShowModal(false);
         setCurrentModalType('');
@@ -304,7 +336,6 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                                 <li>Առաջին տողը պետք է պարունակի սյունակների անվանումները</li>
                                 <li>Յուրաքանչյուր տողի արժեք պետք է համապատասխանի իր սյունակի տեսակին</li>
                                 <li className="sm:block hidden">Տվյալներ մուտքագրելուց հնարավորություն կա որոշ դաշտեր թողնել դատարկ</li>
-                                <li>Որոշումների ընդունման փուլը կարող է լինել՝ Բարձր, Միջին, Ցածր</li>
                             </ul>
                         </div>
                     </div>
@@ -336,6 +367,28 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         {/* Modal Content */}
                         <div className="p-3 sm:p-6 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto">
                             <div className="space-y-2 sm:space-y-3">
+                                {/* Select All Option */}
+                                <label className="flex items-start p-3 sm:p-4 border-2 border-blue-500 bg-blue-50 rounded-lg sm:rounded-xl cursor-pointer transition-all duration-200 mb-4">
+                                    <input
+                                        type="checkbox"
+                                        checked={isAllSelected()}
+                                        ref={input => {
+                                            if (input) input.indeterminate = !isAllSelected() && isSomeSelected();
+                                        }}
+                                        onChange={(e) => handleSelectAll(e.target.checked)}
+                                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3 sm:mr-4 mt-0.5 flex-shrink-0"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <span className="text-sm sm:text-base font-bold text-blue-700 leading-relaxed block">
+                                            ✅ Ընտրել բոլորը
+                                        </span>
+                                        <span className="text-xs sm:text-sm text-blue-600 mt-1 block">
+                                            Ընտրել/չեղարկել բոլոր ցուցանիշները միանգամից
+                                        </span>
+                                    </div>
+                                </label>
+
+                                {/* Individual Criteria */}
                                 {dataTypeCriteria[currentModalType]?.map((criteria, index) => (
                                     <label
                                         key={criteria.id}
@@ -363,7 +416,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         {/* Modal Footer */}
                         <div className="bg-gray-50 p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="text-sm text-gray-600 order-2 sm:order-1">
-                                Ընտրված չափանիշներ: {Object.values(selectedCriteria[currentModalType] || {}).filter(Boolean).length}
+                                Ընտրված չափանիշներ: {Object.values(selectedCriteria[currentModalType] || {}).filter(Boolean).length} / {dataTypeCriteria[currentModalType]?.length || 0}
                             </div>
                             <div className="flex space-x-3 order-1 sm:order-2">
                                 <button

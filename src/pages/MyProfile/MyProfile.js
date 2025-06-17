@@ -37,6 +37,7 @@ import {
     ChevronLeft
 } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
 import ManagerPhase from '../../components/WorkflowPhases/ManagerPhase';
 import AnalystPhase from '../../components/WorkflowPhases/AnalystPhase';
 import ExpertPhase from '../../components/WorkflowPhases/ExpertPhase';
@@ -96,6 +97,16 @@ const MyProfile = () => {
     const [isNavigating, setIsNavigating] = useState(false);
     const [uploadedCSV, setUploadedCSV] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            navigate('/sign-in', { replace: true });
+        }
+    }, [navigate]);
 
     const [profileData, setProfileData] = useState({
         firstName: 'Նարեկ',

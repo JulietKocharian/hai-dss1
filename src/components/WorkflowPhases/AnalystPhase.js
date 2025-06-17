@@ -309,11 +309,10 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         <div className="flex items-start space-x-1">
                             <span className="flex-shrink-0">💡</span>
                             <div className="min-w-0">
-                                <strong className="font-semibold">Վերլուծության պրոցեսը ներառում է:</strong>
+                                <strong className="font-semibold">Վերլուծության փուլը ներառում է:</strong>
                                 <ul className="list-disc list-inside mt-1 space-y-0.5 sm:space-y-1 pl-0">
-                                    <li className="break-words">Ինտերակտիվ վերլուծական տարածքի բացում</li>
-                                    <li className="break-words">Տվյալների որակի մետրիկների հաշվարկ</li>
-                                    <li className="break-words">Վիզուալ ռեպորտների ստեղծում</li>
+                                    <li className="break-words">Տվյալների որակի չափանիշների հաշվարկ</li>
+                                    <li className="break-words">Վիզուալ հաշվետվության ստեղծում</li>
                                     <li className="break-words">Փորձագետի փուլի նախապատրաստում</li>
                                 </ul>
                             </div>

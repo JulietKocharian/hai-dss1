@@ -168,8 +168,12 @@ const SignIn = () => {
             if (activeTab === 'login') {
                 // Login flow
                 const response = await login(formData.email, formData.password);
+                if (response?.access_token && response?.refresh_token) {
+                    localStorage.setItem('accessToken', response?.access_token);
+                    localStorage.setItem('refreshToken', response?.refresh_token);
+                    window.location.href = '/my-profile';
+                }
 
-                window.location.href = '/my-profile'; // for direct redirect
 
             } else {
                 // Register flow

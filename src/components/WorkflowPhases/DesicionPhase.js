@@ -491,7 +491,6 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                         <div>• Գնահատման չափանիշներ: {summary.criteriaCount}</div>
                         <div>• Մշակման ժամանակ: {summary.estimatedTime}</div>
                         <div>• Որոշման բարդություն: {summary.complexityLevel}</div>
-                        <div>• Վստահության մակարդակ: {summary.confidenceLevel}</div>
                     </div>
                 </div>
 
@@ -511,7 +510,7 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                         </div>
                         <div>
                             <strong>3. Ռազմավարական պլանավորում:</strong>
-                            <br />Ստեղծում է գործողությունների համապարփակ ծրագիր:
+                            <br />Ստեղծում է գործողությունների համապարփակ սցենար:
                         </div>
                     </div>
                 </details>

@@ -373,7 +373,7 @@ const Home = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe]">
             {/* Hero Section - Fully Responsive */}
-            <section className="relative overflow-hidden min-h-screen flex items-center px-4 sm:px-6 lg:px-8">
+            <section id="home" className="relative overflow-hidden min-h-screen flex items-center px-4 sm:px-6 lg:px-8">
                 <HeroBackgroundSVG />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20"></div>
 
@@ -450,7 +450,7 @@ const Home = () => {
             </section>
 
             {/* Features Section - Responsive Grid */}
-            <section className="py-12 sm:py-16 lg:py-20">
+            <section id="services" className="py-12 sm:py-16 lg:py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12 sm:mb-16">
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
@@ -515,7 +515,7 @@ const Home = () => {
             </section>
 
             {/* Process Section - Responsive */}
-            <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20">
+            <section id="about" className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12 sm:mb-16">
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">

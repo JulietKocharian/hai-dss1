@@ -419,7 +419,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
             };
 
             // AI սցենարների գեներացիա
-            setCurrentStep('AI սցենարների գեներացիա...');
+            setCurrentStep('Սցենարների գեներացիա...');
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             const userId = getCurrentUserId();
@@ -431,8 +431,6 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                 userId
             );
             setScenarios(generatedScenarios);
-            console.log('AI սցենարների գեներացիա:', generatedScenarios);
-
             setCurrentStep('Վերլուծությունը ամփոփվում է...');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -515,7 +513,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <li>🎯 Խելացի կլաստերացում</li>
                             <li>📊 Գծապատկերային վերլուծություն</li>
                             <li>🤖 Կանխատեսման մոդելներ</li>
-                            <li>📋 Որոշումների սցենարների AI գեներացում</li>
+                            <li>📋 Որոշումների սցենարների գեներացում</li>
                         </ul>
                     </div>
                 </Alert>
@@ -583,10 +581,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <div className="min-w-0 flex-1">
                                 <div className="font-medium text-blue-800 text-sm break-words">{currentStep}</div>
                                 <div className="text-blue-600 text-xs">
-                                    {currentStep.includes('AI') ?
-                                        'Արհեստական բանականությունը աշխատում է...' :
-                                        'Խնդրում ենք սպասել...'
-                                    }
+                                    Որոշում է կայացվում...
                                 </div>
                             </div>
                         </div>
@@ -605,7 +600,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                         <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('կլաստերիզացիա') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                             }`}>
                             <div className="font-bold text-purple-700 text-xs sm:text-sm">🤖 ACAS (Ավտոմատ ընտրություն)</div>
-                            <div className="text-purple-600 text-xs break-words">Օպտիմալ կլաստերիզացիա</div>
+                            <div className="text-purple-600 text-xs break-words">Օպտիմալ կլաստերացում</div>
                         </div>
                         <div className="bg-white rounded p-2 sm:p-3 shadow-sm">
                             <div className="font-bold text-purple-700 text-xs sm:text-sm">📊 Statistical Analysis</div>
@@ -613,8 +608,8 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                         </div>
                         <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('AI') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                             }`}>
-                            <div className="font-bold text-purple-700 text-xs sm:text-sm">🤖 AI Scenario Planning</div>
-                            <div className="text-purple-600 text-xs break-words">Բանակցի սցենարներ</div>
+                            <div className="font-bold text-purple-700 text-xs sm:text-sm">🤖Scenario Planning</div>
+                            <div className="text-purple-600 text-xs break-words">Փորձագետի գիտելիքներ</div>
                         </div>
                     </div>
                 </div>
@@ -651,14 +646,6 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <strong className="block sm:inline">2. 🤖 ACAS (Ավտոմատ ընտրություն):</strong>
                             <span className="block sm:inline sm:ml-1">Բացահայտում է թաքնված օրինաչափությունները և խմբավորումները:</span>
                         </div>
-                        <div>
-                            <strong className="block sm:inline">3. AI սցենարային մոդելավորում:</strong>
-                            <span className="block sm:inline sm:ml-1">Արհեստական բանականությունը ստեղծում է հարմարեցված որոշումային սցենարներ:</span>
-                        </div>
-                        <div>
-                            <strong className="block sm:inline">4. Ինտելիգենտ առաջարկություններ:</strong>
-                            <span className="block sm:inline sm:ml-1">AI-ը գեներացնում է գործնական գործողությունների պլաններ մենեջերի համար:</span>
-                        </div>
                     </div>
                 </details>
 
@@ -683,14 +670,14 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <div className="flex items-center justify-center">
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                                 <span className="hidden sm:inline">
-                                    {currentStep.includes('AI') ? 'AI-ն ընթացքում է...' : 'Վերլուծությունն ընթացքում է...'}
+                                    Վերլուծությունն ընթացքի մեջ է...
                                 </span>
-                                <span className="sm:hidden">Ընթացքում է...</span>
+                                <span className="sm:hidden">Ընթացքի մեջ է...</span>
                             </div>
                         ) : isCompleted ? (
                             <span className="text-center">✅ Փորձագետի վերլուծությունը ավարտված է</span>
                         ) : (
-                            <span>🧠 Սկսել AI վերլուծությունը</span>
+                            <span>🧠 Սկսել վերլուծությունը</span>
                         )}
                     </Button>
 
@@ -698,8 +685,8 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                         🎯 <strong>Վերլուծության արդյունք:</strong>
                         <ul className="list-disc list-inside mt-1 space-y-1 pl-2 sm:pl-0">
                             <li className="break-words">Անորոշության մակարդակների գնահատում</li>
-                            <li className="break-words">Տվյալների խմբավորման օպտիմիզացիա</li>
-                            <li className="break-words">🤖 AI-ով որոշումային սցենարների ավտոմատ գեներացիա</li>
+                            <li className="break-words">Տվյալների խմբավորման օպտիմալացում</li>
+                            <li className="break-words">Որոշումներ ընդունմանն աջակցող սցենարների գեներացում</li>
                             <li className="break-words">Մենեջերի համար հարմարեցված գործնական առաջարկություններ</li>
                         </ul>
                     </div>
