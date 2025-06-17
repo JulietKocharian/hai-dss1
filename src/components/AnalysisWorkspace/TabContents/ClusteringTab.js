@@ -1,7 +1,7 @@
 // src/components/AnalysisWorkspace/TabContents/ClusteringTab.js
 // Կլաստերիզացիայի վերլուծության տաբ
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useData } from '../../../context/DataContext';
 import { ChartCard, ClusterCard } from '../../UI/Card';
 import Button, { ButtonGroup } from '../../UI/Button';
@@ -20,19 +20,55 @@ const ClusteringTab = () => {
         currentData,
         clusterData,
         setClusterData,
+        syntheticData, // Added syntheticData from context
         dataType
     } = useData();
 
     const [showVisualization, setShowVisualization] = useState(false);
 
-
     const [clusteringSettings, setClusteringSettings] = useState({
         clusterCount: 4,
-        method: 'acas', // Changed from 'kmeans' to 'acas' as default
+        method: 'acas',
         maxIterations: 100
     });
 
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Enhanced cluster data with synthetic data integrated
+    const enhancedClusterData = useMemo(() => {
+        if (!clusterData || clusterData.length === 0) {
+            return clusterData;
+        }
+
+        if (!syntheticData || syntheticData.length === 0) {
+            return clusterData;
+        }
+
+        // Distribute synthetic data across clusters
+        const syntheticPerCluster = Math.floor(syntheticData.length / clusterData.length);
+        const remainingSynthetic = syntheticData.length % clusterData.length;
+
+        return clusterData.map((cluster, index) => {
+            // Calculate how many synthetic points this cluster gets
+            const syntheticCount = syntheticPerCluster + (index < remainingSynthetic ? 1 : 0);
+            const startIndex = index * syntheticPerCluster + Math.min(index, remainingSynthetic);
+            const clusterSyntheticData = syntheticData.slice(startIndex, startIndex + syntheticCount);
+
+            return {
+                ...cluster,
+                // Add synthetic data points to this cluster
+                syntheticPoints: clusterSyntheticData,
+                // Update size to include synthetic data
+                originalSize: cluster.size,
+                size: cluster.size + syntheticCount,
+                // Enhanced properties
+                hasSyntheticData: syntheticCount > 0,
+                syntheticCount: syntheticCount,
+                // Recalculate quality with more data points
+                quality: Math.min(100, cluster.quality + (syntheticCount > 0 ? 5 : 0))
+            };
+        });
+    }, [clusterData, syntheticData]);
 
     /**
      * Կլաստերիզացիայի մեկնարկ
@@ -94,10 +130,6 @@ const ClusteringTab = () => {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <h4 className="font-bold text-red-800 mb-2">🧮 Կլաստերացման մասին</h4>
                 <div className="text-sm text-red-700 space-y-2">
-                    {/* <p>
-                        <strong>Կլաստերիզացիան</strong> մեքենայական ուսուցման անուսուցանաչ մեթոդ է, որը տվյալները
-                        բաժանում է նմանության հիման վրա:
-                    </p> */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                         <div className="bg-white rounded p-3 border">
                             <div className="font-bold text-blue-600">ACAS</div>
@@ -113,8 +145,6 @@ const ClusteringTab = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -153,9 +183,6 @@ const ClusteringTab = () => {
                                 onChange={(e) => updateSettings('method', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-lg"
                             >
-                                {/* <option value="kmeans">🎯 K-Means</option>
-                                <option value="hierarchical">🌳 Հիերարխիկ</option>
-                                <option value="dbscan">🔍 DBSCAN</option> */}
                                 <option value="acas">🤖 ACAS (Ավտոմատ ընտրություն)</option>
                                 <option value="kmeans">🎯 K-Միջիններ (K-Means)</option>
                                 <option value="fuzzy_cmeans">🌸 Fuzzy C-Միջիններ</option>
@@ -198,7 +225,6 @@ const ClusteringTab = () => {
                 </ChartCard>
 
                 {/* Տվյալների նախապատրաստում */}
-
                 <ChartCard
                     title="Տվյալների նախապատրաստում"
                 >
@@ -208,20 +234,24 @@ const ClusteringTab = () => {
                             <h5 className="font-bold text-gray-700 mb-3">📊 Տվյալների ամփոփում</h5>
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <span className="text-gray-600">Տողեր:</span>
+                                    <span className="text-gray-600">Բնօրինակ տողեր:</span>
                                     <span className="font-bold ml-2">{currentData.length}</span>
                                 </div>
+                                {syntheticData && syntheticData.length > 0 && (
+                                    <div>
+                                        <span className="text-gray-600">Սինթետիկ տողեր:</span>
+                                        <span className="font-bold ml-2 text-green-600">+{syntheticData.length}</span>
+                                    </div>
+                                )}
                                 <div>
                                     <span className="text-gray-600">Սյունակներ:</span>
                                     <span className="font-bold ml-2">{Object.keys(currentData[0]).length}</span>
                                 </div>
                                 <div>
-                                    <span className="text-gray-600">Կլաստերների քանակ:</span>
-                                    <span className="font-bold ml-2">{getDimensionality()}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Հարմարություն:</span>
-                                    <span className="font-bold ml-2 text-green-600">{getClusterabilityScore()}%</span>
+                                    <span className="text-gray-600">Ընդհանուր:</span>
+                                    <span className="font-bold ml-2 text-blue-600">
+                                        {currentData.length + (syntheticData?.length || 0)}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -250,6 +280,9 @@ const ClusteringTab = () => {
                                 <li>Ավելի քիչ կլաստերներ = ավելի շատ ընդհանուր խմբեր</li>
                                 <li>ACAS ալգորիթմը ավտոմատ կընտրի լավագույն մեթոդը</li>
                                 <li>Ալգորիթմը կհայտնաբերի աղմուկը և անկանոն կետերը</li>
+                                {syntheticData && syntheticData.length > 0 && (
+                                    <li className="text-green-600">Սինթետիկ տվյալները ավտոմատ ավելացվել են կլաստերներին</li>
+                                )}
                             </ul>
                         </div>
                     </div>
@@ -257,11 +290,11 @@ const ClusteringTab = () => {
             </div>
 
             {/* Կլաստերիզացիայի արդյունքներ */}
-            {clusterData && clusterData.length > 0 && (
+            {enhancedClusterData && enhancedClusterData.length > 0 && (
                 <>
                     <ChartCard title="Կլաստերացման արդյունքներ">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            {clusterData.map((cluster, index) => (
+                            {enhancedClusterData.map((cluster, index) => (
                                 <ClusterCard
                                     key={index}
                                     id={cluster.id}
@@ -269,6 +302,8 @@ const ClusteringTab = () => {
                                     size={cluster.size}
                                     avgValue={cluster.avgValue}
                                     quality={cluster.quality}
+                                    syntheticCount={cluster.syntheticCount}
+                                    originalSize={cluster.originalSize}
                                 />
                             ))}
                         </div>
@@ -276,7 +311,11 @@ const ClusteringTab = () => {
 
                     {/* Կլաստերների վիճակագրություն */}
                     <ChartCard title="Խմբավորման վիճակագրություն">
-                        <ClusterStatistics clusters={clusterData} totalData={currentData.length} />
+                        <ClusterStatistics 
+                            clusters={enhancedClusterData} 
+                            totalData={currentData.length}
+                            syntheticData={syntheticData}
+                        />
                     </ChartCard>
 
                     {/* Գործողությունների կոճակներ */}
@@ -310,36 +349,43 @@ const ClusteringTab = () => {
                 </>
             )}
 
-
             {/* Կլաստերիզացիայի վերլուծության ծանուցում */}
-            {clusterData && clusterData.length > 0 && (
+            {enhancedClusterData && enhancedClusterData.length > 0 && (
                 <Alert type="success" title="🎯 Կլաստերացումը հաջողությամբ ավարտվել է">
                     <div className="space-y-2 text-sm">
                         <p>
-                            Հայտնաբերվել է <strong>{clusterData.length} տարբեր խումբ</strong> ընդհանուր
-                            <strong> {currentData.length} տվյալի</strong> մեջ
+                            Հայտնաբերվել է <strong>{enhancedClusterData.length} տարբեր խումբ</strong> ընդհանուր
+                            <strong> {currentData.length}</strong> բնօրինակ տվյալի
+                            {syntheticData && syntheticData.length > 0 && (
+                                <span> և <strong className="text-green-600">{syntheticData.length}</strong> սինթետիկ տվյալի</span>
+                            )} մեջ
                         </p>
                         <div>
                             <strong>Հիմնական բացահայտումներ</strong>
                             <ul className="list-disc list-inside mt-1 space-y-1">
-                                <li>Ամենամեծ խումբը պարունակում է {Math.max(...clusterData.map(c => c.size))} տարր</li>
-                                <li>Ամենամիջին որակի խումբը ունի {Math.max(...clusterData.map(c => c.quality))}% որակ</li>
-                                <li>Տվյալների բաշխումը {clusterData.length > 4 ? 'բազմախմբային' : 'հավասարակշռված'} է</li>
+                                <li>Ամենամեծ խումբը պարունակում է {Math.max(...enhancedClusterData.map(c => c.size))} տարր</li>
+                                <li>Ամենամիջին որակի խումբը ունի {Math.max(...enhancedClusterData.map(c => c.quality))}% որակ</li>
+                                <li>Տվյալների բաշխումը {enhancedClusterData.length > 4 ? 'բազմախմբային' : 'հավասարակշռված'} է</li>
+                                {syntheticData && syntheticData.length > 0 && (
+                                    <li className="text-green-600">Սինթետիկ տվյալները ինտեգրված են կլաստերների մեջ</li>
+                                )}
                             </ul>
                         </div>
                     </div>
                 </Alert>
             )}
 
-            {showVisualization && clusterData.length > 0 && (
-                <ClusterCharts clusters={clusterData} />
+            {/* Enhanced Visualizations with Integrated Synthetic Data */}
+            {showVisualization && enhancedClusterData.length > 0 && (
+                <>
+                    <ClusterCharts 
+                        clusters={enhancedClusterData}
+                    />
+                    <ClusterScatterChart 
+                        clusters={enhancedClusterData}
+                    />
+                </>
             )}
-            {showVisualization && clusterData.length > 0 && (
-                <ClusterScatterChart clusters={clusterData} />
-
-            )}
-
-
         </div>
     );
 
@@ -354,8 +400,7 @@ const ClusteringTab = () => {
      * Կլաստերիզացիայի հարմարության գնահատակ
      */
     function getClusterabilityScore() {
-        // Պարզ գնահատակ՝ հիմված տվյալների չափի և բազմազանության վրա
-        const size = currentData.length;
+        const size = currentData.length + (syntheticData?.length || 0);
         const dimensions = getDimensionality();
 
         if (size < 20) return 60;
@@ -368,7 +413,7 @@ const ClusteringTab = () => {
      * Առաջարկվող մեթոդի ստացում
      */
     function getRecommendedMethod() {
-        const size = currentData.length;
+        const size = currentData.length + (syntheticData?.length || 0);
         const dimensions = getDimensionality();
 
         if (size < 50) {
@@ -384,7 +429,7 @@ const ClusteringTab = () => {
      * Գնահատված ժամանակի ստացում
      */
     function getEstimatedTime() {
-        const size = currentData.length;
+        const size = currentData.length + (syntheticData?.length || 0);
         if (size < 100) return '1-2 վայրկյան';
         if (size < 500) return '3-5 վայրկյան';
         return '5-10 վայրկյան';
@@ -394,7 +439,7 @@ const ClusteringTab = () => {
      * Բարդության ստացում
      */
     function getComplexity() {
-        const size = currentData.length;
+        const size = currentData.length + (syntheticData?.length || 0);
         const clusters = clusteringSettings.clusterCount;
 
         if (size < 100 && clusters < 5) return 'Ցածր';
@@ -406,8 +451,7 @@ const ClusteringTab = () => {
      * Կլաստերային տվյալների արտահանում
      */
     function exportClusterData() {
-        // Կիրականացվի useFileDownload hook-ով
-        console.log('Արտահանում կլաստերները...', clusterData);
+        console.log('Արտահանում կլաստերները...', enhancedClusterData);
         alert('Կլաստերները արտահանվել են CSV ֆայլի մեջ');
     }
 
@@ -415,22 +459,23 @@ const ClusteringTab = () => {
      * Կլաստերների վիզուալիզացիա
      */
     function visualizeClusters() {
-        console.log('Վիզուալիզացման մեկնարկ...', clusterData);
-        setShowVisualization(true); // Show charts
+        console.log('Վիզուալիզացման մեկնարկ...', enhancedClusterData);
+        setShowVisualization(true);
     }
-
 };
 
 /**
- * Կլաստերների վիճակագրության բաղադրիչ
+ * Կլաստերների վիճակագրության բաղադրիչ - Updated to include synthetic data
  */
-const ClusterStatistics = ({ clusters, totalData }) => {
+const ClusterStatistics = ({ clusters, totalData, syntheticData }) => {
     const totalClustered = clusters.reduce((sum, cluster) => sum + cluster.size, 0);
     const avgClusterSize = totalClustered / clusters.length;
-    const coverage = (totalClustered / totalData) * 100;
+    const syntheticCount = syntheticData?.length || 0;
+    const effectiveTotal = totalData + syntheticCount;
+    const coverage = (totalClustered / effectiveTotal) * 100;
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{clusters.length}</div>
                 <div className="text-sm text-blue-700">Խմբերի քանակ</div>
@@ -443,7 +488,7 @@ const ClusterStatistics = ({ clusters, totalData }) => {
 
             <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <div className="text-2xl font-bold text-purple-600">{coverage.toFixed(1)}%</div>
-                <div className="text-sm text-purple-700">Ընդգրկում </div>
+                <div className="text-sm text-purple-700">Ընդգրկում</div>
             </div>
 
             <div className="text-center p-4 bg-orange-50 rounded-lg">
@@ -452,6 +497,15 @@ const ClusterStatistics = ({ clusters, totalData }) => {
                 </div>
                 <div className="text-sm text-orange-700">Միջին որակ</div>
             </div>
+
+            {syntheticData && syntheticData.length > 0 && (
+                <div className="text-center p-4 bg-indigo-50 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">
+                        {syntheticCount}
+                    </div>
+                    <div className="text-sm text-indigo-700">Սինթետիկ տվյալ</div>
+                </div>
+            )}
         </div>
     );
 };
