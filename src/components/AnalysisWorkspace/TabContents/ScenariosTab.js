@@ -942,7 +942,7 @@ const ScenariosTab = () => {
                         </div>
                         {scenarios.some(s => s.metadata?.aiGenerated) && (
                             <div className="text-blue-600 text-xs flex items-center space-x-1">
-                                <span>🤖</span>
+                                {/* <span>🤖</span> */}
                                 {/* <span>Մի քանի սցենար գեներացվել են արհեստական բանականության միջոցով</span> */}
                             </div>
                         )}
