@@ -11,6 +11,8 @@ import ClusterCharts from '../../Charts/ClusterCharts';
 import ClusterPointsChart from '../../Charts/ClusterPointsChart';
 import ClusterScatterChart from '../../Charts/ClusteringScatter';
 
+import map from './map.png';
+
 /**
  * ClusteringTab բաղադրիչ - կլաստերիզացիայի վերլուծության ինտերֆեյս
  * Ցուցադրում է տվյալների խմբավորման արդյունքները և կլաստերային վիճակագրությունը
@@ -311,8 +313,8 @@ const ClusteringTab = () => {
 
                     {/* Կլաստերների վիճակագրություն */}
                     <ChartCard title="Խմբավորման վիճակագրություն">
-                        <ClusterStatistics 
-                            clusters={enhancedClusterData} 
+                        <ClusterStatistics
+                            clusters={enhancedClusterData}
                             totalData={currentData.length}
                             syntheticData={syntheticData}
                         />
@@ -378,10 +380,11 @@ const ClusteringTab = () => {
             {/* Enhanced Visualizations with Integrated Synthetic Data */}
             {showVisualization && enhancedClusterData.length > 0 && (
                 <>
-                    <ClusterCharts 
+                    <img src={map} className="w-full"/>
+                    <ClusterCharts
                         clusters={enhancedClusterData}
                     />
-                    <ClusterScatterChart 
+                    <ClusterScatterChart
                         clusters={enhancedClusterData}
                     />
                 </>

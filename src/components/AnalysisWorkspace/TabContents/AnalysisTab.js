@@ -209,7 +209,7 @@ const AnalysisTab = () => {
             {/* Վերլուծաբանի գնահատում - Enhanced Mobile Layout */}
             <Alert
                 type={getAnalysisAlertType()}
-                title="Վերլուծաբանի գնահատում"
+                title="Վերլուծաբանական փուլի գնահատում"
                 icon="🔬"
                 className="text-sm sm:text-base"
             >

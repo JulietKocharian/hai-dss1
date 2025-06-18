@@ -153,7 +153,7 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
     if (!isActive && !isCompleted) {
         return (
             <PhaseCard
-                title="Վերլուծաբանի փուլ"
+                title="Վերլուծաբանական փուլ"
                 icon="🔬"
                 phase="analyst"
                 className="opacity-60 w-full max-w-none"
@@ -186,7 +186,7 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
 
     return (
         <PhaseCard
-            title="Վերլուծաբանի փուլ"
+            title="Վերլուծաբանական փուլ"
             icon="🔬"
             phase="analyst"
             className={`w-full max-w-none transition-all duration-300 ${isCompleted
@@ -269,7 +269,7 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         {isAnalyzing && (
                             <div className="flex items-center space-x-2 text-blue-600 font-medium mt-2 p-2 bg-blue-100 rounded">
                                 <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-600 rounded-full animate-pulse flex-shrink-0"></div>
-                                <span className="text-xs sm:text-sm">Վերլուծությունը ընթացքում է...</span>
+                                <span className="text-xs sm:text-sm">Վերլուծությունն ընթացքի մեջ է...</span>
                             </div>
                         )}
                     </div>
@@ -295,8 +295,8 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         {isAnalyzing ? (
                             <div className="flex items-center justify-center">
                                 <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 flex-shrink-0"></div>
-                                <span className="hidden sm:inline">Վերլուծությունն ընթացքում է...</span>
-                                <span className="sm:hidden">Ընթացքում է...</span>
+                                <span className="hidden sm:inline">Վերլուծությունն ընթացքի մեջ է...</span>
+                                <span className="sm:hidden">Ընթացքի մեջ է...</span>
                             </div>
                         ) : isCompleted ? (
                             <span>✅ Վերլուծությունը ավարտված է</span>
@@ -313,7 +313,7 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                                 <ul className="list-disc list-inside mt-1 space-y-0.5 sm:space-y-1 pl-0">
                                     <li className="break-words">Տվյալների որակի չափանիշների հաշվարկ</li>
                                     <li className="break-words">Վիզուալ հաշվետվության ստեղծում</li>
-                                    <li className="break-words">Փորձագետի փուլի նախապատրաստում</li>
+                                    <li className="break-words">Փորձագիտական փուլի նախապատրաստում</li>
                                 </ul>
                             </div>
                         </div>

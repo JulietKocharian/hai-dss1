@@ -421,8 +421,8 @@ const MyProfile = () => {
     const getCurrentPhaseName = () => {
         const phaseNames = {
             0: 'Մենեջերի փուլ',
-            1: 'Վերլուծաբանի փուլ',
-            2: 'Փորձագետի փուլ',
+            1: 'Վերլուծաբանական փուլ',
+            2: 'Փորձագիտական փուլ',
             3: 'Որոշումների փուլ'
         };
         return phaseNames[currentPhase] || 'Մենեջերի փուլ';
@@ -650,8 +650,8 @@ const MyProfile = () => {
                                             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse mr-2"></div>
                                             <span className="text-center">
                                                 {currentPhase === 0 && 'Մենեջերի փուլը պատրաստ է մեկնարկի համար'}
-                                                {currentPhase === 1 && 'Վերլուծաբանի փուլն ակտիվ է'}
-                                                {currentPhase === 2 && 'Փորձագետի փուլն ակտիվ է'}
+                                                {currentPhase === 1 && 'Վերլուծաբանական փուլն ակտիվ է'}
+                                                {currentPhase === 2 && 'Փորձագիտական փուլն ակտիվ է'}
                                                 {currentPhase === 3 && 'Որոշումների փուլն ակտիվ է'}
                                             </span>
                                         </div>

@@ -489,7 +489,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
     if (!isActive && !isCompleted) {
         return (
             <PhaseCard
-                title="Փորձագետի փուլ"
+                title="Փորձագիտական փուլ"
                 icon="🧠"
                 phase="expert"
                 className="opacity-60 w-full max-w-none"
@@ -525,7 +525,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
 
     return (
         <PhaseCard
-            title="Փորձագետի փուլ"
+            title="Փորձագիտական փուլ"
             icon="🧠"
             phase="expert"
             className={`w-full max-w-none transition-all duration-300 ${isCompleted
@@ -553,9 +553,9 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
 
             <div className={`space-y-3 sm:space-y-4 ${!isActive && !isCompleted ? 'pointer-events-none' : ''}`}>
                 {/* Ստացված վերլուծության ինֆորմացիա */}
-                <Alert type="success" icon="✅" title="Վերլուծաբանի տվյալները պատրաստ են">
+                <Alert type="success" icon="✅" title="Վերլուծաբանական փուլի տվյալները պատրաստ են">
                     <div className="text-sm sm:text-base">
-                        Պատրաստ է փորձագետի խորացված վերլուծության համար
+                        Պատրաստ է փորձագիտական փուլի խորացված վերլուծության համար
                     </div>
                     <div className="mt-2 text-xs sm:text-sm space-y-1">
                         <div className="break-words">
@@ -590,7 +590,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
 
                 {/* Փորձագետի վերլուծական գործիքակազմ */}
                 <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
-                    <h4 className="font-bold text-sm text-purple-800 mb-2 sm:mb-3">🧠 Փորձագետի գործիքակազմ</h4>
+                    <h4 className="font-bold text-sm text-purple-800 mb-2 sm:mb-3">🧠  Փորձագիտական փուլի գործիքակազմ</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
                         <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('Անորոշ') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                             }`}>
@@ -675,7 +675,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                                 <span className="sm:hidden">Ընթացքի մեջ է...</span>
                             </div>
                         ) : isCompleted ? (
-                            <span className="text-center">✅ Փորձագետի վերլուծությունը ավարտված է</span>
+                            <span className="text-center">✅ Փորձագիտական փուլի վերլուծությունը ավարտված է</span>
                         ) : (
                             <span>🧠 Սկսել վերլուծությունը</span>
                         )}
@@ -687,7 +687,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <li className="break-words">Անորոշության մակարդակների գնահատում</li>
                             <li className="break-words">Տվյալների խմբավորման օպտիմալացում</li>
                             <li className="break-words">Որոշումներ ընդունմանն աջակցող սցենարների գեներացում</li>
-                            <li className="break-words">Մենեջերի համար հարմարեցված գործնական առաջարկություններ</li>
+                            <li className="break-words">Մենեջերի համար օպտիմալ գործնական առաջարկություններ</li>
                         </ul>
                     </div>
                 </div>

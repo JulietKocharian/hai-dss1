@@ -422,7 +422,7 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                 <Alert
                     type={summary.hasValidData ? "success" : "warning"}
                     icon={summary.hasValidData ? "✅" : "⚠️"}
-                    title={summary.hasValidData ? "Փորձագետի վերլուծությունը ավարտված է" : "Տվյալների պակաս"}
+                    title={summary.hasValidData ? "Փորձագիտական փուլի վերլուծությունն ավարտված է" : "Տվյալների պակաս"}
                 >
                     <div>
                         {summary.hasValidData

@@ -143,7 +143,7 @@ const AnalysisWorkspace = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-gray-700 text-sm sm:text-base lg:text-lg truncate">
-                            📊 Վերլուծական գործընթացի կարգավիճակ
+                            📊 Վերլուծաբանական գործընթացի կարգավիճակ
                         </h4>
                         <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1 leading-relaxed break-words">
                             Ընթացիկ փուլ: <span className="font-medium">{getTabLabel(activeTab)}</span>
