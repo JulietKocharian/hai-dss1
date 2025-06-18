@@ -1061,7 +1061,7 @@ ${scenarios.map((scenario, index) => `
 ${index + 1}. ${scenario.title}
 ${'-'.repeat(scenario.title.length + 3)}
 Առաջնահերթություն: ${scenario.priorityText}
-${scenario.metadata?.aiGenerated ? 'AI-ով գեներացված: Այո' : ''}
+${scenario.metadata?.aiGenerated ? 'գեներացված: Այո' : ''}
 Նկարագրություն: ${scenario.description}
 
 Գործողություններ:
@@ -1084,7 +1084,7 @@ ${scenario.actions.map((action, actionIndex) => `  ${actionIndex + 1}. ${action}
 Սցենարի անվանում: ${scenario.title}
 Առաջնահերթություն: ${scenario.priorityText}
 Նախագիծ: ${projectName || 'Անանուն'}
-${scenario.metadata?.aiGenerated ? 'AI-ով գեներացված: Այո' : ''}
+${scenario.metadata?.aiGenerated ? 'գեներացված: Այո' : ''}
 
 ԻՐԱԿԱՆԱՑՄԱՆ ՔԱՅԼԵՐ
 ===================
@@ -1182,7 +1182,7 @@ const ScenarioStatistics = ({ scenarios }) => {
 
             <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <div className="text-2xl font-bold text-purple-600">{aiGeneratedCount}</div>
-                <div className="text-sm text-purple-700">AI գեներացված</div>
+                <div className="text-sm text-purple-700">գեներացված</div>
             </div>
         </div>
     );
@@ -1296,7 +1296,7 @@ const ScenarioDetailsModal = ({ scenario, onClose, onExport }) => {
                         <div className="text-sm text-gray-600 space-y-1">
                             <div>Գեներացման ամսաթիվ: {new Date(scenario.metadata.generatedAt).toLocaleDateString('hy-AM')}</div>
                             <div>Տվյալների տեսակ: {scenario.metadata.dataType}</div>
-                            {scenario.metadata.aiGenerated && <div>AI-ով գեներացված: Այո</div>}
+                            {scenario.metadata.aiGenerated && <div>գեներացված: Այո</div>}
                         </div>
                     </div>
                 )}
