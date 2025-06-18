@@ -667,13 +667,13 @@ const ScenariosTab = () => {
 
             // Generate scenarios using AI
             const generatedScenarios = await generateAIScenarios(
-                dataType, 
-                analysisResults, 
-                clusterData, 
-                contextData, 
+                dataType,
+                analysisResults,
+                clusterData,
+                contextData,
                 userId
             );
-            
+
             setScenarios(generatedScenarios);
             console.log('Գեներացված AI սցենարներ:', generatedScenarios);
 
@@ -790,11 +790,11 @@ const ScenariosTab = () => {
             {(!scenarios || scenarios.length === 0) && (
                 <div className="text-center py-8">
                     <div className="bg-blue-50 rounded-lg p-6 max-w-lg mx-auto">
-                        <h4 className="font-bold text-blue-800 mb-3">🤖 AI Սցենարային մոդելավորում</h4>
-                        <p className="text-sm text-blue-700 mb-4">
+                        {/* <h4 className="font-bold text-blue-800 mb-3">🤖 AI Սցենարային մոդելավորում</h4> */}
+                        {/* <p className="text-sm text-blue-700 mb-4">
                             Արհեստական բանականությունը կվերլուծի ձեր տվյալները և կստեղծի 
                             հարմարեցված գործողությունների սցենարներ:
-                        </p>
+                        </p> */}
 
                         {/* Պատրաստության ստուգում */}
                         <div className="space-y-2 mb-4">
@@ -820,7 +820,7 @@ const ScenariosTab = () => {
                             disabled={isGenerating || (!fuzzyResults && !clusterData)}
                             loading={isGenerating}
                         >
-                            {isGenerating ? '🔄 AI գեներացում...' : '🤖 Գեներացնել AI սցենարներ'}
+                            {isGenerating ? '🔄 գեներացում...' : '🤖 Գեներացնել սցենարներ'}
                         </Button>
                     </div>
                 </div>
@@ -1199,7 +1199,7 @@ const ScenarioDetailsModal = ({ scenario, onClose, onExport }) => {
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h3 className="text-xl font-bold text-white-800">{scenario.title}</h3>
-                      
+
                     </div>
                     <button
                         onClick={onClose}
@@ -1211,8 +1211,8 @@ const ScenarioDetailsModal = ({ scenario, onClose, onExport }) => {
 
                 {/* Առաջնահերթություն */}
                 <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 ${scenario.priority === 'high' ? 'bg-red-200 text-red-800' :
-                        scenario.priority === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                            'bg-green-200 text-green-800'
+                    scenario.priority === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                        'bg-green-200 text-green-800'
                     }`}>
                     {scenario.priorityText}
                 </div>
