@@ -615,7 +615,7 @@ const requestScenariosFromAI = async (prompt, dataType, clusterData = null, user
         });
 
         // API call
-        const response = await axiosInstance.post('https://gateway.amracode.am/api/v1/ai/ask', requestData);
+        const response = await axiosInstance.post('http://83.139.6.172:3100/api/v1/ai/ask', requestData);
 
         console.log('📥 Response status:', response.status);
         console.log('📥 Response headers:', response.headers);
