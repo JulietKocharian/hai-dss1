@@ -100,13 +100,13 @@ const MyProfile = () => {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const token = localStorage.getItem('accessToken');
+    // useEffect(() => {
+    //     const token = localStorage.getItem('accessToken');
 
-        if (!token) {
-            navigate('/sign-in', { replace: true });
-        }
-    }, [navigate]);
+    //     if (!token) {
+    //         navigate('/sign-in', { replace: true });
+    //     }
+    // }, [navigate]);
 
     const [profileData, setProfileData] = useState({
         firstName: 'Նարեկ',
