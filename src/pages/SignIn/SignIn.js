@@ -166,13 +166,12 @@ const SignIn = () => {
 
         try {
             if (activeTab === 'login') {
-                // Login flow
-                // const response = await login(formData.email, formData.password);
-                // if (response?.access_token && response?.refresh_token) {
-                //     localStorage.setItem('accessToken', response?.access_token);
-                //     localStorage.setItem('refreshToken', response?.refresh_token);
+                const response = await login(formData.email, formData.password);
+                if (response?.access_token && response?.refresh_token) {
+                    localStorage.setItem('accessToken', response?.access_token);
+                    localStorage.setItem('refreshToken', response?.refresh_token);
                     window.location.href = '/my-profile';
-                // }
+                }
 
 
             } else {

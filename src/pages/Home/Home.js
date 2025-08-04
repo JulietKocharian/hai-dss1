@@ -1,366 +1,105 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, TrendingUp, Shield, Users, Target, BarChart3, Lightbulb, ArrowRight, CheckCircle, AlertTriangle, Activity, Zap, Play, Star, Award } from 'lucide-react';
+import { PersonStandingIcon, Brain, TrendingUp, Shield, Users, Target, BarChart3, Lightbulb, ArrowRight, CheckCircle, AlertTriangle, Activity, Zap, Play, Star, Award, Scale } from 'lucide-react';
 
-// SVG Components
-const AINetworkSVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-            <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1c92d2" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-            </linearGradient>
-            <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
-        </defs>
-        {/* Network nodes */}
-        {[...Array(12)].map((_, i) => (
-            <circle
-                key={i}
-                cx={50 + (i % 4) * 80}
-                cy={50 + Math.floor(i / 4) * 80}
-                r="8"
-                fill="url(#aiGradient)"
-                filter="url(#glow)"
-                className="animate-pulse"
-                style={{ animationDelay: `${i * 0.5}s` }}
-            />
-        ))}
-        {/* Connecting lines */}
-        {[...Array(8)].map((_, i) => (
-            <line
-                key={i}
-                x1={50 + (i % 4) * 80}
-                y1={50 + Math.floor(i / 4) * 80}
-                x2={130 + (i % 3) * 80}
-                y2={130 + Math.floor(i / 3) * 80}
-                stroke="url(#aiGradient)"
-                strokeWidth="2"
-                opacity="0.6"
-            />
-        ))}
-    </svg>
-);
-
-const DataVisualizationSVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1c92d2" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-            </linearGradient>
-        </defs>
-        {/* Chart bars */}
-        {[40, 80, 60, 120, 90, 150, 110].map((height, i) => (
-            <rect
-                key={i}
-                x={40 + i * 45}
-                y={200 - height}
-                width="30"
-                height={height}
-                fill="url(#chartGradient)"
-                opacity="0.8"
-                className="animate-pulse"
-                style={{ animationDelay: `${i * 0.3}s` }}
-            />
-        ))}
-        {/* Grid lines */}
-        {[0, 1, 2, 3, 4].map((i) => (
-            <line
-                key={i}
-                x1="30"
-                y1={50 + i * 40}
-                x2="350"
-                y2={50 + i * 40}
-                stroke="#64748B"
-                strokeWidth="1"
-                opacity="0.3"
-            />
-        ))}
-    </svg>
-);
-
-const SecuritySVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-            <linearGradient id="shieldGradient" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#1c92d2" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-            </linearGradient>
-        </defs>
-        {/* Shield shape */}
-        <path
-            d="M200 50 L250 80 L250 180 L200 220 L150 180 L150 80 Z"
-            fill="url(#shieldGradient)"
-            opacity="0.8"
-            className="animate-pulse"
-        />
-        {/* Security rings */}
-        {[0, 1, 2].map((i) => (
-            <circle
-                key={i}
-                cx="200"
-                cy="135"
-                r={60 + i * 30}
-                fill="none"
-                stroke="#1c92d2"
-                strokeWidth="2"
-                opacity={0.6 - i * 0.2}
-                className="animate-ping"
-                style={{ animationDelay: `${i * 1}s` }}
-            />
-        ))}
-        {/* Lock icon */}
-        <rect x="185" y="120" width="30" height="20" fill="white" rx="3" />
-        <path d="M190 120 L190 110 Q190 105 195 105 L205 105 Q210 105 210 110 L210 120"
-            fill="none" stroke="white" strokeWidth="3" />
-    </svg>
-);
-
-const TargetingSVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-            <linearGradient id="targetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1c92d2" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-            </linearGradient>
-        </defs>
-        {/* Target circles */}
-        {[30, 50, 70, 90].map((r, i) => (
-            <circle
-                key={i}
-                cx="200"
-                cy="150"
-                r={r}
-                fill="none"
-                stroke="url(#targetGradient)"
-                strokeWidth="3"
-                opacity={1 - i * 0.2}
-                className="animate-pulse"
-                style={{ animationDelay: `${i * 0.5}s` }}
-            />
-        ))}
-        {/* Center dot */}
-        <circle cx="200" cy="150" r="8" fill="url(#targetGradient)" className="animate-ping" />
-        {/* Crosshairs */}
-        <line x1="120" y1="150" x2="280" y2="150" stroke="url(#targetGradient)" strokeWidth="2" opacity="0.7" />
-        <line x1="200" y1="70" x2="200" y2="230" stroke="url(#targetGradient)" strokeWidth="2" opacity="0.7" />
-    </svg>
-);
-
-const ActivitySVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-            <linearGradient id="activityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1c92d2" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-            </linearGradient>
-        </defs>
-        {/* Activity line */}
-        <path
-            d="M50 150 L80 120 L110 180 L140 100 L170 160 L200 80 L230 140 L260 200 L290 120 L320 170 L350 130"
-            fill="none"
-            stroke="url(#activityGradient)"
-            strokeWidth="4"
-            className="animate-pulse"
-        />
-        {/* Data points */}
-        {[80, 110, 140, 170, 200, 230, 260, 290, 320].map((x, i) => (
-            <circle
-                key={i}
-                cx={x}
-                cy={[120, 180, 100, 160, 80, 140, 200, 120, 170][i]}
-                r="6"
-                fill="url(#activityGradient)"
-                className="animate-pulse"
-                style={{ animationDelay: `${i * 0.2}s` }}
-            />
-        ))}
-    </svg>
-);
-
-const TeamSVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-            <linearGradient id="teamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1c92d2" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-            </linearGradient>
-        </defs>
-        {/* Team members */}
-        {[0, 1, 2, 3, 4].map((i) => (
-            <g key={i}>
-                <circle
-                    cx={120 + i * 40}
-                    cy={120}
-                    r="25"
-                    fill="url(#teamGradient)"
-                    opacity="0.8"
-                    className="animate-pulse"
-                    style={{ animationDelay: `${i * 0.3}s` }}
-                />
-                <circle
-                    cx={120 + i * 40}
-                    cy={110}
-                    r="12"
-                    fill="white"
-                    opacity="0.9"
-                />
-                <path
-                    d={`M${108 + i * 40} 130 Q${120 + i * 40} 140 ${132 + i * 40} 130`}
-                    fill="white"
-                    opacity="0.9"
-                />
-            </g>
-        ))}
-        {/* Connection lines */}
-        {[0, 1, 2, 3].map((i) => (
-            <line
-                key={i}
-                x1={145 + i * 40}
-                y1="120"
-                x2={175 + i * 40}
-                y2="120"
-                stroke="url(#teamGradient)"
-                strokeWidth="3"
-                opacity="0.6"
-            />
-        ))}
-    </svg>
-);
-
-const HeroBackgroundSVG = () => (
-    <svg viewBox="0 0 1200 800" className="absolute inset-0 w-full h-full">
-        <defs>
-            <radialGradient id="heroGradient" cx="50%" cy="50%" r="70%">
-                <stop offset="0%" stopColor="#1c92d2" stopOpacity="0.4" />
-                <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="transparent" />
-            </radialGradient>
-        </defs>
-        {/* Floating geometric shapes */}
-        {[...Array(20)].map((_, i) => (
-            <g key={i}>
-                <circle
-                    cx={Math.random() * 1200}
-                    cy={Math.random() * 800}
-                    r={5 + Math.random() * 15}
-                    fill="url(#heroGradient)"
-                    className="animate-pulse"
-                    style={{
-                        animationDelay: `${Math.random() * 3}s`,
-                        animationDuration: `${2 + Math.random() * 2}s`
-                    }}
-                />
-            </g>
-        ))}
-        {/* Neural network pattern */}
-        <g opacity="0.2">
-            {[...Array(50)].map((_, i) => (
-                <line
-                    key={i}
-                    x1={Math.random() * 1200}
-                    y1={Math.random() * 800}
-                    x2={Math.random() * 1200}
-                    y2={Math.random() * 800}
-                    stroke="#1c92d2"
-                    strokeWidth="1"
-                />
-            ))}
-        </g>
-    </svg>
-);
+import carousel1 from '../../assets/img/carousel1.png';
+import carousel2 from '../../assets/img/carousel2.webp';
+import carousel3 from '../../assets/img/carousel3.jpg';
+import { ActivitySVG, AnalystWorkSVG, ClusteringSVG, DataVisualizationSVG, DecisionMakingSVG, ExpertAnalysisSVG, HeroBackgroundSVG, ManagerDecisionSVG, SecuritySVG, SyntheticDataSVG, TargetingSVG, TeamSVG } from './assets';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
 
+    const navigate = useNavigate();
+
+
     const heroSlides = [
         {
             title: "Անորոշության պայմաններում",
             subtitle: "Որոշումների ընդունում",
-            description: "Անորոշության պայմաններում մենեջերի որոշումների ընդունմանն աջակցող համակարգ"
+            description: "Անորոշության պայմաններում մենեջերի որոշումների ընդունմանն աջակցող համակարգ",
+            image: carousel1,
+            icon: Brain
         },
         {
             title: "Տվյալների վրա հիմնված",
             subtitle: "Ռազմավարական Մոտեցում",
-            description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում"
+            description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում",
+            image: carousel2,
+            icon: BarChart3
         },
         {
             title: "Ռիսկերի կառավարում",
             subtitle: "Գիտական Մեթոդներով",
-            description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում"
+            description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում",
+            image: carousel3,
+            icon: Shield
         }
     ];
 
     const features = [
         {
-            icon: Brain,
-            title: "Արհեստական Բանականություն",
-            description: "Խորը ուսուցում և նեյրոնային ցանցեր անորոշ իրավիճակների վերլուծության համար",
-            SVGComponent: AINetworkSVG
+            icon: Target,
+            title: "Փորձագետի Վերլուծություն",
+            description: "Անորոշ տրամաբանություն, կլաստերացում և սցենարային մոդելավորում որոշումների ընդունման համար",
+            SVGComponent: ExpertAnalysisSVG
+        },
+        {
+            icon: PersonStandingIcon,
+            title: "Մենեջերի Վերլուծություն",
+            description: "Ռիսկերի գնահատում և ռազմավարական որոշումների ընդունում անորոշության պայմաններում",
+            SVGComponent: ManagerDecisionSVG
+        },
+        {
+            icon: Scale,
+            title: "Որոշումների Ընդունման Համակարգ",
+            description: "Բազմաչափանիշային վերլուծություն, ռիսկերի գնահատում և ռազմավարական պլանավորում",
+            SVGComponent: DecisionMakingSVG
         },
         {
             icon: BarChart3,
-            title: "Տվյալների Վիզուալ",
-            description: "Որոշումների համար ինտերակտիվ գրաֆիկներ և աղյուսակներ",
-            SVGComponent: DataVisualizationSVG
-        },
-        {
-            icon: Shield,
-            title: "Ռիսկերի Գնահատում",
-            description: "Բազմաչափ ռիսկերի վերլուծություն և ռազմավարություններ",
-            SVGComponent: SecuritySVG
-        },
-        {
-            icon: Target,
-            title: "Սցենարային Պլանավորում",
-            description: "Տարբեր սցենարների մոդելավորում և հետևանքների կանխատեսում",
-            SVGComponent: TargetingSVG
-        },
-        {
-            icon: Activity,
-            title: "Իրական Ժամանակ",
-            description: "Մոնիտորինգ և որոշումների ընդունում",
-            SVGComponent: ActivitySVG
+            title: "Առաջնային Վերլուծություն",
+            description: "Տվյալների որակի գնահատում, մաքրում և առաջնային վերլուծություն",
+            SVGComponent: AnalystWorkSVG
         },
         {
             icon: Users,
-            title: "Թիմային Համագործակցություն",
-            description: "Թիմային որոշումների ընդունման գործիքներ",
-            SVGComponent: TeamSVG
-        }
+            title: "Կլաստերացում",
+            description: "Տվյալների խմբավորում, օրինաչափությունների բացահայտում և վիճակագրական վերլուծություն",
+            SVGComponent: ClusteringSVG
+        },
+        {
+            icon: Lightbulb,
+            title: "Սինթետիկ Տվյալների Գեներացում",
+            description: "Արհեստական տվյալների ստեղծում վերլուծության որակի բարելավման և տվյալների նմուշի չափի ավելացման համար",
+            SVGComponent: SyntheticDataSVG
+        },
     ];
 
     const metrics = [
-        { value: "95%", label: "Կանխատեսման Ճշգրտություն" },
-        { value: "40%", label: "Ռիսկերի Կրճատում" },
-        { value: "60%", label: "Արագություն" },
-        { value: "24/7", label: "Հասանելիություն" }
-    ];
-
-    const testimonials = [
         {
-            name: "Արմեն Մարտիրոսյան",
-            role: "Գլխավոր Տնօրեն",
-            company: "TechStart Armenia",
-            content: "Այս համակարգը փոխեց մեր ընկերության որոշումների ընդունման գործընթացը։",
-            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&auto=format",
-            rating: 5
+            value: "95%",
+            label: "Կանխատեսման Ճշգրտություն",
+            description: "Հաշվարկվում է AHP և TOPSIS մեթոդների կիրառման արդյունքում: Տվյալների որակը (40%) + մեթոդների արդյունավետությունը (35%) + սցենարային մոդելավորման ճշգրտությունը (25%): 1000+ տվյալների դեպքում միջինը հասնում է 95%-ի:"
         },
         {
-            name: "Նարինե Ավետիսյան",
-            role: "Ռիսկերի Մենեջեր",
-            company: "Bank Armenia",
-            content: "Ռիսկերի գնահատման ճշգրտությունը զարմանալի է։",
-            avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&auto=format",
-            rating: 5
+            value: "40%",
+            label: "Ռիսկերի Կրճատում",
+            description: "Fuzzy Logic-ի միջոցով նույնականացվում են հիմնական ռիսկային գործոններ (ժամանակային, ռեսուրսային, տեխնիկական): Հաշվարկ՝ նախատեսված ռիսկեր ÷ ընդհանուր հնարավոր ռիսկեր: Միջինը 40% ռիսկային իրավիճակներ են կանխարգելվում:"
+        },
+        {
+            value: "60%",
+            label: "Արագություն",
+            description: "Ժամանակի տնտեսում համեմատած ավանդական որոշումների ընդունման հետ: Ավտոմատացված վերլուծությունը + AI աջակցությունը արագացնում են գործընթացը մինչև 60%: Հաշվարկ՝ (ավանդական ժամանակ - նոր ժամանակ) ÷ ավանդական ժամանակ × 100:"
+        },
+        {
+            value: "24/7",
+            label: "Հասանելիություն",
+            description: "Շուրջօրյա տեխնիկական աշխատանք՝ 99.9% uptime գարանտիով: Cloud infrastructure + redundant systems + 24/7 մոնիտորինգ: Տեխնիկական աջակցություն՝ 8/5, արտակարգ իրավիճակներում՝ շուրջօրյա:"
         }
     ];
+
 
     useEffect(() => {
         setIsVisible(true);
@@ -370,9 +109,19 @@ const Home = () => {
         return () => clearInterval(interval);
     }, []);
 
+
+    const navigateToProjects = async () => {
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            navigate('/sign-in', { replace: true });
+        } else {
+            navigate('/my-profile');
+        }
+    }
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe]">
-            {/* Hero Section - Fully Responsive */}
+            {/* Hero Section with Carousel */}
             <section id="home" className="relative overflow-hidden min-h-screen flex items-center px-4 sm:px-6 lg:px-8">
                 <HeroBackgroundSVG />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20"></div>
@@ -383,48 +132,132 @@ const Home = () => {
                 </div>
 
                 <div className="relative max-w-7xl mx-auto w-full py-12 sm:py-16 lg:py-20">
-                    <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                        <div className="mb-4 sm:mb-6">
-                            <span className="inline-flex items-center px-3 py-2 sm:px-4 rounded-full bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20 text-white text-xs sm:text-sm font-medium backdrop-blur-sm border border-[#f2fcfe]/20">
-                                <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                                Նորարարական Լուծում
-                            </span>
+                    {/* Carousel Container */}
+                    <div className="relative">
+                        {/* Main Slider */}
+                        <div className="relative overflow-hidden rounded-3xl">
+                            <div
+                                className="flex transition-transform duration-700 ease-in-out"
+                                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                            >
+                                {heroSlides.map((slide, index) => (
+                                    <div key={index} className="w-full flex-shrink-0 relative">
+                                        <div className="relative h-[500px] sm:h-[600px] lg:h-[700px]">
+                                            {/* Background Image */}
+                                            <img
+                                                src={slide.image}
+                                                alt={slide.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                            {/* Overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/80 to-[#0ea5e9]/60"></div>
+                                            <div className="absolute inset-0 bg-black/20"></div>
+
+                                            {/* Content */}
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+                                                    {/* Icon */}
+                                                    <div className="mb-6 flex justify-center">
+                                                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                                            <slide.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Badge */}
+                                                    <div className="mb-6">
+                                                        <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium border border-white/30">
+                                                            <Zap className="w-4 h-4 mr-2" />
+                                                            Նորարարական Լուծում
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Title */}
+                                                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
+                                                        <span className="text-white block">
+                                                            {slide.title}
+                                                        </span>
+                                                        <span className="text-white/90 block mt-2">
+                                                            {slide.subtitle}
+                                                        </span>
+                                                    </h1>
+
+                                                    {/* Description */}
+                                                    <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
+                                                        {slide.description}
+                                                    </p>
+
+                                                    {/* Buttons */}
+                                                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+                                                        <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white/20 backdrop-blur-sm text-white rounded-full font-semibold text-base sm:text-lg border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
+                                                            Սկսել Վերլուծությունը
+                                                            <ArrowRight className="inline-block ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                                                        </button>
+                                                        <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-white/50 text-white rounded-full font-semibold text-base sm:text-lg hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
+                                                            <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                                                            Ծանոթանալ Համակարգին
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-                            <span className="bg-gradient-to-r from-white via-blue-100 to-[#f2fcfe] bg-clip-text text-transparent">
-                                {heroSlides[currentSlide].title}
-                            </span>
-                            <br />
-                            <span className="text-white font-bold">
-                                {heroSlides[currentSlide].subtitle}
-                            </span>
-                        </h1>
-
-                        <p className="text-base sm:text-lg lg:text-xl from-white via-blue-100 to-[#f2fcfe] mb-6 sm:mb-8 max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto leading-relaxed px-4">
-                            {heroSlides[currentSlide].description}
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
-                            <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25">
-                                Սկսել Վերլուծությունը
-                                <ArrowRight className="inline-block ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#f2fcfe]/50 text-[#f2fcfe] rounded-full font-semibold text-base sm:text-lg hover:bg-[#1c92d2]/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
-                                <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                                Ծանոթանալ Համակարգին
-                            </button>
-                        </div>
-
-                        {/* Slide indicators */}
-                        <div className="flex justify-center mt-8 sm:mt-12 space-x-2">
-                            {heroSlides.map((_, index) => (
+                        {/* Thumbnail Navigation */}
+                        <div className="flex justify-center mt-8 space-x-4">
+                            {heroSlides.map((slide, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
-                                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                                        ? 'bg-[#1c92d2] scale-125'
-                                        : 'bg-[#f2fcfe] hover:bg-blue-500'
+                                    className={`relative group transition-all duration-500 ${index === currentSlide ? 'scale-110' : 'scale-90 opacity-60'
+                                        }`}
+                                >
+                                    {/* Thumbnail */}
+                                    <div className="relative w-20 h-14 sm:w-24 sm:h-16 lg:w-28 lg:h-20 rounded-xl overflow-hidden">
+                                        <img
+                                            src={slide.image}
+                                            alt={slide.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className={`absolute inset-0 transition-all duration-300 ${index === currentSlide
+                                            ? 'bg-gradient-to-r from-[#1c92d2]/60 to-[#0ea5e9]/40 ring-2 ring-white'
+                                            : 'bg-black/40 group-hover:bg-black/20'
+                                            }`}></div>
+
+                                        {/* Icon overlay */}
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <slide.icon className={`transition-all duration-300 ${index === currentSlide
+                                                ? 'w-6 h-6 text-white'
+                                                : 'w-4 h-4 text-white/80'
+                                                }`} />
+                                        </div>
+
+                                        {/* Active indicator */}
+                                        {index === currentSlide && (
+                                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full"></div>
+                                        )}
+                                    </div>
+
+                                    {/* Tooltip */}
+                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                        <div className="bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                                            {slide.subtitle}
+                                        </div>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Progress Indicators */}
+                        <div className="flex justify-center mt-4 space-x-2">
+                            {heroSlides.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`h-1 rounded-full transition-all duration-500 ${index === currentSlide
+                                        ? 'w-8 bg-[#1c92d2]'
+                                        : 'w-2 bg-[#f2fcfe]/50'
                                         }`}
                                 />
                             ))}
@@ -592,7 +425,7 @@ const Home = () => {
                                 ավելի խելացի որոշումներ ընդունելու համար
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
-                                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25">
+                                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25" onClick={navigateToProjects}>
                                     Անվճար Փորձարկում
                                 </button>
                                 <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#1c92d2]/50 text-[#1c92d2] rounded-full font-semibold text-base sm:text-lg hover:bg-[#1c92d2]/10 transition-all duration-300">

@@ -4,7 +4,7 @@ import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
 import { parseCSV } from '../../utils/csvUtils';
 import CSVUploaderr from '../csvUploader/csvUploader';
-import { X } from 'lucide-react';
+import { X, FileText, Info } from 'lucide-react';
 
 const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
     const {
@@ -98,11 +98,11 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
     const handleSelectAll = (isChecked) => {
         const currentCriteria = dataTypeCriteria[currentModalType] || [];
         const newSelection = {};
-        
+
         currentCriteria.forEach(criteria => {
             newSelection[criteria.id] = isChecked;
         });
-        
+
         setSelectedCriteria(prev => ({
             ...prev,
             [currentModalType]: newSelection
@@ -113,16 +113,16 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
     const isAllSelected = () => {
         const currentCriteria = dataTypeCriteria[currentModalType] || [];
         const currentSelection = selectedCriteria[currentModalType] || {};
-        
-        return currentCriteria.length > 0 && 
-               currentCriteria.every(criteria => currentSelection[criteria.id]);
+
+        return currentCriteria.length > 0 &&
+            currentCriteria.every(criteria => currentSelection[criteria.id]);
     };
 
     // Check if some criteria are selected (for indeterminate state)
     const isSomeSelected = () => {
         const currentCriteria = dataTypeCriteria[currentModalType] || [];
         const currentSelection = selectedCriteria[currentModalType] || {};
-        
+
         return currentCriteria.some(criteria => currentSelection[criteria.id]);
     };
 
@@ -193,6 +193,9 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
         return labels[value] || value;
     };
 
+    // Check if data types are selected
+    const hasSelectedDataTypes = Array.isArray(dataType) && dataType.length > 0;
+
     return (
         <>
             <PhaseCard
@@ -245,7 +248,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                     {/* Data Type Selection */}
                     <div>
                         <label className="block text-sm sm:text-base font-bold text-white mb-2 sm:mb-3">
-                            Տվյալների տեսակը <span className="text-red-500">*</span>
+                            Սոցիալ-տնտեսական ոլորտը <span className="text-red-500">*</span>
                         </label>
 
                         <div className="space-y-2 sm:space-y-3">
@@ -284,22 +287,62 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
 
                         {Array.isArray(dataType) && dataType.length > 0 && (
                             <div className="text-xs sm:text-sm text-white mt-3 p-2 sm:p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                                <strong>Ընտրված տեսակներ:</strong> {dataType.map(type => getDataTypeLabel(type)).join(', ')}
+                                <strong>Ընտրված սոցիալ-տնտեսական ոլորտներ:</strong> {dataType.map(type => getDataTypeLabel(type)).join(', ')}
                             </div>
                         )}
                     </div>
 
-                    {/* CSV Uploader */}
-                    <div>
-                        <CSVUploaderr />
-
-                        {rawData && (
-                            <div className="text-xs sm:text-sm text-white mt-1">
-                                Տողերի քանակ {rawData.split('\n').filter(line => line.trim()).length - 1}
-                                (առանց սյունակների վերնագրերի)
+                    {/* CSV Upload Section - Only show when data types are selected */}
+                    {hasSelectedDataTypes && (
+                        <div>
+                            {/* CSV Upload Instructions */}
+                            <div className="mb-4 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                <div className="flex items-start space-x-2">
+                                    <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                                    <div className="text-blue-200">
+                                        <div className="font-medium text-sm sm:text-base mb-2">
+                                            📂 Ընտրեք CSV ֆայլ
+                                        </div>
+                                        <div className="text-xs sm:text-sm space-y-1">
+                                            <p>Ֆայլը պետք է պարունակի հետևյալ սոցիալ-տնտեսական ոլորտ(ներ)ին համապատասխան սյունակներ:</p>
+                                            <ul className="list-disc list-inside ml-2 space-y-1">
+                                                {dataType.map(type => (
+                                                    <li key={type}>
+                                                        <strong>{getDataTypeLabel(type)}</strong>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                    </div>
+
+                            {/* CSV Uploader Component */}
+                            <div>
+                                <label className="block text-sm sm:text-base font-bold text-white mb-2">
+                                    CSV ֆայլ <span className="text-red-500">*</span>
+                                </label>
+                                <CSVUploaderr />
+
+                                {rawData && (
+                                    <div className="text-xs sm:text-sm text-white mt-1">
+                                        Տողերի քանակ {rawData.split('\n').filter(line => line.trim()).length - 1}
+                                        (առանց սյունակների վերնագրերի)
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Message when no data types selected */}
+                    {!hasSelectedDataTypes && (
+                        <div className="p-4 border-2 border-dashed border-gray-400 rounded-lg text-center">
+                            <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-300 text-sm">
+                                CSV ֆայլ բեռնելու համար նախ ընտրեք սոցիալ-տնտեսական ոլորտը
+                            </p>
+                        </div>
+                    )}
 
                     {/* Submit Section */}
                     <div className="pt-3 sm:pt-4 border-t border-gray-200 space-y-3 sm:space-y-4">
@@ -314,7 +357,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                             disabled={
                                 isCompleted ||
                                 isSubmitting ||
-                                !projectName || !rawData
+                                !projectName || !rawData || !hasSelectedDataTypes
                             }
                         >
                             {isSubmitting ? (
@@ -350,7 +393,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         <div className="bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white p-4 sm:p-6 flex items-start sm:items-center justify-between">
                             <div className="flex-1 min-w-0 pr-3">
                                 <h3 className="text-lg sm:text-xl font-bold leading-tight">
-                                    {getDataTypeLabel(currentModalType)} ցուցանիշները
+                                    {getDataTypeLabel(currentModalType)} ոլորտի ցուցանիշները
                                 </h3>
                                 <p className="text-white/80 text-sm mt-1 leading-relaxed">
                                     Ընտրեք անհրաժեշտ ցուցանիշներ վերլուծության համար

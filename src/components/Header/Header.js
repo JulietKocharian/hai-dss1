@@ -19,9 +19,9 @@ const Header = () => {
         const checkAuthStatus = () => {
             const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
             const userDataString = localStorage.getItem('userData');
-            
+
             setIsLoggedIn(!!token);
-            
+
             if (userDataString) {
                 try {
                     setUserData(JSON.parse(userDataString));
@@ -39,10 +39,10 @@ const Header = () => {
 
         // Listen for storage changes (in case user logs in/out in another tab)
         window.addEventListener('storage', checkAuthStatus);
-        
+
         // Add smooth scrolling behavior
         document.documentElement.style.scrollBehavior = 'smooth';
-        
+
         return () => {
             window.removeEventListener('storage', checkAuthStatus);
             document.documentElement.style.scrollBehavior = 'auto';
@@ -60,7 +60,7 @@ const Header = () => {
     // Handle navigation for About and Services links
     const handleSectionNavigation = (sectionId) => {
         setMenuOpen(false);
-        
+
         // If not on home page, navigate to home with hash
         if (location.pathname !== '/') {
             navigate(`/#${sectionId}`);
@@ -127,8 +127,8 @@ const Header = () => {
                             </div>
                             <div className="hidden sm:block">
                                 <Link to="/">
-                                    <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                                        HAI-DSS
+                                    <h1 className="text-s font-bold text-left bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent max-w-xl mx-auto leading-snug">
+                                        ԱՆՈՐՈՇՈՒԹՅԱՆ ՊԱՅՄԱՆՆԵՐՈՒՄ ՄԵՆԵՋԵՐԻ ՈՐՈՇՈՒՄՆԵՐԻ <br /> ԸՆԴՈՒՆՄԱՆՆ ԱՋԱԿՑՈՂ ՀԱՄԱԿԱՐԳ
                                     </h1>
                                 </Link>
                             </div>
@@ -136,7 +136,7 @@ const Header = () => {
 
                         {/* Desktop Menu */}
                         <nav className="hidden md:flex items-center space-x-8">
-                            <button 
+                            <button
                                 onClick={() => handleSectionNavigation('about')}
                                 className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                             >
@@ -146,7 +146,7 @@ const Header = () => {
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-white to-[#0ea5e9] group-hover:w-full transition-all duration-300"></span>
                                 </span>
                             </button>
-                            <button 
+                            <button
                                 onClick={() => handleSectionNavigation('services')}
                                 className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                             >
@@ -156,10 +156,10 @@ const Header = () => {
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-white to-[#0ea5e9] group-hover:w-full transition-all duration-300"></span>
                                 </span>
                             </button>
-                            
+
                             {/* Profile Button - Only when logged in */}
                             {isLoggedIn && (
-                                <button 
+                                <button
                                     onClick={handleProfileClick}
                                     className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                                 >
@@ -172,7 +172,7 @@ const Header = () => {
                             )}
 
                             {/* Dynamic Login/Logout Button */}
-                            <button 
+                            <button
                                 onClick={handleAuthAction}
                                 className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                             >
