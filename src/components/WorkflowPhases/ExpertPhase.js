@@ -684,7 +684,6 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                     <div className="mt-3 text-xs sm:text-sm text-white">
                         🎯 <strong>Վերլուծության արդյունք:</strong>
                         <ul className="list-disc list-inside mt-1 space-y-1 pl-2 sm:pl-0">
-                            <li className="break-words">Անորոշության մակարդակների գնահատում</li>
                             <li className="break-words">Տվյալների խմբավորման օպտիմալացում</li>
                             <li className="break-words">Որոշումներ ընդունմանն աջակցող սցենարների գեներացում</li>
                             <li className="break-words">Մենեջերի համար օպտիմալ գործնական առաջարկություններ</li>

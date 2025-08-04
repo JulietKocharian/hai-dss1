@@ -209,7 +209,6 @@ const MyProfile = () => {
             }, 1500);
         }
     };
-
     // Phase status checker
     const getPhaseStatus = (phaseIndex) => ({
         isActive: currentPhase === phaseIndex,
@@ -400,7 +399,7 @@ const MyProfile = () => {
         const commonProps = {
             onPhaseComplete: () => handlePhaseComplete(currentPhase),
             isActive: true, // Current phase is always active
-            isCompleted: completedPhases.has(currentPhase)
+            // isCompleted: completedPhases.has(currentPhase)
         };
 
         switch (currentPhase) {
@@ -612,7 +611,6 @@ const MyProfile = () => {
                                 <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 text-center">
                                     Աշխատանքային գործընթացի կարգավիճակ
                                 </h3>
-
                                 {/* Progress Indicators - Responsive */}
                                 <div className="flex justify-center items-center space-x-2 sm:space-x-8 mb-4 sm:mb-6 overflow-x-auto">
                                     {phases.map((phase, index) => (
