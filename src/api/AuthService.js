@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = `http://83.139.6.172:3100/api/v1/`;
+const API_BASE_URL = `https://gateway.amracode.am/api/v1/`;
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -13,7 +13,7 @@ const api = axios.create({
 // Endpoints that don't need authentication
 const noAuthEndpoints = [
   '/auth/login',
-  '/auth/register', 
+  '/auth/register',
   '/auth/forgotPassword',
   '/auth/verifyContact',
   '/auth/newPassword',
@@ -23,18 +23,18 @@ const noAuthEndpoints = [
 // Helper function to check if token is expired
 const isTokenExpired = (token) => {
   if (!token) return true;
-  
+
   try {
     // Simple JWT expiration check without jwt-decode library
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-    
+
     const decodedToken = JSON.parse(jsonPayload);
     const currentTime = Date.now() / 1000;
-    
+
     return decodedToken.exp < currentTime;
   } catch (error) {
     console.error('Error decoding token:', error);
@@ -71,7 +71,7 @@ export const refreshToken = async (refreshTokenValue) => {
 
   } catch (error) {
     console.log('refresh-tokens error', error);
-    
+
     return {
       success: false,
       data: null,
@@ -99,7 +99,7 @@ api.interceptors.request.use(
     }
 
     const token = localStorage.getItem('accessToken');
-    
+
     if (!token) {
       return config;
     }
@@ -167,7 +167,7 @@ api.interceptors.response.use(
         if (refreshResult.success) {
           const newAccessToken = refreshResult.data.access;
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-          
+
           // Retry the original request with new token
           return api(originalRequest);
         } else {
@@ -210,7 +210,7 @@ export const login = async (email, password) => {
       const refreshToken = data.refresh || data.refreshToken;
       localStorage.setItem('refreshToken', refreshToken);
     }
-      
+
     // Store user data if provided
     if (data.user) {
       localStorage.setItem('userData', JSON.stringify(data.user));
@@ -242,7 +242,7 @@ export const register = async (userData) => {
       const refreshToken = data.refresh || data.refreshToken;
       localStorage.setItem('refreshToken', refreshToken);
     }
-      
+
     // Store user data if provided
     if (data.user) {
       localStorage.setItem('userData', JSON.stringify(data.user));
