@@ -443,7 +443,7 @@ const MyProfile = () => {
             setActiveTab('new-project');
         }
     };
-    
+
 
     const handleDeleteProject = (projectId, e) => {
         e.stopPropagation();
@@ -771,17 +771,6 @@ const MyProfile = () => {
                                 {/* Phase Navigation Header - Moved to top */}
                                 <div className="bg-white/10 rounded-xl p-4 border border-white/20">
                                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded-lg flex items-center justify-center">
-                                                <span className="text-white font-bold">{currentPhase + 1}</span>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-lg font-semibold text-white">{getCurrentPhaseName()}</h4>
-                                                <p className="text-white/60 text-sm">Փուլ {currentPhase + 1} / 4</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Navigation Controls - Responsive */}
                                         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
                                             {/* Mobile-friendly button layout */}
                                             <div className="flex items-center justify-between w-full sm:w-auto gap-3">
@@ -838,6 +827,18 @@ const MyProfile = () => {
                                                 </button>
                                             </div>
                                         </div>
+                                        <div className="flex items-center space-x-3">
+                                            <div>
+                                                <h4 className="text-lg font-semibold text-white">{getCurrentPhaseName()}</h4>
+                                                <p className="text-white/60 text-sm text-end">Փուլ {currentPhase + 1} / 4</p>
+                                            </div>
+                                            <div className="w-10 h-10 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded-lg flex items-center justify-center">
+                                                <span className="text-white font-bold">{currentPhase + 1}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Navigation Controls - Responsive */}
+
                                     </div>
 
                                     {/* Progress Bar */}

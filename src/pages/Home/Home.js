@@ -43,14 +43,14 @@ const Home = () => {
             icon: Shield
         }
     ];
-
-
+    
+    
     const features = [
         {
-            icon: Target,
-            title: "Փորձագետի Վերլուծություն",
-            description: "Անորոշ տրամաբանություն, կլաստերացում և սցենարային մոդելավորում որոշումների ընդունման համար",
-            SVGComponent: ExpertAnalysisSVG
+            icon: BarChart3,
+            title: "Առաջնային Վերլուծություն",
+            description: "Տվյալների որակի գնահատում, մաքրում և առաջնային վերլուծություն",
+            SVGComponent: AnalystWorkSVG
         },
         {
             icon: PersonStandingIcon,
@@ -59,16 +59,16 @@ const Home = () => {
             SVGComponent: ManagerDecisionSVG
         },
         {
-            icon: Scale,
-            title: "Որոշումների Ընդունման Համակարգ",
-            description: "Բազմաչափանիշային վերլուծություն, ռիսկերի գնահատում և ռազմավարական պլանավորում",
-            SVGComponent: DecisionMakingSVG
+            icon: Target,
+            title: "Փորձագետի Վերլուծություն",
+            description: "Անորոշ տրամաբանություն, կլաստերացում և սցենարային մոդելավորում որոշումների ընդունման համար",
+            SVGComponent: ExpertAnalysisSVG
         },
         {
-            icon: BarChart3,
-            title: "Առաջնային Վերլուծություն",
-            description: "Տվյալների որակի գնահատում, մաքրում և առաջնային վերլուծություն",
-            SVGComponent: AnalystWorkSVG
+            icon: Lightbulb,
+            title: "Սինթետիկ Տվյալների Գեներացում",
+            description: "Արհեստական տվյալների ստեղծում վերլուծության որակի բարելավման և տվյալների նմուշի չափի ավելացման համար",
+            SVGComponent: SyntheticDataSVG
         },
         {
             icon: Users,
@@ -77,10 +77,10 @@ const Home = () => {
             SVGComponent: ClusteringSVG
         },
         {
-            icon: Lightbulb,
-            title: "Սինթետիկ Տվյալների Գեներացում",
-            description: "Արհեստական տվյալների ստեղծում վերլուծության որակի բարելավման և տվյալների նմուշի չափի ավելացման համար",
-            SVGComponent: SyntheticDataSVG
+            icon: Scale,
+            title: "Որոշումների Ընդունում",
+            description: "Բազմաչափանիշային վերլուծություն, ռիսկերի գնահատում և ռազմավարական պլանավորում",
+            SVGComponent: DecisionMakingSVG
         },
     ];
 
@@ -164,43 +164,43 @@ const Home = () => {
                                             <div className="absolute inset-0 flex items-center justify-center">
                                                 <div className="text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
                                                     {/* Icon */}
-                                                    <div className="mb-6 flex justify-center">
-                                                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                                            <slide.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                                                    <div className="mb-4 flex justify-center">
+                                                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                                            <slide.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                                                         </div>
                                                     </div>
 
                                                     {/* Badge */}
-                                                    <div className="mb-6">
-                                                        <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium border border-white/30">
-                                                            <Zap className="w-4 h-4 mr-2" />
+                                                    <div className="mb-4">
+                                                        <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm font-medium border border-white/30">
+                                                            <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                                             Նորարարական Լուծում
                                                         </span>
                                                     </div>
 
-                                                    {/* Title */}
-                                                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
+                                                    {/* Title - Значительно уменьшен */}
+                                                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
                                                         <span className="text-white block">
                                                             {slide.title}
                                                         </span>
-                                                        <span className="text-white/90 block mt-2">
+                                                        <span className="text-white/90 block mt-1">
                                                             {slide.subtitle}
                                                         </span>
                                                     </h1>
 
-                                                    {/* Description */}
-                                                    <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
+                                                    {/* Description - Уменьшен */}
+                                                    <p className="text-sm sm:text-base lg:text-lg text-white/90 mb-4 sm:mb-6 max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
                                                         {slide.description}
                                                     </p>
 
-                                                    {/* Buttons */}
-                                                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-                                                        <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white/20 backdrop-blur-sm text-white rounded-full font-semibold text-base sm:text-lg border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
+                                                    {/* Buttons - Уменьшены */}
+                                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center">
+                                                        <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-white rounded-full font-semibold text-sm sm:text-base border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
                                                             Սկսել Վերլուծությունը
-                                                            <ArrowRight className="inline-block ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                                                            <ArrowRight className="inline-block ml-1.5 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                                                         </button>
-                                                        <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-white/50 text-white rounded-full font-semibold text-base sm:text-lg hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
-                                                            <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                                                        <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-white/50 text-white rounded-full font-semibold text-sm sm:text-base hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
+                                                            <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                                             Ծանոթանալ Համակարգին
                                                         </button>
                                                     </div>
@@ -211,7 +211,6 @@ const Home = () => {
                                 ))}
                             </div>
                         </div>
-
                         {/* Thumbnail Navigation */}
                         <div className="flex justify-center mt-8 space-x-4">
                             {heroSlides.map((slide, index) => (

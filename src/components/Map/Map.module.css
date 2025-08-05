@@ -1,0 +1,26 @@
+.loriH1 {
+    position: absolute;
+    left: 140px;
+    top: 35px;
+    visibility: hidden;
+    transition: visibility 0s linear 1s;
+    /* Ensures smooth visibility transition */
+}
+
+.lori {
+    position: relative;
+}
+
+.svg path:hover {
+    fill: red;
+    /* Assuming .lori is an SVG or path element */
+    transition: 1s;
+}
+
+.lori:hover .loriH1 {
+    visibility: visible;
+    background-color: black;
+}
+.one{
+    fill: orange;
+}

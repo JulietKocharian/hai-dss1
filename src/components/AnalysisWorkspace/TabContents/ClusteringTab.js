@@ -12,6 +12,7 @@ import ClusterPointsChart from '../../Charts/ClusterPointsChart';
 import ClusterScatterChart from '../../Charts/ClusteringScatter';
 
 import map from './map.png';
+import Map from '../../Map/Map';
 
 /**
  * ClusteringTab բաղադրիչ - կլաստերիզացիայի վերլուծության ինտերֆեյս
@@ -380,7 +381,7 @@ const ClusteringTab = () => {
             {/* Enhanced Visualizations with Integrated Synthetic Data */}
             {showVisualization && enhancedClusterData.length > 0 && (
                 <>
-                    <img src={map} className="w-full"/>
+                    <Map/>
                     <ClusterCharts
                         clusters={enhancedClusterData}
                     />

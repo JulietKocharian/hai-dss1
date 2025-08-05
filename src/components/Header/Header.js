@@ -112,28 +112,29 @@ const Header = () => {
                 <div className=" mx-auto px-4">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
-                        <div className="flex items-center space-x-3 group cursor-pointer">
-                            <div className="relative">
-                                <div
-                                    style={{
-                                        background: "linear-gradient(to bottom right, #1c92d2, #f2fcfe)",
-                                    }}
-                                    className="w-12 h-12 bg-gradient-to-br from-[#1c92d2] to-[#0ea5e9] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                                    <Brain className="w-6 h-6 text-white" />
+                        <Link to="/">
+                            <div className="flex items-center space-x-3 group cursor-pointer">
+                                <div className="relative">
+                                    <div
+                                        style={{
+                                            background: "linear-gradient(to bottom right, #1c92d2, #f2fcfe)",
+                                        }}
+                                        className="w-12 h-12 bg-gradient-to-br from-[#1c92d2] to-[#0ea5e9] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                                        <Brain className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                                        <Zap className="w-2 h-2 text-white" />
+                                    </div>
                                 </div>
-                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
-                                    <Zap className="w-2 h-2 text-white" />
+                                <div className="hidden sm:block">
+                                    <Link to="/">
+                                        <h1 className="text-s font-bold text-left bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent max-w-xl mx-auto leading-snug">
+                                            ԱՆՈՐՈՇՈՒԹՅԱՆ ՊԱՅՄԱՆՆԵՐՈՒՄ ՄԵՆԵՋԵՐԻ ՈՐՈՇՈՒՄՆԵՐԻ <br /> ԸՆԴՈՒՆՄԱՆՆ ԱՋԱԿՑՈՂ ՀԱՄԱԿԱՐԳ
+                                        </h1>
+                                    </Link>
                                 </div>
                             </div>
-                            <div className="hidden sm:block">
-                                <Link to="/">
-                                    <h1 className="text-s font-bold text-left bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent max-w-xl mx-auto leading-snug">
-                                        ԱՆՈՐՈՇՈՒԹՅԱՆ ՊԱՅՄԱՆՆԵՐՈՒՄ ՄԵՆԵՋԵՐԻ ՈՐՈՇՈՒՄՆԵՐԻ <br /> ԸՆԴՈՒՆՄԱՆՆ ԱՋԱԿՑՈՂ ՀԱՄԱԿԱՐԳ
-                                    </h1>
-                                </Link>
-                            </div>
-                        </div>
-
+                        </Link>
                         {/* Desktop Menu */}
                         <nav className="hidden md:flex items-center space-x-8">
                             <button
