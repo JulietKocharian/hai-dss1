@@ -44,7 +44,9 @@ import ExpertPhase from '../../components/WorkflowPhases/ExpertPhase';
 import AnalysisWorkspace from '../../components/AnalysisWorkspace/AnalysisWorkspace';
 import DecisionLevelPhase from '../../components/WorkflowPhases/DesicionPhase';
 import { DataProvider } from '../../context/DataContext';
-import {useProjectStorage} from '../../store/ProjectStorageManager'
+import { useProjectStorage } from '../../store/ProjectStorageManager'
+import { Pagination } from './components/Pagination';
+import { STATIC_PROJECTS } from './constants';
 
 // Animated Background SVG
 const ProfileBackgroundSVG = () => (
@@ -97,15 +99,18 @@ const MyProfile = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isNavigating, setIsNavigating] = useState(false);
     const [uploadedCSV, setUploadedCSV] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navigate = useNavigate();
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isNavigating, setIsNavigating] = useState(false);
+    const projectsPerPage = 4;
+
     // UPDATED: Projects state - теперь из localStorage
-    const [projects, setProjects] = useState([]);
-    
+    const [projects, setProjects] = useState(STATIC_PROJECTS);
+
     // ADDED: Current project tracking
     const [currentProjectId, setCurrentProjectId] = useState(null);
 
@@ -156,9 +161,12 @@ const MyProfile = () => {
     useEffect(() => {
         const loadProjects = () => {
             const storedProjects = projectStorage.getAllProjects();
-            setProjects(storedProjects);
+            setProjects((prev) => [
+                ...storedProjects,
+                ...prev
+            ]);
         };
-        
+
         loadProjects();
     }, []);
 
@@ -185,7 +193,7 @@ const MyProfile = () => {
             setCurrentPhase(0);
             setCompletedPhases(new Set());
             setAllPhasesCompleted(false);
-            
+
             // Update projects list
             const updatedProjects = projectStorage.getAllProjects();
             setProjects(updatedProjects);
@@ -400,23 +408,23 @@ const MyProfile = () => {
     // UPDATED: New project handler with localStorage integration
     const handleNewProject = async () => {
         setIsNavigating(true);
-        
+
         // Create new project in localStorage
         const newProject = projectStorage.createProject({
             name: 'Նոր նախագիծ',
             type: 'market-analysis'
         });
-        
+
         // Set as current project
         setCurrentProjectId(newProject.id);
         setCurrentPhase(0);
         setCompletedPhases(new Set());
         setAllPhasesCompleted(false);
-        
+
         // Update projects list
         const updatedProjects = projectStorage.getAllProjects();
         setProjects(updatedProjects);
-        
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         setActiveTab('new-project');
         setIsNavigating(false);
@@ -427,7 +435,7 @@ const MyProfile = () => {
     const handleOpenProject = (projectId) => {
         setCurrentProjectId(projectId);
         const project = projectStorage.getProject(projectId);
-        
+
         if (project) {
             setCurrentPhase(project.workflowData.currentPhase);
             setCompletedPhases(new Set(project.workflowData.completedPhases));
@@ -435,15 +443,16 @@ const MyProfile = () => {
             setActiveTab('new-project');
         }
     };
+    
 
     const handleDeleteProject = (projectId, e) => {
         e.stopPropagation();
-        
+
         if (window.confirm('Վստա՞հ եք, որ ցանկանում եք ջնջել այս նախագիծը:')) {
             projectStorage.deleteProject(projectId);
             const updatedProjects = projectStorage.getAllProjects();
             setProjects(updatedProjects);
-            
+
             // If deleted project was current, clear state
             if (currentProjectId === projectId) {
                 setCurrentProjectId(null);
@@ -465,29 +474,29 @@ const MyProfile = () => {
 
     // UPDATED: Stats calculation from real projects data
     const stats = [
-        { 
-            label: 'Ընդհանուր որոշումներ', 
-            value: projects.reduce((sum, project) => sum + project.decisions, 0).toString(), 
-            icon: BarChart3, 
-            color: 'from-[#1c92d2] to-[#0ea5e9]' 
+        {
+            label: 'Ընդհանուր որոշումներ',
+            value: projects.reduce((sum, project) => sum + project.decisions, 0).toString(),
+            icon: BarChart3,
+            color: 'from-[#1c92d2] to-[#0ea5e9]'
         },
-        { 
-            label: 'Հաջող վերլուծություններ', 
-            value: `${projects.length > 0 ? Math.round(projects.reduce((sum, project) => sum + project.accuracy, 0) / projects.length) : 0}%`, 
-            icon: CheckCircle, 
-            color: 'from-green-500 to-teal-500' 
+        {
+            label: 'Հաջող վերլուծություններ',
+            value: `${projects.length > 0 ? Math.round(projects.reduce((sum, project) => sum + project.accuracy, 0) / projects.length) : 0}%`,
+            icon: CheckCircle,
+            color: 'from-green-500 to-teal-500'
         },
-        { 
-            label: 'Ակտիվ նախագծեր', 
-            value: projects.filter(p => p.status === 'in-progress').length.toString(), 
-            icon: Activity, 
-            color: 'from-orange-500 to-red-500' 
+        {
+            label: 'Ակտիվ նախագծեր',
+            value: projects.filter(p => p.status === 'in-progress').length.toString(),
+            icon: Activity,
+            color: 'from-orange-500 to-red-500'
         },
-        { 
-            label: 'Ավարտված նախագծեր', 
-            value: projects.filter(p => p.status === 'completed').length.toString(), 
-            icon: Award, 
-            color: 'from-pink-500 to-violet-500' 
+        {
+            label: 'Ավարտված նախագծեր',
+            value: projects.filter(p => p.status === 'completed').length.toString(),
+            icon: Award,
+            color: 'from-pink-500 to-violet-500'
         }
     ];
 
@@ -539,6 +548,10 @@ const MyProfile = () => {
             setAllPhasesCompleted(true);
         }
     };
+
+    const totalPages = Math.ceil(projects.length / projectsPerPage);
+    const startIndex = (currentPage - 1) * projectsPerPage;
+    const paginatedProjects = projects.slice(startIndex, startIndex + projectsPerPage);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe] p-2 sm:p-4" style={{ paddingTop: '5rem' }}>
@@ -858,7 +871,7 @@ const MyProfile = () => {
                                                 <BarChart3 className="w-5 h-5 mr-2" />
                                                 Աշխատանքային տիրույթ
                                             </h4>
-                                            <AnalysisWorkspace 
+                                            <AnalysisWorkspace
                                                 projectId={currentProjectId}
                                                 projectStorage={projectStorage}
                                             />
@@ -875,7 +888,7 @@ const MyProfile = () => {
                                             <BarChart3 className="w-5 h-5 mr-2" />
                                             Աշխատանքային տիրույթ
                                         </h4>
-                                        <AnalysisWorkspace 
+                                        <AnalysisWorkspace
                                             projectId={currentProjectId}
                                             projectStorage={projectStorage}
                                         />
@@ -1245,15 +1258,15 @@ const MyProfile = () => {
                                                 </button>
                                             </div>
 
-                                            {/* Projects Grid - Responsive with UPDATED handlers */}
+                                            {/* Projects Grid */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                                                {projects.map((project) => {
+                                                {paginatedProjects.map((project) => {
                                                     const statusBadge = getProjectStatusBadge(project.status);
                                                     const StatusIcon = statusBadge.icon;
 
                                                     return (
-                                                        <div 
-                                                            key={project.id} 
+                                                        <div
+                                                            key={project.id}
                                                             className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white hover:border-white/50 transition-all duration-300 group cursor-pointer"
                                                             onClick={() => handleOpenProject(project.id)}
                                                         >
@@ -1266,7 +1279,7 @@ const MyProfile = () => {
                                                                         <StatusIcon className="w-3 h-3 mr-1" />
                                                                         {statusBadge.label}
                                                                     </span>
-                                                                    <button 
+                                                                    <button
                                                                         onClick={(e) => handleDeleteProject(project.id, e)}
                                                                         className="p-1 hover:bg-red-500/20 rounded-lg transition-colors"
                                                                         title="Ջնջել նախագիծը"
@@ -1308,6 +1321,15 @@ const MyProfile = () => {
                                                     );
                                                 })}
                                             </div>
+
+                                            {/* Your Pagination Component */}
+                                            <Pagination
+                                                currentPage={currentPage}
+                                                totalPages={totalPages}
+                                                onPageChange={setCurrentPage}
+                                                itemsPerPage={projectsPerPage}
+                                                totalItems={projects.length}
+                                            />
 
                                             {/* Empty State */}
                                             {projects.length === 0 && (

@@ -4,7 +4,7 @@ export const Pagination = ({
   currentPage, 
   totalPages, 
   onPageChange,
-  itemsPerPage = 6,
+  itemsPerPage = 4,
   totalItems = 0 
 }) => {
   // Generate page numbers to display
@@ -51,7 +51,7 @@ export const Pagination = ({
     <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 mt-8 px-4">
       {/* Items info */}
       <div className="text-sm text-white/60">
-        Ցուցադրվում է <span className="font-medium text-white">{startItem}-{endItem}</span> of{' '}
+        Ցուցադրվում է <span className="font-medium text-white">{startItem}-{endItem} - ը </span> {' '}
         <span className="font-medium text-white">{totalItems}</span> նախագծից
       </div>
 
