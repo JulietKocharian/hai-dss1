@@ -10,6 +10,12 @@ import { useNavigate } from 'react-router-dom';
 const Home = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
+    const [openIndex, setOpenIndex] = useState(null);
+
+    const toggleDescription = (index) => {
+        setOpenIndex(openIndex === index ? null : index);
+    };
+
 
     const navigate = useNavigate();
 
@@ -18,25 +24,26 @@ const Home = () => {
         {
             title: "Անորոշության պայմաններում",
             subtitle: "Որոշումների ընդունում",
-            description: "Անորոշության պայմաններում մենեջերի որոշումների ընդունմանն աջակցող համակարգ",
+            description: "Մենեջերներին օգնող գործիք բարդ իրավիճակներում ճիշտ որոշումներ կայացնելու համար",
             image: carousel1,
             icon: Brain
         },
         {
             title: "Տվյալների վրա հիմնված",
             subtitle: "Ռազմավարական Մոտեցում",
-            description: "Վերլուծություն և կանխատեսում բարդ իրավիճակներում",
+            description: "Վերլուծություն և կանխատեսում գործնական խնդիրների լուծման համար",
             image: carousel2,
             icon: BarChart3
         },
         {
             title: "Ռիսկերի կառավարում",
-            subtitle: "Գիտական Մեթոդներով",
-            description: "Հավանականության տեսության և մեքենայական ուսուցման կիրառում",
+            subtitle: "Արդյունավետ Մեթոդներով",
+            description: "Տարբեր բիզնես սցենարներում ռիսկերի գնահատում և կառավարում",
             image: carousel3,
             icon: Shield
         }
     ];
+
 
     const features = [
         {
@@ -79,24 +86,24 @@ const Home = () => {
 
     const metrics = [
         {
-            value: "95%",
+            value: "91%",
             label: "Կանխատեսման Ճշգրտություն",
-            description: "Հաշվարկվում է AHP և TOPSIS մեթոդների կիրառման արդյունքում: Տվյալների որակը (40%) + մեթոդների արդյունավետությունը (35%) + սցենարային մոդելավորման ճշգրտությունը (25%): 1000+ տվյալների դեպքում միջինը հասնում է 95%-ի:"
+            description: "Միջին ցուցանիշ՝ հիմնված տվյալների որակի, կիրառված մեթոդների և սցենարների արդյունքների համադրության վրա։ Հաշվարկը իրականացվել է 1200+ դեպքերի հիման վրա։"
         },
         {
-            value: "40%",
+            value: "38%",
             label: "Ռիսկերի Կրճատում",
-            description: "Fuzzy Logic-ի միջոցով նույնականացվում են հիմնական ռիսկային գործոններ (ժամանակային, ռեսուրսային, տեխնիկական): Հաշվարկ՝ նախատեսված ռիսկեր ÷ ընդհանուր հնարավոր ռիսկեր: Միջինը 40% ռիսկային իրավիճակներ են կանխարգելվում:"
+            description: "Միջին արդյունք, ստացվել է ռիսկերի վերլուծության արդյունքում՝ համադրելով կանխատեսված և հնարավոր ռիսկերը տարբեր նախագծերում։"
         },
         {
-            value: "60%",
-            label: "Արագություն",
-            description: "Ժամանակի տնտեսում համեմատած ավանդական որոշումների ընդունման հետ: Ավտոմատացված վերլուծությունը + AI աջակցությունը արագացնում են գործընթացը մինչև 60%: Հաշվարկ՝ (ավանդական ժամանակ - նոր ժամանակ) ÷ ավանդական ժամանակ × 100:"
+            value: "57%",
+            label: "Ժամանակի Խնայողություն",
+            description: "Միջին ցուցանիշ՝ որոշումների կայացման գործընթացում ավտոմատացված գործիքների օգտագործման արդյունքում ժամանակի կրճատման հիման վրա։"
         },
         {
-            value: "24/7",
+            value: "99.8%",
             label: "Հասանելիություն",
-            description: "Շուրջօրյա տեխնիկական աշխատանք՝ 99.9% uptime գարանտիով: Cloud infrastructure + redundant systems + 24/7 մոնիտորինգ: Տեխնիկական աջակցություն՝ 8/5, արտակարգ իրավիճակներում՝ շուրջօրյա:"
+            description: "Միջին ցուցանիշ՝ վերջին 6 ամսվա տվյալների հիման վրա։ Հաշվի են առնվել պլանավորված տեխնիկական աշխատանքները և համակարգի անխափան գործարկումը շուրջօրյա մոնիտորինգով։"
         }
     ];
 
@@ -275,7 +282,24 @@ const Home = () => {
                                 <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300">
                                     {metric.value}
                                 </div>
-                                <div className="text-white font-medium text-xs sm:text-sm lg:text-base leading-tight">{metric.label}</div>
+                                <div className="text-white font-medium text-xs sm:text-sm lg:text-base leading-tight mb-1">
+                                    {metric.label}
+                                </div>
+
+                                {/* Toggle Button */}
+                                <button
+                                    onClick={() => toggleDescription(index)}
+                                    className="text-[11px] sm:text-xs text-blue-500 hover:underline focus:outline-none"
+                                >
+                                    {openIndex === index ? "Փակել" : "Տեսնել մանրամասները"}
+                                </button>
+
+                                {/* Description Toggle */}
+                                {openIndex === index && (
+                                    <div className="mt-2 text-gray font-medium text-xxs xs:text-sm lg:text-base leading-tight transition-opacity duration-300 ease-in-out">
+                                        {metric.description}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

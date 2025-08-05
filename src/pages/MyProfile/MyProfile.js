@@ -209,7 +209,6 @@ const MyProfile = () => {
             }, 1500);
         }
     };
-
     // Phase status checker
     const getPhaseStatus = (phaseIndex) => ({
         isActive: currentPhase === phaseIndex,
@@ -400,7 +399,7 @@ const MyProfile = () => {
         const commonProps = {
             onPhaseComplete: () => handlePhaseComplete(currentPhase),
             isActive: true, // Current phase is always active
-            isCompleted: completedPhases.has(currentPhase)
+            // isCompleted: completedPhases.has(currentPhase)
         };
 
         switch (currentPhase) {
@@ -612,7 +611,6 @@ const MyProfile = () => {
                                 <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 text-center">
                                     Աշխատանքային գործընթացի կարգավիճակ
                                 </h3>
-
                                 {/* Progress Indicators - Responsive */}
                                 <div className="flex justify-center items-center space-x-2 sm:space-x-8 mb-4 sm:mb-6 overflow-x-auto">
                                     {phases.map((phase, index) => (
@@ -684,67 +682,112 @@ const MyProfile = () => {
                             </div>
 
                             {/* Two Column Layout: Current Phase + Analysis Workspace */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                                {/* Left Column - Current Active Phase (1/3 width) */}
-                                <div className="space-y-4 lg:col-span-1">
-                                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                                        <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
-                                            <div className="w-8 h-8 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded-lg flex items-center justify-center mr-3">
-                                                <span className="text-white font-bold text-sm">{currentPhase + 1}</span>
+                            <div className="space-y-6">
+                                {/* Phase Navigation Header - Moved to top */}
+                                <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-10 h-10 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded-lg flex items-center justify-center">
+                                                <span className="text-white font-bold">{currentPhase + 1}</span>
                                             </div>
-                                            {getCurrentPhaseName()}
-                                        </h4>
-                                        {renderCurrentPhase()}
-                                    </div>
-                                    {/* REMOVED: Manual Phase Navigation Buttons - Only show progress indicators */}
-                                    <div className="flex flex-col sm:flex-row items-center gap-3">
-
-                                        <button
-                                            onClick={handlePhasePrevious}
-                                            className={`flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-300 w-full sm:w-auto ${currentPhase === 0 ? 'invisible' : ''}`}
-                                        >
-                                            <ChevronLeft className="w-4 h-4" />
-                                            <span className="text-sm">Նախորդ</span>
-                                        </button>
-
-                                        <div className="flex justify-center items-center flex-1">
-                                            <div className="flex space-x-3">
-                                                {phases.map((_, index) => (
-                                                    <button
-                                                        key={index}
-
-                                                        disabled={index > currentPhase && !completedPhases.has(index)}
-                                                        className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentPhase
-                                                            ? 'bg-blue-400 ring-2 ring-blue-400/30 ring-offset-2 ring-offset-transparent scale-125 cursor-pointer'
-                                                            : completedPhases.has(index)
-                                                                ? 'bg-green-400 scale-110 cursor-pointer hover:scale-125'
-                                                                : index < currentPhase
-                                                                    ? 'bg-gray-400 cursor-pointer hover:scale-110'
-                                                                    : 'bg-gray-600 cursor-not-allowed opacity-50'
-                                                            } ${index <= currentPhase || completedPhases.has(index) ? 'hover:scale-125' : ''}`}
-                                                    />
-                                                ))}
+                                            <div>
+                                                <h4 className="text-lg font-semibold text-white">{getCurrentPhaseName()}</h4>
+                                                <p className="text-white/60 text-sm">Փուլ {currentPhase + 1} / 4</p>
                                             </div>
                                         </div>
 
-                                        {/* Next Button - Always render, toggle visibility */}
-                                        <button
-                                            onClick={handlePhaseNext}
-                                            className={`flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-300 w-full sm:w-auto ${currentPhase === phases.length - 1 ? 'invisible' : ''}`}
-                                        >
-                                            <span className="text-sm">Հաջորդ</span>
-                                            <ChevronRight className="w-4 h-4" />
-                                        </button>
+                                        {/* Navigation Controls - Responsive */}
+                                        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                                            {/* Mobile-friendly button layout */}
+                                            <div className="flex items-center justify-between w-full sm:w-auto gap-3">
+                                                {/* Previous Button */}
+                                                <button
+                                                    onClick={handlePhasePrevious}
+                                                    disabled={currentPhase === 0}
+                                                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-300 text-sm ${currentPhase === 0
+                                                        ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                                                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-500 hover:to-gray-600 hover:shadow-lg'
+                                                        }`}
+                                                >
+                                                    <ChevronLeft className="w-4 h-4" />
+                                                    <span className="hidden sm:inline">Նախորդ</span>
+                                                </button>
+
+                                                {/* Phase Indicators - Centered */}
+                                                <div className="flex space-x-2">
+                                                    {phases.map((_, index) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() => {
+                                                                if (index <= currentPhase || completedPhases.has(index)) {
+                                                                    setCurrentPhase(index);
+                                                                }
+                                                            }}
+                                                            disabled={index > currentPhase && !completedPhases.has(index)}
+                                                            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all duration-300 flex items-center justify-center text-xs font-bold ${index === currentPhase
+                                                                ? 'bg-blue-500 text-white ring-2 ring-blue-400/50 scale-110 shadow-lg'
+                                                                : completedPhases.has(index)
+                                                                    ? 'bg-green-500 text-white hover:scale-110 cursor-pointer shadow-md'
+                                                                    : index < currentPhase
+                                                                        ? 'bg-blue-400 text-white cursor-pointer hover:scale-105'
+                                                                        : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
+                                                                }`}
+                                                            title={`Փուլ ${index + 1}`}
+                                                        >
+                                                            {completedPhases.has(index) ? '✓' : index + 1}
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                {/* Next Button */}
+                                                <button
+                                                    onClick={handlePhaseNext}
+                                                    disabled={currentPhase === phases.length - 1}
+                                                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-300 text-sm ${currentPhase === phases.length - 1
+                                                        ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                                                        : 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white hover:from-[#0f7fb5] hover:to-[#0369a1] hover:shadow-lg'
+                                                        }`}
+                                                >
+                                                    <span className="hidden sm:inline">Հաջորդ</span>
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Progress Bar */}
+                                    <div className="w-full bg-gray-600/30 rounded-full h-2">
+                                        <div
+                                            className="bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] h-2 rounded-full transition-all duration-500 ease-out"
+                                            style={{ width: `${((currentPhase + 1) / phases.length) * 100}%` }}
+                                        />
                                     </div>
                                 </div>
-                                {/* Right Column - Analysis Workspace (2/3 width) */}
-                                <div className="space-y-4 lg:col-span-2">
-                                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                                        <h4 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center">
-                                            <BarChart3 className="w-5 h-5 mr-2" />
-                                            Աշխատանքային տիրույթ
-                                        </h4>
-                                        <AnalysisWorkspace />
+
+                                {/* Main Content Grid */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    {/* Left Column - Current Active Phase (1/3 width) */}
+                                    <div className="lg:col-span-1">
+                                        <div className="bg-white/10 rounded-xl p-4 border border-white/20 h-fit">
+                                            <div className="flex items-center space-x-3 mb-4">
+                                                <div className="w-6 h-6 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] rounded flex items-center justify-center">
+                                                    <span className="text-white font-bold text-xs">{currentPhase + 1}</span>
+                                                </div>
+                                                <h4 className="text-base font-semibold text-white">{getCurrentPhaseName()}</h4>
+                                            </div>
+                                            {renderCurrentPhase()}
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column - Analysis Workspace (2/3 width) */}
+                                    <div className="lg:col-span-2">
+                                        <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+                                            <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                                <BarChart3 className="w-5 h-5 mr-2" />
+                                                Աշխատանքային տիրույթ
+                                            </h4>
+                                            <AnalysisWorkspace />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1531,6 +1574,9 @@ const MyProfile = () => {
         </div>
     );
 };
+
+
+
 
 
 export default MyProfile;
