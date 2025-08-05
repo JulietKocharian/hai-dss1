@@ -1,7 +1,7 @@
 // src/components/WorkflowPhases/AnalystPhase.js
 // Վերլուծաբանի փուլի բաղադրիչ - տվյալների մշակում և վերլուծություն
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
@@ -12,7 +12,15 @@ import { getDataTypeLabel } from '../../utils/dataHelpers';
  * AnalystPhase բաղադրիչ - վերլուծաբանի աշխատանքային փուլ
  * Պատասխանատու է տվյալների որակի գնահատման և առաջնային վերլուծության համար
  */
-const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
+const AnalystPhase = ({ 
+    isActive = true, 
+    isCompleted = false, 
+    onPhaseComplete,
+    // НОВЫЕ ПРОПСЫ:
+    projectId,
+    projectStorage,
+    onUpdateProject 
+}) => {
     const {
         currentData,
         projectName,
@@ -21,7 +29,23 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
         setQualityMetrics
     } = useData();
 
-    const [isAnalyzing, setIsAnalyzing] = useState(false); // New loading state
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
+    useEffect(() => {
+        if (projectId && projectStorage) {
+            const project = projectStorage.getProject(projectId);
+            if (project && project.workflowData.phases.analyst.completed) {
+                const analystData = project.workflowData.phases.analyst.data;
+                if (analystData.qualityMetrics) {
+                    setQualityMetrics(analystData.qualityMetrics);
+                }
+                if (analystData.analysisStatus === 'completed') {
+                    setAnalysisWorkspace(true);
+                }
+            }
+        }
+    }, [projectId, projectStorage]);
 
     /**
      * Տվյալների վերլուծության սկիզբ
@@ -33,7 +57,7 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             return;
         }
 
-        setIsAnalyzing(true); // Start loading
+        setIsAnalyzing(true);
 
         try {
             // Simulate analysis processing time
@@ -45,6 +69,16 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             // Տվյալների որակի գնահատման սիմուլյացիա
             const qualityAnalysis = analyzeDataQuality(currentData);
             setQualityMetrics(qualityAnalysis);
+
+            // НОВОЕ: Сохраняем данные аналитической фазы
+            if (projectStorage && projectId) {
+                projectStorage.updateAnalystPhase(projectId, {
+                    qualityMetrics: qualityAnalysis,
+                    analysisStartTime: new Date().toISOString(),
+                    dataPreview: currentData.slice(0, 5),
+                    syntheticDataGenerated: false
+                });
+            }
 
             console.log('Տվյալների որակի վերլուծություն ավարտված:', qualityAnalysis);
 
@@ -147,6 +181,25 @@ const AnalystPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             outliers: outlierCount,
             duplicates: duplicateRows
         };
+    };
+
+    const getDataTypeLabel = (type) => {
+        if (Array.isArray(type)) {
+            const labels = {
+                'demographic': 'Դեմոգրաֆիական',
+                'healthcare': 'Առողջապահական',
+                'quality_of_life': 'Կյանքի որակ',
+                'educational': 'Կրթական'
+            };
+            return type.map(t => labels[t] || t).join(', ');
+        }
+        const labels = {
+            'demographic': 'Դեմոգրաֆիական',
+            'healthcare': 'Առողջապահական',
+            'quality_of_life': 'Կյանքի որակ',
+            'educational': 'Կրթական'
+        };
+        return labels[type] || type;
     };
 
     // Show inactive state when not active and not completed

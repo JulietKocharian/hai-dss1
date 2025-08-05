@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
@@ -9,7 +9,15 @@ import Alert from '../UI/Alert';
  * Պատասխանատու է ռազմավարական որոշումների, գնահատման և 
  * կայացման գործընթացների համար
  */
-const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
+const DecisionLevelPhase = ({ 
+    isActive = true, 
+    isCompleted = false, 
+    onPhaseComplete,
+    // НОВЫЕ ПРОПСЫ:
+    projectId,
+    projectStorage,
+    onUpdateProject 
+}) => {
     // Context data with fallback values
     const dataContext = useData();
 
@@ -28,6 +36,22 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
     const [isProcessing, setIsProcessing] = useState(false);
     const [currentStep, setCurrentStep] = useState('');
     const [processingError, setProcessingError] = useState(null);
+
+    // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
+    useEffect(() => {
+        if (projectId && projectStorage) {
+            const project = projectStorage.getProject(projectId);
+            if (project && project.workflowData.phases.decision.completed) {
+                const decisionData = project.workflowData.phases.decision.data;
+                if (decisionData.decisionMatrix && setDecisionResults) {
+                    setDecisionResults(decisionData.decisionMatrix);
+                }
+                if (decisionData.finalRecommendations && setFinalRecommendations) {
+                    setFinalRecommendations(decisionData.finalRecommendations);
+                }
+            }
+        }
+    }, [projectId, projectStorage]);
 
     /**
      * Validate context data and functions
@@ -144,6 +168,15 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
             // Step 5: Ամփոփում
             setCurrentStep('Որոշումների ամփոփում...');
             await simulateProcessing(1000);
+
+            // НОВОЕ: Сохраняем данные фазы решений
+            if (projectStorage && projectId) {
+                projectStorage.updateDecisionPhase(projectId, {
+                    decisionMatrix,
+                    finalRecommendations: recommendations,
+                    decisionSummary: getDecisionSummary()
+                });
+            }
 
             // Success cleanup
             setIsProcessing(false);
@@ -339,7 +372,7 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
     if (!isActive && !isCompleted) {
         return (
             <PhaseCard
-                title="Որոշումների ընդունման փուլ"
+                title="Որոշümների ընդունման փուլ"
                 icon="⚖️"
                 phase="decision"
                 className="opacity-60"
@@ -354,12 +387,12 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
 
                 <Alert type="info" icon="ℹ️" title="Փորձագետի վերլուծությունը սպասվում է...">
                     <div>
-                        Փորձագետը պետք է ավարտի խորացված վերլուծությունը
+                        Փորձագետը պետք է ավարտի խգրացված վերլուծությունը
                     </div>
                     <div className="mt-2 text-sm">
-                        <strong>Որոշումների մեթոդաբանություն</strong>
+                        <strong>Որոշումների մեթոդаբանություն</strong>
                         <ul className="list-disc list-inside mt-1 space-y-1">
-                            <li>⚖️ Բազմակրիտերիալ որոշումների վերլուծություն</li>
+                            <li>⚖️ Բազմակրիտերիալ որոշумների վերլուծություն</li>
                             <li>📊 Ռիսկերի գնահատում և կառավարում</li>
                             <li>🎯 Ռազմավարական ծրագրավորում</li>
                             <li>📈 Արդյունավետության գնահատում</li>
@@ -452,40 +485,9 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                     </div>
                 )}
 
-                {/* Որոշումների գործիքակազմ */}
-                {/* <div className="bg-amber-50 rounded-lg p-4">
-                    <h4 className="font-bold text-sm text-amber-800 mb-2">⚖️ Որոշումների գործիքակազմ</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className={`bg-white rounded p-2 shadow-sm transition-all duration-300 ${
-                            isProcessing && currentStep.includes('մատրիցի') ? 'ring-2 ring-amber-400 bg-amber-50' : ''
-                        }`}>
-                            <div className="font-bold text-amber-700">📊 AHP Method</div>
-                            <div className="text-amber-600">Աղյուսակավոր հիերարխիա</div>
-                        </div>
-                        <div className={`bg-white rounded p-2 shadow-sm transition-all duration-300 ${
-                            isProcessing && currentStep.includes('Ալտերնատիվների') ? 'ring-2 ring-amber-400 bg-amber-50' : ''
-                        }`}>
-                            <div className="font-bold text-amber-700">⚖️ TOPSIS</div>
-                            <div className="text-amber-600">Օպտիմալ լուծումների ընտրություն</div>
-                        </div>
-                        <div className={`bg-white rounded p-2 shadow-sm transition-all duration-300 ${
-                            isProcessing && currentStep.includes('Ռիսկերի') ? 'ring-2 ring-amber-400 bg-amber-50' : ''
-                        }`}>
-                            <div className="font-bold text-amber-700">🎯 Risk Assessment</div>
-                            <div className="text-amber-600">Ռիսկերի գնահատում</div>
-                        </div>
-                        <div className={`bg-white rounded p-2 shadow-sm transition-all duration-300 ${
-                            isProcessing && currentStep.includes('առաջարկությունների') ? 'ring-2 ring-amber-400 bg-amber-50' : ''
-                        }`}>
-                            <div className="font-bold text-amber-700">📈 ROI Analysis</div>
-                            <div className="text-amber-600">Ներդրումների արդյունավետություն</div>
-                        </div>
-                    </div>
-                </div> */}
-
                 {/* Որոշումների կանխատեսում */}
                 <div className="bg-green-50 rounded-lg p-4">
-                    <h4 className="font-bold text-sm text-green-800 mb-2">🎯 Որոշումների կանխատեսում</h4>
+                    <h4 className="font-bold text-sm text-green-800 mb-2">🎯 Որոշumների կանխատեսում</h4>
                     <div className="text-xs text-green-700 space-y-1">
                         <div>• Վերլուծված տվյալներ: {summary.dataPoints} կետ</div>
                         <div>• Գնահատման չափանիշներ: {summary.criteriaCount}</div>
@@ -537,7 +539,7 @@ const DecisionLevelPhase = ({ isActive = true, isCompleted = false, onPhaseCompl
                                 Որոշումների վերլուծությունն ընթացքի մեջ է...
                             </>
                         ) : isCompleted ? (
-                            '✅ Որոշումների վերլուծությունը ավարտվել է'
+                            '✅ Որոշumների վերլուծությունը ավարտվել է'
                         ) : (
                             '⚖️ Սկսել որոշումների վերլուծությունը'
                         )}

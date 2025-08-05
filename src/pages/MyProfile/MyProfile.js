@@ -43,6 +43,8 @@ import AnalystPhase from '../../components/WorkflowPhases/AnalystPhase';
 import ExpertPhase from '../../components/WorkflowPhases/ExpertPhase';
 import AnalysisWorkspace from '../../components/AnalysisWorkspace/AnalysisWorkspace';
 import DecisionLevelPhase from '../../components/WorkflowPhases/DesicionPhase';
+import { DataProvider } from '../../context/DataContext';
+import {useProjectStorage} from '../../store/ProjectStorageManager'
 
 // Animated Background SVG
 const ProfileBackgroundSVG = () => (
@@ -88,6 +90,7 @@ const ProfileBackgroundSVG = () => (
 );
 
 const MyProfile = () => {
+    const projectStorage = useProjectStorage();
     const [activeTab, setActiveTab] = useState('profile');
     const [isEditing, setIsEditing] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -99,6 +102,12 @@ const MyProfile = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navigate = useNavigate();
+
+    // UPDATED: Projects state - теперь из localStorage
+    const [projects, setProjects] = useState([]);
+    
+    // ADDED: Current project tracking
+    const [currentProjectId, setCurrentProjectId] = useState(null);
 
     // useEffect(() => {
     //     const token = localStorage.getItem('accessToken');
@@ -136,66 +145,83 @@ const MyProfile = () => {
     });
     const [errors, setErrors] = useState({});
 
-    // Sample projects data
-    const [projects, setProjects] = useState([
-        {
-            id: 1,
-            name: 'Շուկայի Վերլուծություն 2024',
-            description: 'Տեխնոլոգիական ընկերությունների շուկայի ռիսկերի վերլուծություն',
-            status: 'completed',
-            createdAt: '2024-11-15',
-            lastModified: '2024-12-10',
-            accuracy: 94.2,
-            decisions: 15,
-            type: 'market-analysis'
-        },
-        {
-            id: 2,
-            name: 'Ներդրումային Ռազմավարություն',
-            description: 'Նոր ծրագրային ապահովման ներդրման ռիսկերի գնահատում',
-            status: 'in-progress',
-            createdAt: '2024-12-01',
-            lastModified: '2024-12-15',
-            accuracy: 87.5,
-            decisions: 8,
-            type: 'investment'
-        },
-        {
-            id: 3,
-            name: 'Մրցակցային Վերլուծություն',
-            description: 'Հիմնական մրցակիցների ռազմավարությունների ուսումնասիրություն',
-            status: 'draft',
-            createdAt: '2024-12-05',
-            lastModified: '2024-12-14',
-            accuracy: 0,
-            decisions: 0,
-            type: 'competitive'
-        },
-        {
-            id: 4,
-            name: 'Ֆինանսական Կանխատեսում',
-            description: 'Հաջորդ տարվա բյուջետի պլանավորման վերլուծություն',
-            status: 'completed',
-            createdAt: '2024-10-20',
-            lastModified: '2024-11-30',
-            accuracy: 96.8,
-            decisions: 23,
-            type: 'financial'
-        }
-    ]);
-
-    // Sequential workflow state
-    const [currentPhase, setCurrentPhase] = useState(0); // 0: Manager, 1: Analyst, 2: Expert, 3: Decision
+    // UPDATED: Sequential workflow state - now synced with localStorage
+    const [currentPhase, setCurrentPhase] = useState(0);
     const [completedPhases, setCompletedPhases] = useState(new Set());
     const [allPhasesCompleted, setAllPhasesCompleted] = useState(false);
 
     const phases = ['manager', 'analyst', 'expert', 'decision'];
 
-    // Phase completion handler
+    // ADDED: Load projects from localStorage on component mount
+    useEffect(() => {
+        const loadProjects = () => {
+            const storedProjects = projectStorage.getAllProjects();
+            setProjects(storedProjects);
+        };
+        
+        loadProjects();
+    }, []);
+
+    // ADDED: Sync workflow state with current project
+    useEffect(() => {
+        if (currentProjectId) {
+            const project = projectStorage.getProject(currentProjectId);
+            if (project) {
+                setCurrentPhase(project.workflowData.currentPhase);
+                setCompletedPhases(new Set(project.workflowData.completedPhases));
+                setAllPhasesCompleted(project.workflowData.allPhasesCompleted);
+            }
+        }
+    }, [currentProjectId]);
+
+    // ADDED: Auto-create project when entering new-project tab
+    useEffect(() => {
+        if (activeTab === 'new-project' && !currentProjectId) {
+            const newProject = projectStorage.createProject({
+                name: 'Նոր նախագիծ',
+                type: 'market-analysis'
+            });
+            setCurrentProjectId(newProject.id);
+            setCurrentPhase(0);
+            setCompletedPhases(new Set());
+            setAllPhasesCompleted(false);
+            
+            // Update projects list
+            const updatedProjects = projectStorage.getAllProjects();
+            setProjects(updatedProjects);
+        }
+    }, [activeTab]);
+
+    // UPDATED: Phase completion handler with localStorage integration
     const handlePhaseComplete = (phaseIndex) => {
+        if (!currentProjectId) {
+            const newProject = projectStorage.createProject();
+            setCurrentProjectId(newProject.id);
+        }
+
         const newCompleted = new Set(completedPhases);
         newCompleted.add(phaseIndex);
         setCompletedPhases(newCompleted);
+
+        // Save to localStorage
+        if (currentProjectId) {
+            const currentProject = projectStorage.getProject(currentProjectId);
+            const updatedWorkflowData = {
+                ...currentProject.workflowData,
+                currentPhase: phaseIndex < phases.length - 1 ? phaseIndex + 1 : phaseIndex,
+                completedPhases: Array.from(newCompleted),
+                allPhasesCompleted: phaseIndex === phases.length - 1
+            };
+
+            projectStorage.updateProject(currentProjectId, {
+                workflowData: updatedWorkflowData,
+                status: phaseIndex === phases.length - 1 ? 'completed' : 'in-progress'
+            });
+
+            // Update projects list
+            const updatedProjects = projectStorage.getAllProjects();
+            setProjects(updatedProjects);
+        }
 
         // Move to next phase if not the last one
         if (phaseIndex < phases.length - 1) {
@@ -209,6 +235,7 @@ const MyProfile = () => {
             }, 1500);
         }
     };
+
     // Phase status checker
     const getPhaseStatus = (phaseIndex) => ({
         isActive: currentPhase === phaseIndex,
@@ -370,12 +397,61 @@ const MyProfile = () => {
         });
     };
 
+    // UPDATED: New project handler with localStorage integration
     const handleNewProject = async () => {
         setIsNavigating(true);
+        
+        // Create new project in localStorage
+        const newProject = projectStorage.createProject({
+            name: 'Նոր նախագիծ',
+            type: 'market-analysis'
+        });
+        
+        // Set as current project
+        setCurrentProjectId(newProject.id);
+        setCurrentPhase(0);
+        setCompletedPhases(new Set());
+        setAllPhasesCompleted(false);
+        
+        // Update projects list
+        const updatedProjects = projectStorage.getAllProjects();
+        setProjects(updatedProjects);
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
         setActiveTab('new-project');
         setIsNavigating(false);
         setIsMobileMenuOpen(false);
+    };
+
+    // ADDED: Project management functions
+    const handleOpenProject = (projectId) => {
+        setCurrentProjectId(projectId);
+        const project = projectStorage.getProject(projectId);
+        
+        if (project) {
+            setCurrentPhase(project.workflowData.currentPhase);
+            setCompletedPhases(new Set(project.workflowData.completedPhases));
+            setAllPhasesCompleted(project.workflowData.allPhasesCompleted);
+            setActiveTab('new-project');
+        }
+    };
+
+    const handleDeleteProject = (projectId, e) => {
+        e.stopPropagation();
+        
+        if (window.confirm('Վստա՞հ եք, որ ցանկանում եք ջնջել այս նախագիծը:')) {
+            projectStorage.deleteProject(projectId);
+            const updatedProjects = projectStorage.getAllProjects();
+            setProjects(updatedProjects);
+            
+            // If deleted project was current, clear state
+            if (currentProjectId === projectId) {
+                setCurrentProjectId(null);
+                setCurrentPhase(0);
+                setCompletedPhases(new Set());
+                setAllPhasesCompleted(false);
+            }
+        }
     };
 
     const tabs = [
@@ -387,19 +463,41 @@ const MyProfile = () => {
         { id: 'preferences', label: 'Կարգավորումներ', icon: Settings }
     ];
 
+    // UPDATED: Stats calculation from real projects data
     const stats = [
-        { label: 'Ընդհանուր որոշումներ', value: '1,247', icon: BarChart3, color: 'from-[#1c92d2] to-[#0ea5e9]' },
-        { label: 'Հաջող վերլուծություններ', value: '98.2%', icon: CheckCircle, color: 'from-green-500 to-teal-500' },
-        { label: 'Ակտիվ օրեր', value: '156', icon: Activity, color: 'from-orange-500 to-red-500' },
-        { label: 'Ձեռքբերումներ', value: '24', icon: Award, color: 'from-pink-500 to-violet-500' }
+        { 
+            label: 'Ընդհանուր որոշումներ', 
+            value: projects.reduce((sum, project) => sum + project.decisions, 0).toString(), 
+            icon: BarChart3, 
+            color: 'from-[#1c92d2] to-[#0ea5e9]' 
+        },
+        { 
+            label: 'Հաջող վերլուծություններ', 
+            value: `${projects.length > 0 ? Math.round(projects.reduce((sum, project) => sum + project.accuracy, 0) / projects.length) : 0}%`, 
+            icon: CheckCircle, 
+            color: 'from-green-500 to-teal-500' 
+        },
+        { 
+            label: 'Ակտիվ նախագծեր', 
+            value: projects.filter(p => p.status === 'in-progress').length.toString(), 
+            icon: Activity, 
+            color: 'from-orange-500 to-red-500' 
+        },
+        { 
+            label: 'Ավարտված նախագծեր', 
+            value: projects.filter(p => p.status === 'completed').length.toString(), 
+            icon: Award, 
+            color: 'from-pink-500 to-violet-500' 
+        }
     ];
 
-    // UPDATED: Render current phase with proper props for auto-transition
+    // UPDATED: Render current phase with proper props for localStorage integration
     const renderCurrentPhase = () => {
         const commonProps = {
             onPhaseComplete: () => handlePhaseComplete(currentPhase),
-            isActive: true, // Current phase is always active
-            // isCompleted: completedPhases.has(currentPhase)
+            isActive: true,
+            projectId: currentProjectId,
+            projectStorage: projectStorage
         };
 
         switch (currentPhase) {
@@ -427,7 +525,6 @@ const MyProfile = () => {
         return phaseNames[currentPhase] || 'Մենեջերի փուլ';
     };
 
-
     const handlePhaseNext = () => {
         if (currentPhase < phases.length - 1) {
             setCompletedPhases(prev => new Set(prev).add(currentPhase));
@@ -439,7 +536,7 @@ const MyProfile = () => {
     const handlePhasePrevious = () => {
         if (currentPhase > 0) {
             setCurrentPhase(currentPhase - 1);
-            setAllPhasesCompleted(true); // Reset if going back from completed state
+            setAllPhasesCompleted(true);
         }
     };
 
@@ -588,23 +685,6 @@ const MyProfile = () => {
                             </div>
                         </div>
 
-                        {/* Stats Cards - Responsive Grid */}
-                        {/* <div className="mb-6 lg:mb-8 w-full">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-                                {stats.map((stat, index) => (
-                                    <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white rounded-xl sm:rounded-2xl p-3 sm:p-6 hover:border-white/50 transition-all duration-300 group">
-                                        <div className="flex items-center justify-between mb-2 sm:mb-4">
-                                            <div className={`w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r ${stat.color} rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                                                <stat.icon className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-                                            </div>
-                                        </div>
-                                        <div className="text-lg sm:text-2xl font-bold text-white mb-1">{stat.value}</div>
-                                        <div className="text-xs sm:text-sm text-white leading-tight">{stat.label}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div> */}
-
                         {/* Sequential Workflow Progress Bar */}
                         <div className="mb-6 lg:mb-8">
                             <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
@@ -639,10 +719,6 @@ const MyProfile = () => {
                                 <div className="text-center">
                                     {allPhasesCompleted ? (
                                         <></>
-                                        // <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
-                                        //     <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                                        //     <span className="text-center">Բոլոր փուլերը հաջողությամբ ավարտվել են - Վերլուծությունը պատրաստ է</span>
-                                        // </div>
                                     ) : (
                                         <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg sm:rounded-xl text-blue-300 text-xs sm:text-sm">
                                             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse mr-2"></div>
@@ -667,10 +743,6 @@ const MyProfile = () => {
                                 </h3>
                                 <div className="text-center">
                                     {allPhasesCompleted ? (
-                                        // <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-lg sm:rounded-xl text-green-300 text-xs sm:text-sm">
-                                        //     <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                                        //     <span>Բոլոր փուլերը հաջողությամբ ավարտվել են</span>
-                                        // </div>
                                         <></>
                                     ) : (
                                         <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg sm:rounded-xl text-blue-300 text-xs sm:text-sm">
@@ -786,7 +858,10 @@ const MyProfile = () => {
                                                 <BarChart3 className="w-5 h-5 mr-2" />
                                                 Աշխատանքային տիրույթ
                                             </h4>
-                                            <AnalysisWorkspace />
+                                            <AnalysisWorkspace 
+                                                projectId={currentProjectId}
+                                                projectStorage={projectStorage}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -800,7 +875,10 @@ const MyProfile = () => {
                                             <BarChart3 className="w-5 h-5 mr-2" />
                                             Աշխատանքային տիրույթ
                                         </h4>
-                                        <AnalysisWorkspace />
+                                        <AnalysisWorkspace 
+                                            projectId={currentProjectId}
+                                            projectStorage={projectStorage}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -1148,7 +1226,7 @@ const MyProfile = () => {
                                         </div>
                                     )}
 
-                                    {/* Projects Tab */}
+                                    {/* Projects Tab - UPDATED with localStorage integration */}
                                     {activeTab === 'projects' && (
                                         <div className="space-y-6 sm:space-y-8">
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1167,14 +1245,18 @@ const MyProfile = () => {
                                                 </button>
                                             </div>
 
-                                            {/* Projects Grid - Responsive */}
+                                            {/* Projects Grid - Responsive with UPDATED handlers */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                                 {projects.map((project) => {
                                                     const statusBadge = getProjectStatusBadge(project.status);
                                                     const StatusIcon = statusBadge.icon;
 
                                                     return (
-                                                        <div key={project.id} className="bg-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white hover:border-white/50 transition-all duration-300 group cursor-pointer">
+                                                        <div 
+                                                            key={project.id} 
+                                                            className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white hover:border-white/50 transition-all duration-300 group cursor-pointer"
+                                                            onClick={() => handleOpenProject(project.id)}
+                                                        >
                                                             <div className="flex items-start justify-between mb-4">
                                                                 <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${getProjectTypeColor(project.type)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                                                                     <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -1184,8 +1266,12 @@ const MyProfile = () => {
                                                                         <StatusIcon className="w-3 h-3 mr-1" />
                                                                         {statusBadge.label}
                                                                     </span>
-                                                                    <button className="p-1 hover:bg-white/20 rounded-lg transition-colors">
-                                                                        <MoreVertical className="w-4 h-4 text-white" />
+                                                                    <button 
+                                                                        onClick={(e) => handleDeleteProject(project.id, e)}
+                                                                        className="p-1 hover:bg-red-500/20 rounded-lg transition-colors"
+                                                                        title="Ջնջել նախագիծը"
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4 text-red-400" />
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -1193,9 +1279,6 @@ const MyProfile = () => {
                                                             <h3 className="text-base sm:text-lg font-semibold text-white mb-2 group-hover:text-[#1c92d2] transition-colors line-clamp-2">
                                                                 {project.name}
                                                             </h3>
-                                                            <p className="text-white text-sm mb-4 line-clamp-2">
-                                                                {project.description}
-                                                            </p>
 
                                                             {/* Project Stats */}
                                                             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -1469,7 +1552,6 @@ const MyProfile = () => {
                                             </div>
                                         </div>
                                     )}
-
                                     {/* Preferences Tab */}
                                     {activeTab === 'preferences' && (
                                         <div className="space-y-6 sm:space-y-8">

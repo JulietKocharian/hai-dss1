@@ -1,7 +1,7 @@
 // src/components/AnalysisWorkspace/AnalysisWorkspace.js
 // Հիմնական վերլուծական տարածք - տաբերով ինտերֆեյս (Fully Responsive)
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useData } from '../../context/DataContext';
 import TabNavigation from './TabNavigation';
 import AnalysisTab from './TabContents/AnalysisTab';
@@ -15,17 +15,53 @@ import ResultsTab from './TabContents/ResultsTab';
  * AnalysisWorkspace բաղադրիչ - վերլուծական աշխատատարածք
  * Ցուցադրում է վերլուծության բոլոր փուլերը տաբերի միջոցով
  */
-const AnalysisWorkspace = () => {
+const AnalysisWorkspace = ({ 
+    projectId,
+    projectStorage,
+    onUpdateProject 
+}) => {
     const {
         analysisWorkspace,
         activeTab,
-        setActiveTab
+        setActiveTab,
+        currentData,
+        syntheticData,
+        fuzzyResults,
+        clusterData,
+        scenarios
     } = useData();
 
-    // Եթե վերլուծական տարածքը ցուցադրված չէ, ոչինչ չվերադարձնել
-    if (!analysisWorkspace) {
+    const [projectData, setProjectData] = useState(null);
+
+    // Load project data if available
+    useEffect(() => {
+        if (projectStorage && projectId) {
+            try {
+                const data = projectStorage.getProject(projectId);
+                setProjectData(data);
+            } catch (error) {
+                console.error('Error loading project data:', error);
+            }
+        }
+    }, [projectStorage, projectId]);
+
+    // Если не хватает данных для анализа, показываем заглушку
+    if (!analysisWorkspace && !currentData && !projectData) {
         return null;
     }
+
+    // Функция смены табов с сохранением в localStorage
+    const handleTabChange = (tabName) => {
+        setActiveTab(tabName);
+        
+        // Сохраняем активный таб в localStorage
+        if (projectStorage && projectId) {
+            projectStorage.updateAnalysisWorkspace(projectId, tabName, {
+                timestamp: new Date().toISOString(),
+                tabSwitched: true
+            });
+        }
+    };
 
     /**
      * Տաբի պայմանական ցուցադրում
@@ -42,88 +78,86 @@ const AnalysisWorkspace = () => {
             </div>
         );
 
+        // Компоненты табов с передачей пропсов
+        const tabProps = {
+            projectId,
+            projectStorage,
+            onUpdateProject,
+            projectData
+        };
+
         switch (tabName) {
             case 'analysis':
                 return (
                     <TabWrapper>
-                        <AnalysisTab />
+                        <AnalysisTab {...tabProps} />
                     </TabWrapper>
                 );
             case 'synthetic':
                 return (
                     <TabWrapper>
-                        <SyntheticTab />
+                        <SyntheticTab {...tabProps} />
                     </TabWrapper>
                 );
             case 'fuzzy':
                 return (
                     <TabWrapper>
-                        <FuzzyTab />
+                        <FuzzyTab {...tabProps} />
                     </TabWrapper>
                 );
             case 'clustering':
                 return (
                     <TabWrapper>
-                        <ClusteringTab />
+                        <ClusteringTab {...tabProps} />
                     </TabWrapper>
                 );
             case 'scenarios':
                 return (
                     <TabWrapper>
-                        <ScenariosTab />
+                        <ScenariosTab {...tabProps} />
                     </TabWrapper>
                 );
             case 'results':
                 return (
                     <TabWrapper>
-                        <ResultsTab />
+                        <ResultsTab {...tabProps} />
                     </TabWrapper>
                 );
             default:
                 return (
                     <TabWrapper>
-                        <AnalysisTab />
+                        <AnalysisTab {...tabProps} />
                     </TabWrapper>
                 );
         }
     };
 
     /**
-     * Ընդհանուր առաջընթացի հաշվարկ
-     * @returns {number} Առաջընթացի տոկոս
+     * Ընդհանուր առաջնագացի հաշվարկ
+     * @returns {number} Առաջնագացի տոկոս
      */
     const getOverallProgress = () => {
-        // Սա կախված է ակտիվ տաբից և ամբողջական գործընթացից
-        const tabProgress = {
-            'analysis': 20,
-            'synthetic': 40,
-            'fuzzy': 60,
-            'clustering': 80,
-            'scenarios': 90,
-            'results': 100
-        };
-
-        return tabProgress[activeTab] || 0;
+        // Improved progress calculation based on actual data
+        let progress = 0;
+        
+        if (currentData && currentData.length > 0) progress += 20;
+        if (syntheticData && syntheticData.length > 0) progress += 20;
+        if (fuzzyResults) progress += 20;
+        if (clusterData && clusterData.length > 0) progress += 20;
+        if (scenarios && scenarios.length > 0) progress += 20;
+        
+        return Math.min(progress, 100);
     };
 
     return (
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 shadow-xl mt-4 lg:mt-8 w-full max-w-full overflow-hidden">
-            {/* Վերլուծական տարածքի վերնագիր */}
-            {/* <div className="mb-4 lg:mb-6">
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 lg:mb-2 leading-tight">
-                    🔬 Վերլուծական աշխատանք
-                </h2>
-                <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
-                    Ինտերակտիվ վերլուծության հարթակ բոլոր մեթոդաբանական գործիքներով
-                </p>
-            </div> */}
 
             {/* Տաբերի նավիգացիա - Բարելավված responsive */}
             <div className="mb-4 lg:mb-6 overflow-hidden">
                 <div className="overflow-x-auto scrollbar-hide">
                     <TabNavigation
                         activeTab={activeTab}
-                        onTabChange={setActiveTab}
+                        onTabChange={handleTabChange}
                     />
                 </div>
             </div>

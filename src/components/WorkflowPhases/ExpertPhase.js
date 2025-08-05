@@ -334,7 +334,7 @@
 // src/components/WorkflowPhases/ExpertPhase.js
 // Փորձագետի փուլի բաղադրիչ - խորացված վերլուծություն և սցենարային մոդելավորում
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
@@ -348,7 +348,15 @@ import { generateAIScenarios } from '../../utils/scenarios';
  * Պատասխանատու է խորացված վերլուծության, անորոշ տրամաբանության, 
  * կլաստերիզացիայի և սցենարային մոդելավորման համար
  */
-const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
+const ExpertPhase = ({ 
+    isActive = true, 
+    isCompleted = false, 
+    onPhaseComplete,
+    // НОВЫЕ ПРОПСЫ:
+    projectId,
+    projectStorage,
+    onUpdateProject 
+}) => {
     const {
         currentData,
         syntheticData,
@@ -359,8 +367,8 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
         setScenarios
     } = useData();
 
-    const [isProcessing, setIsProcessing] = useState(false); // New loading state
-    const [currentStep, setCurrentStep] = useState(''); // Track current processing step
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [currentStep, setCurrentStep] = useState('');
 
     /**
      * Get current user ID - implement based on your auth system
@@ -369,6 +377,25 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
         // Replace this with your actual user ID retrieval logic
         return parseInt(localStorage.getItem('userId')) || 1;
     };
+
+    // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
+    useEffect(() => {
+        if (projectId && projectStorage) {
+            const project = projectStorage.getProject(projectId);
+            if (project && project.workflowData.phases.expert.completed) {
+                const expertData = project.workflowData.phases.expert.data;
+                if (expertData.fuzzyResults) {
+                    setFuzzyResults(expertData.fuzzyResults);
+                }
+                if (expertData.clusterData) {
+                    setClusterData(expertData.clusterData);
+                }
+                if (expertData.scenarios) {
+                    setScenarios(expertData.scenarios);
+                }
+            }
+        }
+    }, [projectId, projectStorage]);
 
     /**
      * Փորձագետի վերլուծության մեկնարկ
@@ -404,7 +431,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                 fuzzyResults: fuzzyAnalysis,
                 statistics: {
                     mean: currentData.reduce((sum, item) => sum + (typeof item === 'object' ? Object.values(item)[0] : item), 0) / currentData.length,
-                    stdDev: 0, // You can calculate this properly if needed
+                    stdDev: 0,
                     min: Math.min(...currentData.map(item => typeof item === 'object' ? Object.values(item)[0] : item)),
                     max: Math.max(...currentData.map(item => typeof item === 'object' ? Object.values(item)[0] : item))
                 }
@@ -412,7 +439,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
 
             // Context data for AI
             const contextData = {
-                region: 'Կոտայքի մարզ', // You can make this dynamic
+                region: 'Կոտայքի մարզ',
                 timeframe: 'միջնաժամկետ',
                 budget: '2-5 միլիոն դրամ',
                 projectName: projectName
@@ -433,6 +460,20 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
             setScenarios(generatedScenarios);
             setCurrentStep('Վերլուծությունը ամփոփվում է...');
             await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // НОВОЕ: Сохраняем данные экспертной фазы
+            if (projectStorage && projectId) {
+                const summary = getExpertSummary();
+                projectStorage.updateExpertPhase(projectId, {
+                    fuzzyResults: fuzzyAnalysis,
+                    clusterData: clusters,
+                    scenarios: generatedScenarios,
+                    expertSummary: summary,
+                    processingSteps: ['fuzzy', 'clustering', 'scenarios'],
+                    userId: userId,
+                    contextData: contextData
+                });
+            }
 
             setIsProcessing(false);
             setCurrentStep('');
@@ -481,7 +522,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
      * Մշակման ժամանակի գնահատում
      */
     const getEstimatedProcessingTime = (size) => {
-        const baseTime = Math.ceil(size / 100) * 2; // 2 վայրկյան ամեն 100 տողի համար
+        const baseTime = Math.ceil(size / 100) * 2;
         return `${baseTime}-${baseTime + 5} վայրկյան`;
     };
 
@@ -606,7 +647,7 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <div className="font-bold text-purple-700 text-xs sm:text-sm">📊 Statistical Analysis</div>
                             <div className="text-purple-600 text-xs break-words">Խորացված ստատիստիկա</div>
                         </div>
-                        <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('AI') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
+                        <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('Սցենարների') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                             }`}>
                             <div className="font-bold text-purple-700 text-xs sm:text-sm">🤖Scenario Planning</div>
                             <div className="text-purple-600 text-xs break-words">Փորձագետի գիտելիքներ</div>
@@ -626,9 +667,6 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
                             <div>• Գնահատված ժամանակ: {summary.estimatedTime}</div>
                             <div>• Վերլուծության բարդություն: {summary.analysisComplexity}</div>
                         </div>
-                        {/* <div className="text-orange-700 font-medium text-xs">
-                            🤖 Ծանուցում: AI սցենարների գեներացումը կարող է պահանջել լրացուցիչ ժամանակ
-                        </div> */}
                     </div>
                 </div>
 
@@ -693,6 +731,6 @@ const ExpertPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) 
             </div>
         </PhaseCard>
     );
-};
+}
 
 export default ExpertPhase;

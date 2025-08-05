@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
@@ -6,7 +6,15 @@ import { parseCSV } from '../../utils/csvUtils';
 import CSVUploaderr from '../csvUploader/csvUploader';
 import { X, FileText, Info } from 'lucide-react';
 
-const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete }) => {
+const ManagerPhase = ({ 
+    isActive = true, 
+    isCompleted = false, 
+    onPhaseComplete,
+    // НОВЫЕ ПРОПСЫ:
+    projectId,
+    projectStorage,
+    onUpdateProject 
+}) => {
     const {
         projectName,
         setProjectName,
@@ -16,16 +24,42 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
         setDataSource,
         rawData,
         setRawData,
+        currentData,
         setCurrentData,
         setAnalystActive,
         setAnalysisWorkspace,
-
     } = useData();
 
     const [showModal, setShowModal] = useState(false);
     const [currentModalType, setCurrentModalType] = useState('');
     const [selectedCriteria, setSelectedCriteria] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    useEffect(() => {
+        if (projectId && projectStorage) {
+            const project = projectStorage.getProject(projectId);
+            if (project) {
+                // Загружаем данные из localStorage в useData контекст
+                const managerData = project.workflowData.phases.manager.data;
+                if (managerData.projectName) {
+                    setProjectName(managerData.projectName);
+                }
+                if (managerData.dataType) {
+                    setDataType(managerData.dataType);
+                }
+                if (managerData.rawData) {
+                    setRawData(managerData.rawData);
+                }
+                if (managerData.selectedCriteria) {
+                    setSelectedCriteria(managerData.selectedCriteria);
+                }
+                if (managerData.dataSource) {
+                    setDataSource(managerData.dataSource);
+                }
+            }
+        }
+    }, [projectId, projectStorage]);
+
+    console.log('curreeeeent', currentData, 88888)
 
     // Define criteria for each data type
     const dataTypeCriteria = {
@@ -66,6 +100,18 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             { id: 'education_funding_gdp', label: 'Կրթության ոլորտի պետական ծախսեր ՀՆԱ-ում' },
         ]
     };
+
+    // НОВОЕ: Обработчик изменения названия проекта
+    const handleProjectNameChange = (e) => {
+        const newName = e.target.value;
+        setProjectName(newName); // Обновляем в useData
+        
+        // Обновляем в localStorage
+        if (onUpdateProject && projectId) {
+            onUpdateProject(projectId, { name: newName });
+        }
+    };
+
 
     const handleDataTypeChange = (typeValue, isChecked) => {
         const currentDataType = Array.isArray(dataType) ? dataType : [];
@@ -131,6 +177,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
         setCurrentModalType('');
     };
 
+    // ОБНОВЛЕННАЯ submitManagerData функция
     const submitManagerData = async () => {
         if (!projectName.trim()) {
             alert('Խնդրում ենք մուտքագրել նախագծի անվանումը');
@@ -151,6 +198,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             const parsedData = parseCSV(rawData);
+            console.log('Parsed CSV data:', parsedData);
             setAnalysisWorkspace(true);
 
             if (parsedData.length === 0) {
@@ -160,6 +208,18 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             }
 
             setCurrentData(parsedData);
+
+            // НОВОЕ: Сохраняем данные в localStorage через ProjectStorageManager
+            if (projectStorage && projectId) {
+                projectStorage.updateManagerPhase(projectId, {
+                    projectName,
+                    dataType,
+                    selectedCriteria,
+                    rawData,
+                    parsedData,
+                    dataSource
+                });
+            }
 
             console.log('Մենեջերի տվյալները հաջողությամբ ուղարկվել են:', {
                 projectName,
@@ -178,7 +238,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
 
         } catch (error) {
             console.error('CSV մշակման սխալ:', error);
-            alert('CSV տվյալների մշակման ժամանակ սխալ առաջացավ: Ստուգեք ֆորմատը:');
+            alert('CSV տվյալների մշակման ժամանակ սխալ առաջացավ: Ստուգեք ֆորմամտը:');
             setIsSubmitting(false);
         }
     };
@@ -226,7 +286,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                 </div>
 
                 <div className={`space-y-4 sm:space-y-6 ${!isActive && !isCompleted ? 'pointer-events-none' : ''}`}>
-                    {/* Project Name Input */}
+                    {/* ОБНОВЛЕННЫЙ Project Name Input */}
                     <div>
                         <label className="block text-sm sm:text-base font-bold text-white mb-2">
                             Նախագծի անվանումը <span className="text-red-500">*</span>
@@ -234,7 +294,7 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
                         <input
                             type="text"
                             value={projectName}
-                            onChange={(e) => setProjectName(e.target.value)}
+                            onChange={handleProjectNameChange}
                             placeholder="Մուտքագրեք նախագծի անվանումը"
                             className="w-full p-2.5 sm:p-3 text-sm sm:text-base border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
                             maxLength={100}
@@ -481,6 +541,6 @@ const ManagerPhase = ({ isActive = true, isCompleted = false, onPhaseComplete })
             )}
         </>
     );
-};
+}
 
 export default ManagerPhase;

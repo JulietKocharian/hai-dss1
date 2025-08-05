@@ -150,7 +150,11 @@ export const DataProvider = ({ children }) => {
 
         // Օգնական ֆունկցիաներ
         resetData,
-        projectInfo
+        projectInfo,
+        decisionResults,
+        setDecisionResults,
+        finalRecommendations,
+        setFinalRecommendations,
     };
 
     return (
