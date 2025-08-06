@@ -21,30 +21,29 @@ const Home = () => {
 
 
     const heroSlides = [
+        // Վերլուծաբանական ենթահամակարգ
         {
-            title: "Անորոշության պայմաններում",
-            subtitle: "Որոշումների ընդունում",
-            description: "Մենեջերներին օգնող գործիք բարդ իրավիճակներում ճիշտ որոշումներ կայացնելու համար",
+            title: "Վերլուծաբանական",
+            subtitle: "Ենթահամակարգ",
             image: carousel1,
-            icon: Brain
+            icon: Target
         },
         {
-            title: "Տվյալների վրա հիմնված",
-            subtitle: "Ռազմավարական Մոտեցում",
-            description: "Վերլուծություն և կանխատեսում գործնական խնդիրների լուծման համար",
+            title: "Մենեջերի",
+            subtitle: "Վերլուծություն",
             image: carousel2,
             icon: BarChart3
         },
         {
-            title: "Ռիսկերի կառավարում",
-            subtitle: "Արդյունավետ Մեթոդներով",
-            description: "Տարբեր բիզնես սցենարներում ռիսկերի գնահատում և կառավարում",
+            title: "GPT",
+            subtitle: "Տրանսֆորմերներ",
             image: carousel3,
-            icon: Shield
+            icon: Brain
+
         }
     ];
-    
-    
+
+
     const features = [
         {
             icon: BarChart3,
@@ -128,148 +127,118 @@ const Home = () => {
     }
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe]">
+            {/* Main Title Section */}
+
             {/* Hero Section with Carousel */}
-            <section id="home" className="relative overflow-hidden min-h-screen flex items-center px-4 sm:px-6 lg:px-8">
-                <HeroBackgroundSVG />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/20 to-[#0ea5e9]/20"></div>
+            <section className="bg-gradient-to-br from-white/100 to-gray-100/20">
+                <section id="home" className="relative overflow-hidden min-h-screen flex flex-col lg:flex-row px-4 sm:px-6 lg:px-8">
+                    {/* First Half - Header Content */}
+                    <section className="flex-1 flex items-center justify-center pt-32 lg:pt-12 pb-6 lg:pb-12 px-4 sm:px-6 lg:px-8">
+                        <div className="max-w-7xl mx-auto text-center lg:text-left text-rgb(15 23 42 / 0.95) w-full">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl font-bold text-left bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent max-w-6xl mx-auto lg:mx-0 leading-snug text-rgb(30 41 59 / var(--tw-text-opacity, 1)) ">
+                                Արհեստական բանականության հետ ինտեգրված հիբրիդային որոշումների ընդունմանն աջակցող համակարգ
+                            </h1>
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start items-center mt-10">
+                                <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-slate-800 rounded-full font-semibold text-sm sm:text-base border border-slate-800 hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
+                                    Սկսել Վերլուծությունը
+                                    <ArrowRight className="inline-block ml-1.5 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+                                </button>
 
-                <div className="absolute inset-0">
-                    <div className="absolute top-1/4 left-1/4 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                </div>
+                                <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-slate-800 text-slate-800 rounded-full font-semibold text-sm sm:text-base hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
+                                    <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                                    Ծանոթանալ Համակարգին
+                                </button>
+                            </div>
+                        </div>
+                    </section>
 
-                <div className="relative max-w-7xl mx-auto w-full py-12 sm:py-16 lg:py-20">
-                    {/* Carousel Container */}
-                    <div className="relative">
-                        {/* Main Slider */}
-                        <div className="relative overflow-hidden rounded-3xl">
-                            <div
-                                className="flex transition-transform duration-700 ease-in-out"
-                                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                            >
-                                {heroSlides.map((slide, index) => (
-                                    <div key={index} className="w-full flex-shrink-0 relative">
-                                        <div className="relative h-[500px] sm:h-[600px] lg:h-[700px]">
-                                            {/* Background Image */}
-                                            <img
-                                                src={slide.image}
-                                                alt={slide.title}
-                                                className="w-full h-full object-cover"
-                                            />
-                                            {/* Overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/80 to-[#0ea5e9]/60"></div>
-                                            <div className="absolute inset-0 bg-black/20"></div>
+                    {/* Second Half - Slider Carousel */}
+                    <section className="flex-1 flex items-center justify-center pb-12 lg:pb-12 relative">
+                        <div className="relative max-w-7xl mx-auto w-full">
+                            {/* Carousel Container */}
+                            <div className="relative">
+                                {/* Main Slider */}
+                                <div className="relative overflow-hidden rounded-3xl">
+                                    <div
+                                        className="flex transition-transform duration-700 ease-in-out"
+                                        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                                    >
+                                        {heroSlides.map((slide, index) => (
+                                            <div key={index} className="w-full flex-shrink-0 relative">
+                                                <div className="relative h-[300px] sm:h-[400px] lg:h-[350px]">
+                                                    {/* Background Image */}
+                                                    <img
+                                                        src={slide.image}
+                                                        alt={slide.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    {/* Overlay */}
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-[#1c92d2]/80 to-[#0ea5e9]/60"></div>
+                                                    <div className="absolute inset-0 bg-black/20"></div>
 
-                                            {/* Content */}
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-                                                    {/* Icon */}
-                                                    <div className="mb-4 flex justify-center">
-                                                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                                            <slide.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                                                    {/* Content */}
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <div className="text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+                                                            {/* Icon */}
+                                                            <div className="mb-4 flex justify-center">
+                                                                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                                                    <slide.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Badge */}
+                                                            <div className="mb-4">
+                                                                <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm font-medium border border-white/30">
+                                                                    <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                                                                    Նորարարական Լուծում
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Title */}
+                                                            <h1 className="text-sm sm:text-2xl md:text-xl lg:text-2xl xl:text-3xl font-bold mb-3 sm:mb-4 leading-tight">
+                                                                <span className="text-white block">
+                                                                    {slide.title}
+                                                                </span>
+                                                                <span className="text-white/90 block mt-1">
+                                                                    {slide.subtitle}
+                                                                </span>
+                                                            </h1>
+
+                                                            {/* Buttons */}
+
                                                         </div>
-                                                    </div>
-
-                                                    {/* Badge */}
-                                                    <div className="mb-4">
-                                                        <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm font-medium border border-white/30">
-                                                            <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
-                                                            Նորարարական Լուծում
-                                                        </span>
-                                                    </div>
-
-                                                    {/* Title - Значительно уменьшен */}
-                                                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
-                                                        <span className="text-white block">
-                                                            {slide.title}
-                                                        </span>
-                                                        <span className="text-white/90 block mt-1">
-                                                            {slide.subtitle}
-                                                        </span>
-                                                    </h1>
-
-                                                    {/* Description - Уменьшен */}
-                                                    <p className="text-sm sm:text-base lg:text-lg text-white/90 mb-4 sm:mb-6 max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
-                                                        {slide.description}
-                                                    </p>
-
-                                                    {/* Buttons - Уменьшены */}
-                                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center">
-                                                        <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-white rounded-full font-semibold text-sm sm:text-base border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
-                                                            Սկսել Վերլուծությունը
-                                                            <ArrowRight className="inline-block ml-1.5 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-                                                        </button>
-                                                        <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-white/50 text-white rounded-full font-semibold text-sm sm:text-base hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
-                                                            <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
-                                                            Ծանոթանալ Համակարգին
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
-                                ))}
+                                </div>
+
+                                {/* Clickable Progress Indicators */}
+                                <div className="flex justify-center mt-4 space-x-2">
+                                    {heroSlides.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setCurrentSlide(index)}
+                                            className={`h-2 rounded-full transition-all duration-500 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#1c92d2] focus:ring-offset-2 focus:ring-offset-transparent ${index === currentSlide
+                                                ? 'w-10 bg-[#1c92d2]'
+                                                : 'w-4 bg-[#f2fcfe]/50 hover:bg-[#1c92d2]/60'
+                                                }`}
+                                            aria-label={`Go to slide ${index + 1}`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                        {/* Thumbnail Navigation */}
-                        <div className="flex justify-center mt-8 space-x-4">
-                            {heroSlides.map((slide, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`relative group transition-all duration-500 ${index === currentSlide ? 'scale-110' : 'scale-90 opacity-60'
-                                        }`}
-                                >
-                                    {/* Thumbnail */}
-                                    <div className="relative w-20 h-14 sm:w-24 sm:h-16 lg:w-28 lg:h-20 rounded-xl overflow-hidden">
-                                        <img
-                                            src={slide.image}
-                                            alt={slide.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <div className={`absolute inset-0 transition-all duration-300 ${index === currentSlide
-                                            ? 'bg-gradient-to-r from-[#1c92d2]/60 to-[#0ea5e9]/40 ring-2 ring-white'
-                                            : 'bg-black/40 group-hover:bg-black/20'
-                                            }`}></div>
+                    </section>
 
-                                        {/* Icon overlay */}
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <slide.icon className={`transition-all duration-300 ${index === currentSlide
-                                                ? 'w-6 h-6 text-white'
-                                                : 'w-4 h-4 text-white/80'
-                                                }`} />
-                                        </div>
-
-                                        {/* Active indicator */}
-                                        {index === currentSlide && (
-                                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full"></div>
-                                        )}
-                                    </div>
-
-                                    {/* Tooltip */}
-                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                        <div className="bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                                            {slide.subtitle}
-                                        </div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Progress Indicators */}
-                        <div className="flex justify-center mt-4 space-x-2">
-                            {heroSlides.map((_, index) => (
-                                <div
-                                    key={index}
-                                    className={`h-1 rounded-full transition-all duration-500 ${index === currentSlide
-                                        ? 'w-8 bg-[#1c92d2]'
-                                        : 'w-2 bg-[#f2fcfe]/50'
-                                        }`}
-                                />
-                            ))}
-                        </div>
+                    {/* Background Elements - Positioned Absolutely */}
+                    <HeroBackgroundSVG />
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/4 left-1/4 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#1c92d2]/10 rounded-full blur-3xl animate-pulse"></div>
+                        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                     </div>
-                </div>
+                </section>
             </section>
 
             {/* Metrics Section - Responsive */}
@@ -278,7 +247,7 @@ const Home = () => {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                         {metrics.map((metric, index) => (
                             <div key={index} className="text-center group">
-                                <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300">
+                                <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300 text-white">
                                     {metric.value}
                                 </div>
                                 <div className="text-white font-medium text-xs sm:text-sm lg:text-base leading-tight mb-1">

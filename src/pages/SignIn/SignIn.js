@@ -238,7 +238,7 @@ const SignIn = () => {
 
     const socialLogins = [
         { icon: Chrome, name: 'Google', color: 'from-red-500 to-orange-500' },
-        { icon: Github, name: 'GitHub', color: 'from-gray-600 to-gray-800' },
+        // { icon: Github, name: 'GitHub', color: 'from-gray-600 to-gray-800' },
         // { icon: Twitter, name: 'Twitter', color: 'from-blue-400 to-blue-600' }
     ];
 
@@ -254,10 +254,10 @@ const SignIn = () => {
             </div>
 
             <div className={`relative w-full max-w-sm sm:max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+                <div className="flex flex-col gap-8 sm:gap-12 lg:gap-16 items-center pt-20 sm:pt-30 md:pt-20">
 
-                    {/* Left Side - Branding - Responsive */}
-                    <div className="text-center lg:text-left space-y-6 sm:space-y-8 order-2 lg:order-1">
+                    {/* Top Section - Branding */}
+                    <div className="text-center space-y-6 sm:space-y-8 w-full max-w-4xl">
                         <div className="space-y-4 sm:space-y-6">
                             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
                                 <span className="text-white">
@@ -266,19 +266,8 @@ const SignIn = () => {
                                 <br />
                             </h2>
                         </div>
-
-                        {/* Security illustration - Responsive sizing */}
-                        <div className="hidden lg:block w-48 h-48 xl:w-64 xl:h-64 mx-auto lg:mx-0">
-                            <SecurityIconSVG />
-                        </div>
-
-                        {/* Mobile Security illustration */}
-                        <div className="lg:hidden w-32 h-32 sm:w-40 sm:h-40 mx-auto">
-                            <SecurityIconSVG />
-                        </div>
-
-                        {/* Features - Responsive */}
-                        <div className="space-y-3 sm:space-y-4 max-w-sm mx-auto lg:mx-0">
+                        {/* Features */}
+                        <div className="flex flex-col lg:flex-row justify-center items-center gap-4 sm:gap-8 lg:gap-12">
                             {[
                                 { icon: Shield, text: 'Բարձր մակարդակի անվտանգություն' },
                                 { icon: Zap, text: 'Ակնթարթային վերլուծություն' },
@@ -288,17 +277,17 @@ const SignIn = () => {
                                     <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#1c92d2]/20 to-[#0ea5e9]/20 rounded-lg flex items-center justify-center flex-shrink-0">
                                         <feature.icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                                     </div>
-                                    <span className="text-slate-800 text-sm sm:text-base">{feature.text}</span>
+                                    <span className="text-slate-800 text-sm sm:text-base whitespace-nowrap">{feature.text}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Right Side - Auth Form - Responsive */}
-                    <div className="relative order-1 lg:order-2 mt-20">
-                        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl">
+                    {/* Bottom Section - Auth Form */}
+                    <div className="w-full max-w-2xl">
+                        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl">
 
-                            {/* Tab Switcher - Responsive */}
+                            {/* Tab Switcher */}
                             <div className="flex bg-slate-800/50 rounded-xl sm:rounded-2xl p-1 mb-6 sm:mb-8">
                                 <button
                                     onClick={() => switchTab('login')}
@@ -320,7 +309,7 @@ const SignIn = () => {
                                 </button>
                             </div>
 
-                            {/* Social Login - Responsive */}
+                            {/* Social Login */}
                             <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                                 {socialLogins.map((social, index) => (
                                     <button
@@ -335,7 +324,7 @@ const SignIn = () => {
                                 ))}
                             </div>
 
-                            {/* Divider - Responsive */}
+                            {/* Divider */}
                             <div className="flex items-center mb-6 sm:mb-8">
                                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
                                 <span className="px-3 sm:px-4 text-white text-xs sm:text-sm">կամ</span>
@@ -393,7 +382,7 @@ const SignIn = () => {
                                     </div>
                                 )}
 
-                                {/* Email - Responsive */}
+                                {/* Email */}
                                 <div className="space-y-2">
                                     <label className="text-xs sm:text-sm font-medium text-white">Էլ․ հասցե *</label>
                                     <div className="relative">
@@ -418,7 +407,7 @@ const SignIn = () => {
 
                                 {activeTab === 'signup' && (
                                     <>
-                                        {/* Company - Responsive */}
+                                        {/* Company */}
                                         <div className="space-y-2">
                                             <label className="text-xs sm:text-sm font-medium text-white">Ընկերություն</label>
                                             <div className="relative">
@@ -434,7 +423,7 @@ const SignIn = () => {
                                             </div>
                                         </div>
 
-                                        {/* Phone - Responsive */}
+                                        {/* Phone */}
                                         <div className="space-y-2">
                                             <label className="text-xs sm:text-sm font-medium text-white">Հեռախոս</label>
                                             <div className="relative">
@@ -452,7 +441,7 @@ const SignIn = () => {
                                     </>
                                 )}
 
-                                {/* Password - Responsive */}
+                                {/* Password */}
                                 <div className="space-y-2">
                                     <label className="text-xs sm:text-sm font-medium text-white">Գաղտնաբառ *</label>
                                     <div className="relative">
@@ -513,7 +502,7 @@ const SignIn = () => {
                                     </div>
                                 )}
 
-                                {/* Remember Me / Accept Terms - Responsive */}
+                                {/* Remember Me / Accept Terms */}
                                 <div className="space-y-3 sm:space-y-4">
                                     {activeTab === 'login' ? (
                                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
@@ -564,7 +553,7 @@ const SignIn = () => {
                                     )}
                                 </div>
 
-                                {/* Submit Button - Responsive */}
+                                {/* Submit Button */}
                                 <Link
                                     // to="/my-profile"
                                     onClick={handleSubmit}
@@ -581,7 +570,7 @@ const SignIn = () => {
                                 </Link>
                             </div>
 
-                            {/* Footer - Responsive */}
+                            {/* Footer */}
                             <div className="mt-6 sm:mt-8 text-center">
                                 <p className="text-xs sm:text-sm text-[#9ac4db]">
                                     {activeTab === 'login' ? 'Չունե՞ք հաշիվ' : 'Արդեն ունե՞ք հաշիվ'}{' '}

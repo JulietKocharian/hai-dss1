@@ -126,13 +126,6 @@ const Header = () => {
                                         <Zap className="w-2 h-2 text-white" />
                                     </div>
                                 </div>
-                                <div className="hidden sm:block">
-                                    <Link to="/">
-                                        <h1 className="text-s font-bold text-left bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent max-w-xl mx-auto leading-snug">
-                                            ԱՆՈՐՈՇՈՒԹՅԱՆ ՊԱՅՄԱՆՆԵՐՈՒՄ ՄԵՆԵՋԵՐԻ ՈՐՈՇՈՒՄՆԵՐԻ <br /> ԸՆԴՈՒՆՄԱՆՆ ԱՋԱԿՑՈՂ ՀԱՄԱԿԱՐԳ
-                                        </h1>
-                                    </Link>
-                                </div>
                             </div>
                         </Link>
                         {/* Desktop Menu */}
@@ -141,20 +134,32 @@ const Header = () => {
                                 onClick={() => handleSectionNavigation('about')}
                                 className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                             >
-                                <Info className="w-4 h-4 text-white group-hover:text-[#1c92d2] transition-colors" />
-                                <span className="relative text-white">
+                                <Info className={`w-4 h-4 ${scrolled
+                                    ? 'text-white group-hover:text-[#1c92d2]'
+                                    : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                    } transition-colors duration-500`} />
+                                <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
                                     Մեր մասին
-                                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-white to-[#0ea5e9] group-hover:w-full transition-all duration-300"></span>
+                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
+                                        ? 'from-white to-[#0ea5e9]'
+                                        : 'from-slate-800 to-slate-600'
+                                        } group-hover:w-full transition-all duration-300`}></span>
                                 </span>
                             </button>
                             <button
                                 onClick={() => handleSectionNavigation('services')}
                                 className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                             >
-                                <Users className="w-4 h-4 text-white group-hover:text-[#1c92d2] transition-colors" />
-                                <span className="relative text-white">
+                                <Users className={`w-4 h-4 ${scrolled
+                                    ? 'text-white group-hover:text-[#1c92d2]'
+                                    : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                    } transition-colors duration-500`} />
+                                <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
                                     Ծառայություններ
-                                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-white to-[#0ea5e9] group-hover:w-full transition-all duration-300"></span>
+                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
+                                        ? 'from-white to-[#0ea5e9]'
+                                        : 'from-slate-800 to-slate-600'
+                                        } group-hover:w-full transition-all duration-300`}></span>
                                 </span>
                             </button>
 
@@ -164,10 +169,16 @@ const Header = () => {
                                     onClick={handleProfileClick}
                                     className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                                 >
-                                    <User className="w-4 h-4 text-white group-hover:text-[#1c92d2] transition-colors" />
-                                    <span className="relative text-white">
+                                    <User className={`w-4 h-4 ${scrolled
+                                        ? 'text-white group-hover:text-[#1c92d2]'
+                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                        } transition-colors duration-500`} />
+                                    <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
                                         {userData?.name || userData?.email || 'Պրոֆիլ'}
-                                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] group-hover:w-full transition-all duration-300"></span>
+                                        <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
+                                            ? 'from-[#1c92d2] to-[#0ea5e9]'
+                                            : 'from-slate-800 to-slate-600'
+                                            } group-hover:w-full transition-all duration-300`}></span>
                                     </span>
                                 </button>
                             )}
@@ -178,13 +189,22 @@ const Header = () => {
                                 className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
                             >
                                 {isLoggedIn ? (
-                                    <LogOut className="w-4 h-4 text-white group-hover:text-[#1c92d2] transition-colors" />
+                                    <LogOut className={`w-4 h-4 ${scrolled
+                                        ? 'text-white group-hover:text-[#1c92d2]'
+                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                        } transition-colors duration-500`} />
                                 ) : (
-                                    <LogIn className="w-4 h-4 text-white group-hover:text-[#1c92d2] transition-colors" />
+                                    <LogIn className={`w-4 h-4 ${scrolled
+                                        ? 'text-white group-hover:text-[#1c92d2]'
+                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                        } transition-colors duration-500`} />
                                 )}
-                                <span className="relative text-white">
+                                <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
                                     {isLoggedIn ? 'Ելք' : 'Մուտք'}
-                                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] group-hover:w-full transition-all duration-300"></span>
+                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
+                                        ? 'from-[#1c92d2] to-[#0ea5e9]'
+                                        : 'from-slate-800 to-slate-600'
+                                        } group-hover:w-full transition-all duration-300`}></span>
                                 </span>
                             </button>
 
@@ -201,11 +221,11 @@ const Header = () => {
                             className="md:hidden relative w-10 h-10 rounded-lg bg-gradient-to-br from-[#1c92d2]/20 to-[#0ea5e9]/20 backdrop-blur-sm border border-[#1c92d2]/20 flex items-center justify-center hover:from-[#1c92d2]/30 hover:to-[#0ea5e9]/30 transition-all duration-300"
                         >
                             <div className="relative w-6 h-6">
-                                <span className={`absolute top-1.5 left-0 w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-1.5' : ''
+                                <span className={`absolute top-1.5 left-0 w-6 h-0.5 ${scrolled ? 'bg-white' : 'bg-slate-800'} rounded-full transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-1.5' : ''
                                     }`}></span>
-                                <span className={`absolute top-3 left-0 w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${menuOpen ? 'opacity-0' : ''
+                                <span className={`absolute top-3 left-0 w-6 h-0.5 ${scrolled ? 'bg-white' : 'bg-slate-800'} rounded-full transition-all duration-300 ${menuOpen ? 'opacity-0' : ''
                                     }`}></span>
-                                <span className={`absolute top-4.5 left-0 w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''
+                                <span className={`absolute top-4.5 left-0 w-6 h-0.5 ${scrolled ? 'bg-white' : 'bg-slate-800'} rounded-full transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''
                                     }`}></span>
                             </div>
                         </button>
