@@ -36,7 +36,7 @@ const Home = () => {
         },
         {
             title: "GPT",
-            subtitle: "Տրանսֆորմերներ",
+            subtitle: "Փոխակերպիչներ",
             image: carousel3,
             icon: Brain
 
@@ -53,13 +53,13 @@ const Home = () => {
         },
         {
             icon: PersonStandingIcon,
-            title: "Մենեջերի Վերլուծություն",
+            title: "Վերլուծության Ենթամակարգ",
             description: "Ռիսկերի գնահատում և ռազմավարական որոշումների ընդունում անորոշության պայմաններում",
             SVGComponent: ManagerDecisionSVG
         },
         {
             icon: Target,
-            title: "Փորձագետի Վերլուծություն",
+            title: "Փորձագիտական Ենթամակարգ",
             description: "Անորոշ տրամաբանություն, կլաստերացում և սցենարային մոդելավորում որոշումների ընդունման համար",
             SVGComponent: ExpertAnalysisSVG
         },
@@ -125,6 +125,16 @@ const Home = () => {
             navigate('/my-profile');
         }
     }
+
+    const scrollToVideoSection = () => {
+        const videoSection = document.getElementById('video-section');
+        if (videoSection) {
+            videoSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    };
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe]">
             {/* Main Title Section */}
@@ -133,19 +143,25 @@ const Home = () => {
             <section className="bg-gradient-to-br from-white/100 to-gray-100/20">
                 <section id="home" className="relative overflow-hidden min-h-screen flex flex-col lg:flex-row px-4 sm:px-6 lg:px-8">
                     {/* First Half - Header Content */}
-                    <section className="flex-1 flex items-center justify-center pt-32 lg:pt-12 pb-6 lg:pb-12 px-4 sm:px-6 lg:px-8">
+                    <section className="flex-1 flex items-center justify-center pt-32 lg:pt-12 pb-6 lg:pb-12 px-4 sm:px-6 lg:px-8 z-10">
                         <div className="max-w-7xl mx-auto text-center lg:text-left text-rgb(15 23 42 / 0.95) w-full">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl font-bold text-left bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent max-w-6xl mx-auto lg:mx-0 leading-snug text-rgb(30 41 59 / var(--tw-text-opacity, 1)) ">
-                                Արհեստական բանականության հետ ինտեգրված հիբրիդային որոշումների ընդունմանն աջակցող համակարգ
+                                Արհեստական բանականության հետ ինտեգրված որոշումների ընդունմանն աջակցող հիբրիդային համակարգ
                             </h1>
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start items-center mt-10">
-                                <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-slate-800 rounded-full font-semibold text-sm sm:text-base border border-slate-800 hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
+                                <button
+                                    className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-slate-800 rounded-full font-semibold text-sm sm:text-base border border-slate-800 hover:bg-white/40 hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer active:scale-95"
+                                    onClick={navigateToProjects}
+                                >
                                     Սկսել Վերլուծությունը
-                                    <ArrowRight className="inline-block ml-1.5 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="inline-block ml-1.5 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-300" />
                                 </button>
 
-                                <button className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-slate-800 text-slate-800 rounded-full font-semibold text-sm sm:text-base hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
-                                    <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                                <button
+                                    className="group w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-slate-800 text-slate-800 rounded-full font-semibold text-sm sm:text-base hover:bg-white/20 hover:shadow-lg transition-all duration-300 backdrop-blur-sm flex items-center justify-center cursor-pointer active:scale-95"
+                                    onClick={scrollToVideoSection}
+                                >
+                                    <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 group-hover:scale-110 transition-transform duration-300" />
                                     Ծանոթանալ Համակարգին
                                 </button>
                             </div>
@@ -312,7 +328,7 @@ const Home = () => {
             </section>
 
             {/* Demo Video Section - Responsive */}
-            <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-[#1c92d2]/10 to-[#0ea5e9]/10">
+            <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-[#1c92d2]/10 to-[#0ea5e9]/10" id='video-section'>
                 <div className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
                         Համակարգի աշխատանքը
@@ -417,10 +433,10 @@ const Home = () => {
                                 ավելի խելացի որոշումներ ընդունելու համար
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
-                                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25" onClick={navigateToProjects}>
-                                    Անվճար Փորձարկում
+                                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white rounded-full font-semibold text-base sm:text-lg hover:from-[#0f7fb5] hover:to-[#0369a1] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#1c92d2]/25 cursor-pointer" onClick={navigateToProjects}>
+                                    Սկսել Վերլուծությունը
                                 </button>
-                                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#1c92d2]/50 text-[#1c92d2] rounded-full font-semibold text-base sm:text-lg hover:bg-[#1c92d2]/10 transition-all duration-300">
+                                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#1c92d2]/50 text-[#1c92d2] rounded-full font-semibold text-base sm:text-lg hover:bg-[#1c92d2]/10 transition-all duration-300" onClick={scrollToVideoSection}>
                                     Դեմո Դիտել
                                 </button>
                             </div>
