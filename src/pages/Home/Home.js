@@ -6,6 +6,7 @@ import carousel2 from '../../assets/img/carousel2.webp';
 import carousel3 from '../../assets/img/carousel3.jpg';
 import { ActivitySVG, AnalystWorkSVG, ClusteringSVG, DataVisualizationSVG, DecisionMakingSVG, ExpertAnalysisSVG, HeroBackgroundSVG, ManagerDecisionSVG, SecuritySVG, SyntheticDataSVG, TargetingSVG, TeamSVG } from './assets';
 import { useNavigate } from 'react-router-dom';
+import MetricsSection from '../../components/MetricsSection/Metrics';
 
 const Home = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -258,37 +259,7 @@ const Home = () => {
             </section>
 
             {/* Metrics Section - Responsive */}
-            <section className="py-12 sm:py-16 lg:py-20 bg-white/20 backdrop-blur-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                        {metrics.map((metric, index) => (
-                            <div key={index} className="text-center group">
-                                <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300 text-white">
-                                    {metric.value}
-                                </div>
-                                <div className="text-white font-medium text-xs sm:text-sm lg:text-base leading-tight mb-1">
-                                    {metric.label}
-                                </div>
-
-                                {/* Toggle Button */}
-                                <button
-                                    onClick={() => toggleDescription(index)}
-                                    className="text-[11px] sm:text-xs text-blue-500 hover:underline focus:outline-none"
-                                >
-                                    {openIndex === index ? "Փակել" : "Տեսնել մանրամասները"}
-                                </button>
-
-                                {/* Description Toggle */}
-                                {openIndex === index && (
-                                    <div className="mt-2 text-gray font-medium text-xxs xs:text-sm lg:text-base leading-tight transition-opacity duration-300 ease-in-out">
-                                        {metric.description}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <MetricsSection metrics={metrics} />
 
             {/* Features Section - Responsive Grid */}
             <section id="services" className="py-12 sm:py-16 lg:py-20">

@@ -153,7 +153,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
     };
 
     return (
-        <div className="border-b-2 border-gray-200 pb-4">
+        <div className="border-b-2 border-gray-200 pb-4 py-5 px-5">
             {/* Տաբերի կոնտեյներ */}
             <div className="flex flex-wrap gap-2 lg:gap-3">
                 {tabs.map((tab) => (

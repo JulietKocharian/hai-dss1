@@ -9,17 +9,18 @@ import Alert from '../UI/Alert';
  * Պատասխանատու է ռազմավարական որոշումների, գնահատման և 
  * կայացման գործընթացների համար
  */
-const DecisionLevelPhase = ({ 
-    isActive = true, 
-    isCompleted = false, 
+const DecisionLevelPhase = ({
+    isActive = true,
+    isCompleted = false,
     onPhaseComplete,
     // НОВЫЕ ПРОПСЫ:
     projectId,
     projectStorage,
-    onUpdateProject 
+    onUpdateProject
 }) => {
     // Context data with fallback values
     const dataContext = useData();
+    const { setActiveTab } = useData();
 
     // Safe extraction with fallbacks
     const {
@@ -190,6 +191,7 @@ const DecisionLevelPhase = ({
             } else {
                 console.warn('onPhaseComplete callback not provided');
             }
+            setActiveTab('results');
 
         } catch (error) {
             console.error('Decision analysis error details:', {

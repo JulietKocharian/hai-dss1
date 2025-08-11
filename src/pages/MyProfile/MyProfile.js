@@ -882,7 +882,7 @@ const MyProfile = () => {
                             </div>
 
                             {/* Mobile Stack Layout for smaller screens */}
-                            <div className="lg:hidden mt-6">
+                            {/* <div className="lg:hidden mt-6">
                                 <div className="space-y-4">
                                     <div className="bg-white/10 rounded-xl p-4 border border-white/20">
                                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
@@ -895,7 +895,7 @@ const MyProfile = () => {
                                         />
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 ) : (
