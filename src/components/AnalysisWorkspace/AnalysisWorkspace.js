@@ -15,10 +15,10 @@ import ResultsTab from './TabContents/ResultsTab';
  * AnalysisWorkspace բաղադրիչ - վերլուծական աշխատատարածք
  * Ցուցադրում է վերլուծության բոլոր փուլերը տաբերի միջոցով
  */
-const AnalysisWorkspace = ({ 
+const AnalysisWorkspace = ({
     projectId,
     projectStorage,
-    onUpdateProject 
+    onUpdateProject
 }) => {
     const {
         analysisWorkspace,
@@ -53,7 +53,7 @@ const AnalysisWorkspace = ({
     // Функция смены табов с сохранением в localStorage
     const handleTabChange = (tabName) => {
         setActiveTab(tabName);
-        
+
         // Сохраняем активный таб в localStorage
         if (projectStorage && projectId) {
             projectStorage.updateAnalysisWorkspace(projectId, tabName, {
@@ -139,13 +139,13 @@ const AnalysisWorkspace = ({
     const getOverallProgress = () => {
         // Improved progress calculation based on actual data
         let progress = 0;
-        
+
         if (currentData && currentData.length > 0) progress += 20;
         if (syntheticData && syntheticData.length > 0) progress += 20;
         if (fuzzyResults) progress += 20;
         if (clusterData && clusterData.length > 0) progress += 20;
         if (scenarios && scenarios.length > 0) progress += 20;
-        
+
         return Math.min(progress, 100);
     };
 
