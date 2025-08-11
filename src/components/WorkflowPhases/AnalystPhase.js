@@ -26,7 +26,8 @@ const AnalystPhase = ({
         projectName,
         dataType,
         setAnalysisWorkspace,
-        setQualityMetrics
+        setQualityMetrics,
+        setActiveTab
     } = useData();
 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -88,6 +89,7 @@ const AnalystPhase = ({
             if (onPhaseComplete) {
                 onPhaseComplete();
             }
+            setActiveTab('fuzzy');
 
         } catch (error) {
             console.error('Վերլուծության սխալ:', error);
