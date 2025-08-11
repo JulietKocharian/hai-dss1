@@ -12,14 +12,14 @@ import { getDataTypeLabel } from '../../utils/dataHelpers';
  * AnalystPhase բաղադրիչ - վերլուծաբանի աշխատանքային փուլ
  * Պատասխանատու է տվյալների որակի գնահատման և առաջնային վերլուծության համար
  */
-const AnalystPhase = ({ 
-    isActive = true, 
-    isCompleted = false, 
+const AnalystPhase = ({
+    isActive = true,
+    isCompleted = false,
     onPhaseComplete,
     // НОВЫЕ ПРОПСЫ:
     projectId,
     projectStorage,
-    onUpdateProject 
+    onUpdateProject
 }) => {
     const {
         currentData,
@@ -243,10 +243,10 @@ const AnalystPhase = ({
             icon="🔬"
             phase="analyst"
             className={`w-full max-w-none transition-all duration-300 ${isCompleted
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : isActive
-                        ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
-                        : 'opacity-60'
+                ? 'bg-green-500/10 border-green-500/30'
+                : isActive
+                    ? 'bg-blue-500/10 border-blue-500/30 shadow-lg'
+                    : 'opacity-60'
                 }`}
         >
             {/* Status Badge */}
@@ -279,11 +279,11 @@ const AnalystPhase = ({
                         </div>
                         <div className="grid grid-cols-1 xs:grid-cols-2 gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base">
                             <div className="min-w-0">
-                                <strong className="font-semibold">Տողերի քանակ:</strong> 
+                                <strong className="font-semibold">Տողերի քանակ:</strong>
                                 <span className="ml-1">{currentData?.length || 0}</span>
                             </div>
                             <div className="min-w-0">
-                                <strong className="font-semibold">Սյունակների քանակ:</strong> 
+                                <strong className="font-semibold">Սյունակների քանակ:</strong>
                                 <span className="ml-1">{currentData?.length > 0 ? Object.keys(currentData[0]).length : 0}</span>
                             </div>
                         </div>
@@ -291,7 +291,7 @@ const AnalystPhase = ({
                 </Alert>
 
                 {/* Տվյալների նախադիտում */}
-                {currentData && currentData.length > 0 && (
+                {/* {currentData && currentData.length > 0 && (
                     <div className="bg-gray-50 rounded-lg p-2 sm:p-3 lg:p-4">
                         <h4 className="font-bold text-xs sm:text-sm text-gray-700 mb-2">📋 Մուտքագրված տվյալներ</h4>
                         <div className="text-xs font-mono bg-white p-2 sm:p-3 rounded border max-h-24 sm:max-h-32 lg:max-h-40 overflow-auto">
@@ -310,7 +310,7 @@ const AnalystPhase = ({
                             )}
                         </div>
                     </div>
-                )}
+                )} */}
 
                 {/* Վերլուծության տեխնիկական մանրամասներ */}
                 <div className="bg-blue-50 rounded-lg p-2 sm:p-3 lg:p-4">
@@ -335,8 +335,8 @@ const AnalystPhase = ({
                         variant="analyst"
                         size="md"
                         className={`w-full text-xs sm:text-sm lg:text-base py-2.5 sm:py-3 lg:py-4 transition-all duration-300 ${isCompleted
-                                ? 'bg-green-500 text-white cursor-default'
-                                : ''
+                            ? 'bg-green-500 text-white cursor-default'
+                            : ''
                             }`}
                         disabled={
                             isCompleted ||

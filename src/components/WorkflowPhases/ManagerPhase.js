@@ -4,16 +4,16 @@ import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
 import { parseCSV } from '../../utils/csvUtils';
 import CSVUploaderr from '../csvUploader/csvUploader';
-import { X, FileText, Info } from 'lucide-react';
+import { X, FileText, Info, AlertCircle } from 'lucide-react';
 
-const ManagerPhase = ({ 
-    isActive = true, 
-    isCompleted = false, 
+const ManagerPhase = ({
+    isActive = true,
+    isCompleted = false,
     onPhaseComplete,
     // НОВЫЕ ПРОПСЫ:
     projectId,
     projectStorage,
-    onUpdateProject 
+    onUpdateProject
 }) => {
     const {
         projectName,
@@ -71,6 +71,16 @@ const ManagerPhase = ({
         }
     }, [rawData, dataType, isActive, isCompleted]);
 
+    // НОВЫЙ useEffect: Очищаем CSV данные при смене типа данных
+    useEffect(() => {
+        // Если тип данных изменился и у нас есть загруженные данные, очищаем их
+        if (rawData && rawData.trim()) {
+            setRawData('');
+            // Также очищаем текущие данные
+            setCurrentData([]);
+        }
+    }, [dataType]);
+
     console.log('curreeeeent', currentData, 88888)
 
     // Define criteria for each data type
@@ -117,7 +127,7 @@ const ManagerPhase = ({
     const handleProjectNameChange = (e) => {
         const newName = e.target.value;
         setProjectName(newName); // Обновляем в useData
-        
+
         // Обновляем в localStorage
         if (onUpdateProject && projectId) {
             onUpdateProject(projectId, { name: newName });
@@ -129,6 +139,11 @@ const ManagerPhase = ({
         setDataType(typeValue);
         // Сбрасываем выбранные критерии при смене типа данных
         setSelectedCriteria({});
+        // НОВОЕ: Очищаем загруженные CSV данные при смене типа
+        if (rawData && rawData.trim()) {
+            setRawData('');
+            setCurrentData([]);
+        }
     };
 
     const handleCriteriaChange = (criteriaId, isChecked) => {
@@ -256,6 +271,25 @@ const ManagerPhase = ({
     // Check if data type is selected (now single value, not array)
     const hasSelectedDataType = !!dataType;
 
+    // ОБНОВЛЕННАЯ: Строгая проверка для включения CSV uploader
+    const canEnableCSVUploader = () => {
+        const hasProjectName = projectName && projectName.trim().length > 0;
+        const hasDataType = !!dataType && dataType.length > 0;
+
+        return hasProjectName && hasDataType && !isCompleted && !isSubmitting;
+    };
+
+    // НОВАЯ: Функция для показа предупреждения при попытке загрузки без выбора типа
+    const showDataTypeRequiredWarning = () => {
+        if (!dataType) {
+            alert('Նախ ընտրեք սոցիալ-տնտեսական ոլորտը, ապա բեռնեք CSV ֆայլը');
+            return true;
+        }
+        return false;
+    };
+
+    console.log(dataType, 'dataTypedataType')
+
     return (
         <>
             <PhaseCard
@@ -354,10 +388,27 @@ const ManagerPhase = ({
                         )}
                     </div>
 
-                    {/* CSV Upload Section - Only show when data type is selected */}
-                    {hasSelectedDataType && (
-                        <div>
-                            {/* CSV Upload Instructions */}
+                    {/* ОБНОВЛЕННЫЙ CSV Upload Section */}
+                    <div>
+                        {/* НОВОЕ: Показываем предупреждение, если тип данных не выбран */}
+                        {!hasSelectedDataType && (
+                            <div className="mb-4 p-3 sm:p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                                <div className="flex items-start space-x-2">
+                                    <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                                    <div className="text-red-200">
+                                        <div className="font-medium text-sm sm:text-base mb-1">
+                                            ⚠️ Պահանջվում է ընտրություն
+                                        </div>
+                                        <div className="text-xs sm:text-sm">
+                                            CSV ֆայլ բեռնելու համար նախ ընտրեք սոցիալ-տնտեսական ոլորտը
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* CSV Upload Instructions - показываем только когда выбран тип данных */}
+                        {hasSelectedDataType && (
                             <div className="mb-4 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                                 <div className="flex items-start space-x-2">
                                     <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
@@ -376,13 +427,17 @@ const ManagerPhase = ({
                                     </div>
                                 </div>
                             </div>
+                        )}
 
-                            {/* CSV Uploader Component */}
+                        {/* CSV Uploader или заблокированная область */}
+                        {canEnableCSVUploader() ? (
                             <div>
                                 <label className="block text-sm sm:text-base font-bold text-white mb-2">
                                     CSV ֆայլ <span className="text-red-500">*</span>
                                 </label>
-                                <CSVUploaderr />
+                                <CSVUploaderr
+                                    onBeforeUpload={showDataTypeRequiredWarning}
+                                />
 
                                 {rawData && (
                                     <div className="text-xs sm:text-sm text-white mt-1">
@@ -391,18 +446,29 @@ const ManagerPhase = ({
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    )}
-
-                    {/* Message when no data type selected */}
-                    {!hasSelectedDataType && (
-                        <div className="p-4 border-2 border-dashed border-gray-400 rounded-lg text-center">
-                            <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-gray-300 text-sm">
-                                CSV ֆայլ բեռնելու համար նախ ընտրեք սոցիալ-տնտեսական ոլորտը
-                            </p>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="p-4 border-2 border-dashed border-gray-400/50 rounded-lg text-center bg-gray-500/10">
+                                <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2 opacity-50" />
+                                <p className="text-gray-300 text-sm mb-2">
+                                    CSV ֆայլ բեռնելու համար հարկավոր է:
+                                </p>
+                                <div className="text-xs text-gray-400 space-y-1">
+                                    {!projectName?.trim() && (
+                                        <div className="flex items-center justify-center space-x-1">
+                                            <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                                            <span>Մուտքագրել նախագծի անվանումը</span>
+                                        </div>
+                                    )}
+                                    {projectName?.trim() && !dataType.length > 0 && (
+                                        <div className="flex items-center justify-center space-x-1">
+                                            <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                                            <span>Ընտրել սոցիալ-տնտեսական ոլորտը</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Submit Section */}
                     <div className="pt-3 sm:pt-4 border-t border-gray-200 space-y-3 sm:space-y-4">
@@ -436,6 +502,7 @@ const ManagerPhase = ({
                         <div className="text-xs sm:text-sm text-white bg-white/10 rounded-lg p-3 sm:p-4">
                             <div className="font-medium mb-2">💡 Հուշումներ</div>
                             <ul className="list-disc list-inside space-y-1 opacity-90 leading-relaxed">
+                                <li>Նախ ընտրեք սոցիալ-տնտեսական ոլորտը, ապա բեռնեք CSV ֆայլը</li>
                                 <li>Առաջին տողը պետք է պարունակի սյունակների անվանումները</li>
                                 <li>Յուրաքանչյուր տողի արժեք պետք է համապատասխանի իր սյունակի տեսակին</li>
                                 <li className="sm:block hidden">Տվյալներ մուտքագրելուց հնարավորություն կա որոշ դաշտեր թողնել դատարկ</li>
@@ -514,7 +581,7 @@ const ManagerPhase = ({
                                                 </div>
                                             </label>
                                         ))}
-                                        
+
                                         {/* Добавляем немного места внизу для удобства прокрутки */}
                                         <div className="h-4"></div>
                                     </div>
