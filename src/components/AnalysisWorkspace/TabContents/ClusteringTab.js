@@ -1,6 +1,3 @@
-// src/components/AnalysisWorkspace/TabContents/ClusteringTab.js
-// Կլաստերիզացիայի վերլուծության տաբ
-
 import React, { useState, useMemo } from 'react';
 import { useData } from '../../../context/DataContext';
 import { ChartCard, ClusterCard } from '../../UI/Card';
@@ -8,16 +5,10 @@ import Button, { ButtonGroup } from '../../UI/Button';
 import Alert from '../../UI/Alert';
 import { performClustering } from '../../../utils/clustering';
 import ClusterCharts from '../../Charts/ClusterCharts';
-import ClusterPointsChart from '../../Charts/ClusterPointsChart';
 import ClusterScatterChart from '../../Charts/ClusteringScatter';
 
-import map from './map.png';
 import Map from '../../Map/Map';
 
-/**
- * ClusteringTab բաղադրիչ - կլաստերիզացիայի վերլուծության ինտերֆեյս
- * Ցուցադրում է տվյալների խմբավորման արդյունքները և կլաստերային վիճակագրությունը
- */
 const ClusteringTab = () => {
     const {
         currentData,
@@ -381,7 +372,7 @@ const ClusteringTab = () => {
             {/* Enhanced Visualizations with Integrated Synthetic Data */}
             {showVisualization && enhancedClusterData.length > 0 && (
                 <>
-                    <Map/>
+                    <Map />
                     <ClusterCharts
                         clusters={enhancedClusterData}
                     />

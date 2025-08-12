@@ -1,9 +1,6 @@
-// src/components/AnalysisWorkspace/TabNavigation.js
-// Տաբերի նավիգացիայի բաղադրիչ
 
 import React from 'react';
 import { useData } from '../../context/DataContext';
-
 /**
  * TabNavigation բաղադրիչ - վերլուծական տաբերի նավիգացիա
  * @param {Object} props - Բաղադրիչի պրոպսեր
@@ -198,9 +195,6 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
                         <TabStatistics activeTab={activeTab} />
                     </div>
                 </div>
-
-                {/* Ընթացիկ տաբի հուշումներ */}
-                <TabHints activeTab={activeTab} />
             </div>
         </div>
     );
@@ -286,54 +280,6 @@ const TabStatistics = ({ activeTab }) => {
  * @param {Object} props - Պրոպսեր
  * @param {string} props.activeTab - Ակտիվ տաբ
  */
-const TabHints = ({ activeTab }) => {
-    // const hints = {
-    //     'analysis': [
-    //         'Ստուգեք տվյալների որակի չափանիշները',
-    //         'Գտեք բացակայող և ոչ ստանդարտ արժեքները'
-    //     ],
-    //     'synthetic': [
-    //         'Գեներացրեք լրացուցիչ տվյալներ վերլուծության համար',
-    //         'Դիտեք ստեղծված տվյալների նմուշը'
-    //     ],
-    //     'fuzzy': [
-    //         'Գնահատեք տվյալների վստահության մակարդակը',
-    //         'Վերլուծեք անորոշության գործոնները'
-    //     ],
-    //     'clustering': [
-    //         'Բացահայտեք տվյալների թաքնված խմբերը',
-    //         'Ընտրեք հարմար կլաստերացման մեթոդ'
-    //     ],
-    //     'scenarios': [
-    //         'Ստեղծեք գործնական որոշումային սցենարներ',
-    //         'Դիտարկեք առաջնահերթությունները'
-    //     ],
-    //     'results': [
-    //         'Արտահանեք վերջնական արդյունքները',
-    //         'Ուղարկեք տեղեկագիրը մենեջերին'
-    //     ]
-    // };
 
-    // const currentHints = hints[activeTab] || [];
-
-    // if (currentHints.length === 0) return null;
-
-    return (
-        // <div className="mt-3 pt-3 border-t border-gray-200">
-        //     <div className="text-xs text-gray-600">
-        //         <div className="font-medium mb-1">💡 Հուշումներ:</div>
-        //         <ul className="space-y-1">
-        //             {currentHints.map((hint, index) => (
-        //                 <li key={index} className="flex items-start">
-        //                     <span className="text-blue-500 mr-1">•</span>
-        //                     <span>{hint}</span>
-        //                 </li>
-        //             ))}
-        //         </ul>
-        //     </div>
-        // </div>
-        <></>
-    );
-};
 
 export default TabNavigation;
