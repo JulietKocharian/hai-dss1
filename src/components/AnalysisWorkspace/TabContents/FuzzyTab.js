@@ -1,5 +1,5 @@
 // src/components/AnalysisWorkspace/TabContents/FuzzyTab.js
-// Անորոշ տրամաբանության վերլուծության տաբ
+// Անորոշ տրամաբանության վերլուծության տաբ - ամբողջական տարբերակ
 
 import React from 'react';
 import { useData } from '../../../context/DataContext';
@@ -8,6 +8,7 @@ import Button from '../../UI/Button';
 import ProgressBar, { CircularProgress } from '../../UI/ProgressBar';
 import Alert from '../../UI/Alert';
 import { applyFuzzyLogic } from '../../../utils/fuzzyLogic';
+import { getDataTypeLabel } from '../../../utils/dataHelpers';
 
 /**
  * FuzzyTab բաղադրիչ - անորոշ տրամաբանության վերլուծության ինտերֆեյս
@@ -18,23 +19,30 @@ const FuzzyTab = () => {
         currentData,
         fuzzyResults,
         setFuzzyResults,
-        dataType
+        dataType,
+        rawData
     } = useData();
+
+    console.log(currentData, 'currentDatacurrentData', rawData, 'dataType', dataType);
 
     /**
      * Անորոշ տրամաբանության կիրառում
      */
     const applyFuzzyAnalysis = async () => {
-        if (!currentData || currentData.length === 0) {
+        if (!rawData && (!currentData || currentData.length === 0)) {
             alert('Տվյալները բացակայում են անորոշ տրամաբանության վերլուծության համար');
             return;
         }
 
         try {
-            // Սիմուլյացիայի հետաձգում UI-ի համար
             const results = await new Promise((resolve) => {
                 setTimeout(() => {
-                    const fuzzyAnalysis = applyFuzzyLogic(currentData, dataType);
+                    let fuzzyAnalysis;
+
+                    if (rawData && typeof rawData === 'string') {
+                        console.log('Օգտագործվում է նոր համակարգը CSV տվյալների համար');
+                        fuzzyAnalysis = applyFuzzyLogic(currentData, dataType);
+                    }
                     resolve(fuzzyAnalysis);
                 }, 1500);
             });
@@ -73,7 +81,7 @@ const FuzzyTab = () => {
                 <h4 className="font-bold text-purple-800 mb-2">🧠 Անորոշ տրամաբանության մասին</h4>
                 <div className="text-sm text-purple-700 space-y-2">
                     <p>
-                        <strong>Fuzzy Logic</strong>-ը թույլ է տալիս գնահատել տվյալների որակը 0-ից 1 պարամետրերով,
+                        <strong>Fuzzy Logic</strong>-ը թույլ է տալիս գնահատել տվյալների որակը 0-ից 100 պարամետրերով,
                         որտեղ յուրաքանչյուր տվյալ ունի վստահության աստիճան:
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
@@ -205,6 +213,37 @@ const FuzzyTab = () => {
                                     </div>
                                 )}
 
+                                {fuzzyResults.socialDevelopment && (
+                                    <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-400">
+                                        <h5 className="font-bold text-green-800 mb-2 flex items-center">
+                                            {getDataTypeLabel(dataType)} գնահատում
+                                        </h5>
+                                        <div className="text-sm text-green-700 space-y-2">
+                                            <div className="flex justify-between items-center">
+                                                <span>{getDataTypeLabel(dataType)} ինդեքս:</span>
+                                                <span className="font-bold text-lg">
+                                                    {Math.round(fuzzyResults.socialDevelopment.index)}/100
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span>Կարգավիճակ:</span>
+                                                <span className="font-bold text-green-600">
+                                                    {fuzzyResults.socialDevelopment.interpretation.label}
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                                <div
+                                                    className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                                                    style={{ width: `${fuzzyResults.socialDevelopment.index}%` }}
+                                                ></div>
+                                            </div>
+                                            <p className="text-xs mt-2 italic">
+                                                {fuzzyResults.socialDevelopment.interpretation.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Գործողությունների ինդիկատոր */}
                                 <div className="text-center pt-2">
                                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getConfidenceIndicatorClass(fuzzyResults.high)}`}>
@@ -215,6 +254,46 @@ const FuzzyTab = () => {
                             </div>
                         </ChartCard>
                     </div>
+
+                    {/* Մետրիկների մանրամասներ - ՆՈՐ */}
+                    {fuzzyResults.socialDevelopment && fuzzyResults.socialDevelopment.demographicMetrics && (
+                        <ChartCard title="🎯 Դեմոգրաֆիական մետրիկներ" subtitle="Հիմնական ցուցանիշների վերլուծություն">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                    <MetricBar
+                                        label="Ծնելիության մակարդակ"
+                                        value={Math.round(fuzzyResults.socialDevelopment.demographicMetrics.birth_rate)}
+                                        color="blue"
+                                        icon="👶"
+                                        description="Բնակչության ծնելիության ցուցանիշ"
+                                    />
+                                    <MetricBar
+                                        label="Մահացության մակարդակ"
+                                        value={Math.round(fuzzyResults.socialDevelopment.demographicMetrics.death_rate)}
+                                        color="red"
+                                        icon="💔"
+                                        description="Բնակչության մահացության ցուցանիշ"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <MetricBar
+                                        label="Բնական աճ"
+                                        value={Math.round(fuzzyResults.socialDevelopment.demographicMetrics.natural_increase)}
+                                        color="green"
+                                        icon="📈"
+                                        description="Բնակչության բնական աճի ցուցանիշ"
+                                    />
+                                    <MetricBar
+                                        label="Ամուսնությունների մակարդակ"
+                                        value={Math.round(fuzzyResults.socialDevelopment.demographicMetrics.marriage_rate)}
+                                        color="purple"
+                                        icon="💍"
+                                        description="Ամուսնությունների գրանցման ցուցանիշ"
+                                    />
+                                </div>
+                            </div>
+                        </ChartCard>
+                    )}
 
                     {/* Մանրամասն վիճակագրություն */}
                     <ChartCard title="Մանրամասն վստահության վիճակագրություն">
@@ -256,8 +335,8 @@ const FuzzyTab = () => {
                                 {fuzzyResults.recommendations.map((rec, index) => (
                                     <div key={index} className="border-l-2 border-gray-300 pl-3">
                                         <div className="flex items-center space-x-2">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${getPriorityClass(rec.priority)}`}>
-                                                {rec.priority.toUpperCase()}
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${getPriorityClassArmenian(rec.priority)}`}>
+                                                {getPriorityLabelArmenian(rec.priority)}
                                             </span>
                                             <span className="font-medium">{rec.action}</span>
                                         </div>
@@ -273,6 +352,7 @@ const FuzzyTab = () => {
                                         <li>Անցնել կլաստերացման փուլին</li>
                                         <li>Կիրառել տվյալների մաքրման տեխնիկաներ</li>
                                         <li>Ստեղծել նպատակային սցենարներ</li>
+                                        <li>Իրականացնել հավելյալ տվյալների հավաքում</li>
                                     </ul>
                                 </div>
                             </div>
@@ -286,7 +366,7 @@ const FuzzyTab = () => {
                             variant="secondary"
                             size="md"
                         >
-                            🔄 Վերլուծել
+                            🔄 Վերլուծել կրկին
                         </Button>
                     </div>
                 </>
@@ -318,6 +398,47 @@ const ConfidenceBar = ({ label, value, color, icon }) => {
                 <span className="text-sm font-bold text-gray-800 w-10 text-right">
                     {value}%
                 </span>
+            </div>
+        </div>
+    );
+};
+
+/**
+ * Մետրիկի գոտու բաղադրիչ - ՆՈՐ
+ */
+const MetricBar = ({ label, value, color, icon, description }) => {
+    const getColorClass = (color) => {
+        const colors = {
+            blue: 'bg-blue-500',
+            red: 'bg-red-500',
+            green: 'bg-green-500',
+            purple: 'bg-purple-500',
+            yellow: 'bg-yellow-500'
+        };
+        return colors[color] || 'bg-gray-500';
+    };
+
+    return (
+        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                    <span className="text-lg">{icon}</span>
+                    <div>
+                        <span className="text-sm font-medium text-gray-800">{label}</span>
+                        {description && (
+                            <p className="text-xs text-gray-500">{description}</p>
+                        )}
+                    </div>
+                </div>
+                <span className="text-lg font-bold text-gray-800">
+                    {value}
+                </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                    className={`h-2 rounded-full transition-all duration-500 ${getColorClass(color)}`}
+                    style={{ width: `${Math.min(value, 100)}%` }}
+                ></div>
             </div>
         </div>
     );
@@ -376,9 +497,9 @@ const getRecommendationAlertType = (highConfidence) => {
 };
 
 /**
- * Առաջնահերթության CSS դասի ստացում
+ * Հայերեն առաջնահերթության CSS դասի ստացում
  */
-const getPriorityClass = (priority) => {
+const getPriorityClassArmenian = (priority) => {
     switch (priority) {
         case 'high':
             return 'bg-red-200 text-red-800';
@@ -388,6 +509,22 @@ const getPriorityClass = (priority) => {
             return 'bg-green-200 text-green-800';
         default:
             return 'bg-gray-200 text-gray-800';
+    }
+};
+
+/**
+ * Հայերեն առաջնահերթության պիտակի ստացում
+ */
+const getPriorityLabelArmenian = (priority) => {
+    switch (priority) {
+        case 'high':
+            return 'ԲԱՐՁՐ';
+        case 'medium':
+            return 'ՄԻՋԻՆ';
+        case 'low':
+            return 'ՑԱԾՐ';
+        default:
+            return 'ՍՏԱՆԴԱՐՏ';
     }
 };
 
