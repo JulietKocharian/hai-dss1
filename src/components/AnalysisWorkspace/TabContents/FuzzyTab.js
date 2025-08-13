@@ -23,7 +23,6 @@ const FuzzyTab = () => {
         rawData
     } = useData();
 
-    console.log(currentData, 'currentDatacurrentData', rawData, 'dataType', dataType);
 
     /**
      * Անորոշ տրամաբանության կիրառում
@@ -257,7 +256,7 @@ const FuzzyTab = () => {
 
                     {/* Մետրիկների մանրամասներ - ՆՈՐ */}
                     {fuzzyResults.socialDevelopment && fuzzyResults.socialDevelopment.demographicMetrics && (
-                        <ChartCard title="🎯 Դեմոգրաֆիական մետրիկներ" subtitle="Հիմնական ցուցանիշների վերլուծություն">
+                        <ChartCard title="🎯 Դեմոգրաֆիական ցուցանիշներ" subtitle="Հիմնական ցուցանիշների վերլուծություն">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-3">
                                     <MetricBar

@@ -15,9 +15,11 @@ const ClusteringTab = () => {
         clusterData,
         setClusterData,
         syntheticData, // Added syntheticData from context
-        dataType
+        dataType,
+        rawData
     } = useData();
 
+    console.log('rawDatarawData', rawData)
     const [showVisualization, setShowVisualization] = useState(false);
 
     const [clusteringSettings, setClusteringSettings] = useState({

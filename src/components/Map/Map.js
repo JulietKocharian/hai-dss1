@@ -1,36 +1,258 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useMemo } from "react";
+import Papa from 'papaparse';
 import './a.css';
+import { useData } from "../../context/DataContext";
+
+const regionNameMapping = {
+    'Арагацотн': 'Արագածոտն',
+    'Арарат': 'Արարատ',
+    'Армавир': 'Արմավիր',
+    'Гегаркуник': 'Գեղարքունիք',
+    'Лори': 'Լոռի',
+    'Котайк': 'Կոտայք',
+    'Ширак': 'Շիրակ',
+    'Сюник': 'Սյունիք',
+    'Вайоц Дзор': 'Վայոց ձոր',
+    'Тавуш': 'Տավուշ',
+    'Ереван': 'Երևան'
+};
 
 export default function Map() {
-  const tooltipRef = useRef(null);
-//   const [regionClusters, setRegionClusters] = useState([]);
+    const tooltipRef = useRef(null);
+    const { dataType, rawData } = useData();
 
-//   useEffect(() => {
-//     const storedData = localStorage?.getItem('excel_clusters_regions');
-//     if (storedData) {
-//       setRegionClusters(JSON.parse(storedData));
-//     }
-//   }, []);
-    const regionClusters = [
-        { Claster: 1, Регион: "Արագածոտն" },
-        { Claster: 1, Регион: "Արարատ" },
-        { Claster: 2, Регион: "Արմավիր" },
-        { Claster: 2, Регион: "Գեղարքունիք" },
-        { Claster: 3, Регион: "Լոռի" },
-        { Claster: 3, Регион: "Կոտայք" },
-        { Claster: 2, Регион: "Շիրակ" },
-        { Claster: 1, Регион: "Սյունիք" },
-        { Claster: 3, Регион: "Վայոց ձոր" },
-        { Claster: 2, Регион: "Տավուշ" },
-        { Claster: 1, Регион: "Երևան" },
-    ];
-    // console.log("1", regionClusters1);
 
+    // Парсинг CSV данных
+    const parsedData = useMemo(() => {
+        if (!rawData) return null;
+
+        try {
+            const result = Papa.parse(rawData, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: true
+            });
+            return result.data;
+        } catch (error) {
+            console.error('Error parsing CSV:', error);
+            return null;
+        }
+    }, [rawData]);
+
+    // Функция для выполнения K-means кластеризации
+    const performClustering = (data, k = 4) => {
+        if (!data || data.length === 0) return [];
+
+        // Извлекаем числовые показатели (исключая регион)
+        const features = data.map(row => {
+            const values = [];
+            Object.keys(row).forEach(key => {
+                if (key !== 'Регион' && typeof row[key] === 'number') {
+                    values.push(row[key]);
+                }
+            });
+            return values;
+        });
+
+        if (features.length === 0 || features[0].length === 0) return [];
+
+        // Нормализация данных
+        const normalizedFeatures = normalizeFeatures(features);
+
+        // Выполнение K-means
+        const clusters = kMeans(normalizedFeatures, k);
+
+        // Возвращаем результат с названиями регионов
+        return data.map((row, index) => ({
+            region: row['Регион'],
+            cluster: clusters[index] + 1, // +1 чтобы кластеры начинались с 1
+            data: row
+        }));
+    };
+
+    // Нормализация признаков
+    const normalizeFeatures = (features) => {
+        const numFeatures = features[0].length;
+        const mins = new Array(numFeatures).fill(Infinity);
+        const maxs = new Array(numFeatures).fill(-Infinity);
+
+        // Находим min и max для каждого признака
+        features.forEach(feature => {
+            feature.forEach((value, i) => {
+                mins[i] = Math.min(mins[i], value);
+                maxs[i] = Math.max(maxs[i], value);
+            });
+        });
+
+        // Нормализуем
+        return features.map(feature =>
+            feature.map((value, i) => {
+                const range = maxs[i] - mins[i];
+                return range === 0 ? 0 : (value - mins[i]) / range;
+            })
+        );
+    };
+
+    // Простая реализация K-means
+    const kMeans = (data, k, maxIterations = 100) => {
+        const n = data.length;
+        const d = data[0].length;
+
+        // Инициализация центроидов случайным образом
+        let centroids = [];
+        for (let i = 0; i < k; i++) {
+            centroids.push(data[Math.floor(Math.random() * n)].slice());
+        }
+
+        let clusters = new Array(n);
+        let changed = true;
+        let iterations = 0;
+
+        while (changed && iterations < maxIterations) {
+            changed = false;
+            iterations++;
+
+            // Назначение точек к ближайшим центроидам
+            for (let i = 0; i < n; i++) {
+                let minDist = Infinity;
+                let closestCentroid = 0;
+
+                for (let j = 0; j < k; j++) {
+                    const dist = euclideanDistance(data[i], centroids[j]);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestCentroid = j;
+                    }
+                }
+
+                if (clusters[i] !== closestCentroid) {
+                    clusters[i] = closestCentroid;
+                    changed = true;
+                }
+            }
+
+            // Обновление центроидов
+            for (let j = 0; j < k; j++) {
+                const clusterPoints = data.filter((_, i) => clusters[i] === j);
+                if (clusterPoints.length > 0) {
+                    for (let dim = 0; dim < d; dim++) {
+                        centroids[j][dim] = clusterPoints.reduce((sum, point) => sum + point[dim], 0) / clusterPoints.length;
+                    }
+                }
+            }
+        }
+
+        return clusters;
+    };
+
+    // Евклидово расстояние
+    const euclideanDistance = (a, b) => {
+        return Math.sqrt(a.reduce((sum, val, i) => sum + Math.pow(val - b[i], 2), 0));
+    };
+
+    // Выполнение кластеризации
+    const regionClusters = useMemo(() => {
+        if (!parsedData || parsedData.length === 0) return [];
+
+        const clustered = performClustering(parsedData);
+
+        // Преобразуем в нужный формат с армянскими названиями
+        return clustered.map(item => ({
+            Claster: item.cluster,
+            Регион: regionNameMapping[item.region] || item.region
+        }));
+    }, [parsedData]);
+
+    useEffect(() => {
+        const svgElement = document.querySelector("svg");
+        const tooltip = tooltipRef.current;
+
+        const handleMouseEnter = (event) => {
+            const target = event.target;
+
+            // Проверяем, что это path элемент региона
+            if (target.tagName === 'path' && target.hasAttribute('data-region')) {
+                const regionName = target.getAttribute('data-region');
+                const info = getClusterInfo(regionName);
+                tooltip.innerHTML = info.replace(/\n/g, '<br>');
+                tooltip.style.visibility = 'visible';
+                updateTooltipPosition(event);
+            }
+        };
+
+        const handleMouseMove = (event) => {
+            if (tooltip.style.visibility === 'visible') {
+                updateTooltipPosition(event);
+            }
+        };
+
+        const updateTooltipPosition = (event) => {
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            let left = event.pageX + 10;
+            let top = event.pageY - 30;
+
+            // Проверяем, не выходит ли подсказка за границы экрана
+            if (left + tooltipRect.width > viewportWidth) {
+                left = event.pageX - tooltipRect.width - 10;
+            }
+
+            if (top < 0) {
+                top = event.pageY + 10;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        };
+
+        const handleMouseLeave = (event) => {
+            const target = event.target;
+            if (target.tagName === 'path') {
+                tooltip.style.visibility = "hidden";
+            }
+        };
+
+        if (svgElement) {
+            svgElement.addEventListener("mouseover", handleMouseEnter);
+            svgElement.addEventListener("mousemove", handleMouseMove);
+            svgElement.addEventListener("mouseout", handleMouseLeave);
+        }
+
+        return () => {
+            if (svgElement) {
+                svgElement.removeEventListener("mouseover", handleMouseEnter);
+                svgElement.removeEventListener("mousemove", handleMouseMove);
+                svgElement.removeEventListener("mouseout", handleMouseLeave);
+            }
+        };
+    }, [regionClusters, parsedData]);
+
+    // Если нет данных или регионов, не показываем карту
+
+    const validRegionClusters = regionClusters.filter(r => r.Регион);
+    if (!rawData || !parsedData || parsedData.length === 0 || regionClusters.length === 0 || validRegionClusters?.length === 0) {
+        return (
+            <div className="flex items-center justify-center w-full h-64">
+                <div className="text-center">
+                    <p className="text-gray-500 text-lg">
+                        📊 Տվյալներ չկան
+                    </p>
+                    <p className="text-gray-400 text-sm mt-2">
+                        Մարզերի քարտեզը ցուցադրելու համար անհրաժեշտ են մարզային տվյալներ
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    // Функция для получения CSS класса по номеру кластера
     const getClusterClassName = (regionName) => {
         const region = regionClusters.find(r => r.Регион === regionName);
-        if (!region) return ''; // If no region is found, return an empty string
+        if (!region) return '';
 
         switch (region.Claster) {
             case 1:
@@ -42,184 +264,303 @@ export default function Map() {
             case 4:
                 return "Four";
             default:
-                return ''; // If no valid cluster is found, return an empty string
+                return '';
         }
     };
 
-    useEffect(() => {
-        const svgElement = document.querySelector("svg");
-        const tooltip = tooltipRef.current;
+    // Функция для получения информации о кластере на армянском
+    const getClusterInfo = (regionName) => {
+        const region = regionClusters.find(r => r.Регион === regionName);
+        if (!region) return `${regionName} — կլաստերը չի որոշված`;
 
-        const handleMouseEnter = () => {
-            // tooltip.innerText = 'Лори — кластер ' + (regionClusters.find(r => r.Регион === 'Лори')?.Claster ?? '?');
-            tooltip.style.visibility = 'visible';
+        const clusterNames = {
+            1: 'Առաջին',
+            2: 'Երկրորդ',
+            3: 'Երրորդ',
+            4: 'Չորրորդ'
         };
 
-        const handleMouseLeave = () => {
-            tooltip.style.visibility = "hidden";
-        };
+        // Найдем исходные данные для этого региона
+        const russianName = Object.keys(regionNameMapping).find(key => regionNameMapping[key] === regionName);
+        const regionData = parsedData.find(row => row['Регион'] === russianName);
 
-        svgElement.addEventListener("mouseover", handleMouseEnter);
-        svgElement.addEventListener("mouseout", handleMouseLeave);
+        let tooltip = `${regionName} — ${clusterNames[region.Claster]} կլաստեր (${region.Claster})`;
 
-        return () => {
-            svgElement.removeEventListener("mouseover", handleMouseEnter);
-            svgElement.removeEventListener("mouseout", handleMouseLeave);
+        if (regionData) {
+            tooltip += '\n';
+            Object.keys(regionData).forEach(key => {
+                if (key !== 'Регион' && typeof regionData[key] === 'number') {
+                    tooltip += `\n${key}: ${regionData[key]}`;
+                }
+            });
+        }
+
+        return tooltip;
+    };
+
+    // Получение цвета кластера
+    const getClusterColor = (clusterNumber) => {
+        const colors = {
+            1: '#0eb74a', // Зеленый
+            2: '#fbfb04', // Желтый
+            3: '#f77271', // Красно-розовый
+            4: '#8b5cf6'  // Фиолетовый
         };
-    }, []);
+        return colors[clusterNumber] || '#cccccc';
+    };
+
+    // Статистика кластеров
+    const getClusterStats = () => {
+        const stats = {};
+        regionClusters.forEach(region => {
+            if (!stats[region.Claster]) {
+                stats[region.Claster] = {
+                    count: 0,
+                    regions: []
+                };
+            }
+            stats[region.Claster].count++;
+            stats[region.Claster].regions.push(region.Регион);
+        });
+        return stats;
+    };
+
+    const clusterStats = getClusterStats();
+    const uniqueClusters = [...new Set(regionClusters.map(r => r.Claster))].sort();
+
 
     return (
-        <div className="flex justify-center w-full">
-            <h1
+        <div className="flex flex-col items-center w-full">
+            {/* Վերնագիր */}
+            <h2 className="text-2xl font-bold mb-4 text-center">
+                🗺️ Հայաստանի մարզերի կլաստերացման  քարտեզ
+            </h2>
+
+            {/* Ծանուցագիր */}
+            <div className="cluster-legend">
+                {uniqueClusters.map(clusterNum => (
+                    <div key={clusterNum} className="legend-item">
+                        <div
+                            className={`legend-color cluster-${clusterNum}`}
+                            style={{ backgroundColor: getClusterColor(clusterNum) }}
+                        ></div>
+                        <span>
+                            Կլաստեր {clusterNum} ({clusterStats[clusterNum]?.count || 0} մարզ)
+                        </span>
+                    </div>
+                ))}
+            </div>
+
+            {/* Կլաստերների մանրամասն վիճակագրություն */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3">📊 Կլաստերների վիճակագրություն</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {uniqueClusters.map(clusterNum => (
+                        <div key={clusterNum} className="p-3 bg-white rounded-lg shadow-sm">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div
+                                    className="w-4 h-4 rounded"
+                                    style={{ backgroundColor: getClusterColor(clusterNum) }}
+                                ></div>
+                                <span className="font-medium">Կլաստեր {clusterNum}</span>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <div>Մարզեր՝ {clusterStats[clusterNum]?.count || 0}</div>
+                                {clusterStats[clusterNum]?.regions && (
+                                    <div className="mt-1">
+                                        {clusterStats[clusterNum].regions.join(', ')}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Հուշակ */}
+            <div
                 ref={tooltipRef}
+                className="tooltip"
                 style={{
                     position: 'absolute',
-                    left: '140px',
-                    top: '35px',
-                    visibility: 'hidden'
+                    visibility: 'hidden',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    color: 'white',
+                    padding: '8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    maxWidth: '200px',
+                    zIndex: 1000
                 }}
             >
-                {/* Tooltip content will be dynamically updated here */}
-            </h1>
+                {/* Հուշակի տեքստը կթարմանա դինամիկ */}
+            </div>
 
-
-            < svg width="541" height="542" viewBox="0 0 541 542" fill="none" xmlns="http://www.w3.org/2000/svg" >
-
+            {/* SVG քարտեզ */}
+            <svg width="541" height="542" viewBox="0 0 541 542" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Տավուշ */}
                 <path
+                    data-region="Տավուշ"
                     d="M267.614 1L273.913 14.423L272.198 19.195L273.139 22.001L276.06 23.264L287.18 23.276L290.092 24.223L299.004 31.235L301.212 34.448L301.432 38.045L295.591 42.331L278.753 41.619L276.941 48.88L279.131 52.649L282.817 55.146L286.107 55.484L287.145 52.801L287.638 48.694L290.453 50.211L296.013 56.021L299.497 58.191L302.136 61.048L304.934 63.403L312.957 64.347L320.417 67.424L324.297 68.053L332.229 64.079L333.859 63.262L338.557 62.749L339.595 68.088L338.099 75.383L340.193 77.666L342.595 78.301L344.292 78.749L348.796 82.464L356.08 91.87L358.772 94.628L362.238 95.745L366.25 96.036L369.206 97.606L369.514 102.584L366.321 111.849L361.834 116.973L348.637 123.356L341.758 126.682L335.099 132.172L330.815 139.725L330.805 145.111L330.762 145.095L327.516 143.889L325.378 141.767L323.839 139.656L321.912 137.823L320.804 137.069L319.748 136.535L316.739 135.706L315.789 135.306L314.883 134.621L310.977 129.735L309.974 128.841L308.391 128.307L302.497 127.727L299.119 126.729L298.063 126.59L296.875 126.973L291.905 130.885L290.48 131.721L283.926 134.483L283.002 135.191L282.184 136.131L281.551 137.268L279.517 142.577L278.91 143.609L278.197 144.461L277.326 145.162L276.314 145.765L273.807 146.727L266.672 148.17L265.379 148.048L264.086 147.758L262.159 146.888L261.13 146.169L259.019 144.146L257.831 143.224L255.315 141.85L252.808 141.09L232.574 145.381L228.474 141.995L228.632 128.919L227.286 124.565L226.626 123.259L225.729 120.315L225.228 118.979L224.964 117.864L224.99 116.76L226.151 115.273L227.418 114.239L230.62 112.682L236.426 111.119L237.64 110.526L238.696 109.625L239.628 108.346L240.578 106.579L244.167 94.909L244.879 93.367L245.644 92.203L246.462 91.481L247.21 91.062L247.755 90.585L249.163 88.95L250.219 88.106L251.09 87.152L251.486 86.005L250.562 84.212L248.609 82.465L247.967 81.761L247.21 80.142L246.647 79.624L244.615 78.646L244.114 78.314L243.533 78.011L242.926 77.883L240.577 77.906L238.096 77.626L236.979 77.3L234.789 76.065L230.54 72.255L228.93 70.379L228.297 69.318L228.156 68.112L228.455 66.748L233.997 60.324L235.053 59.549L236.135 59.234L237.323 59.327L238.467 59.887L240.658 61.45L242.004 61.917L243.482 61.794L245.304 61L256.318 52.45L256.767 50.986L256.45 49.224L254.471 46.16L252.729 44.759L250.908 43.825L249.509 43.44L248.233 42.202L247.424 39.984L246.729 35.254L247.019 32.182L247.441 30.57L248.18 29.921L250.617 28.536L252.992 26.771L253.784 25.906L254.206 24.831L254.312 23.697L253.943 22.323L252.201 20.47L246.412 16.599L242.339 16.16L242.32 16.158L241.169 14.517L234.782 11.428L233.374 8.234L236.682 4.875L253.115 7.497L259.572 7.286L261.648 5.858L265.501 2.358L267.614 1ZM263.708 48.144L261.069 50.011L260.515 53.138L261.579 56.544L263.708 59.297L269.884 61.419L272.312 56.218L270.421 49.754L263.708 48.144ZM302.944 73.88L304.739 71.387L299.865 67.157L299.161 67.029L298.492 67.134L297.894 67.472L297.366 68.055L299.002 73.241L302.944 73.88Z"
-                    fill="white" stroke="black" id="lori" className={getClusterClassName("Տավուշ")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Տավուշ")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
                 <text x="280" y="100" fontSize="12" fill="black" pointerEvents="none">
                     Տավուշ
                 </text>
+
+                {/* Լոռի */}
                 <path
+                    data-region="Լոռի"
                     d="M93.255 29.483L97.159 28.524L104.003 25.427L107.399 25.065L114.613 27.099L118.202 26.445L121.545 24.633L124.219 21.956L125.09 19.746L125.204 17.828L125.644 16.144L127.667 14.705L129.479 14.682L134.097 16.6L142.331 22.342L145.48 23.546L149.483 22.88L151.058 21.804L152.281 20.389L153.671 19.138L155.685 18.483L157.788 18.729L166.867 24.259L170.588 25.627L174.415 25.896L178.55 24.692L181.981 20.846L183.09 19.992L184.92 19.934L185.817 21.641L186.433 23.956L187.365 25.674L190.857 26.679L193.364 24.435L195.44 20.846L197.639 17.911L201.299 16.25L204.748 16.718L211.865 19.56L236.823 20.074L241.292 19.466L242.981 17.104L242.32 16.161L242.339 16.163L246.412 16.602L252.201 20.473L253.943 22.326L254.312 23.7L254.206 24.834L253.784 25.909L252.992 26.774L250.617 28.539L248.18 29.924L247.441 30.573L247.019 32.185L246.729 35.257L247.424 39.987L248.233 42.205L249.509 43.443L250.908 43.828L252.729 44.762L254.471 46.163L256.45 49.227L256.767 50.989L256.318 52.453L245.304 61L243.483 61.799L242.005 61.922L240.659 61.455L238.468 59.892L237.324 59.332L236.136 59.239L235.054 59.554L233.998 60.329L228.456 66.753L228.157 68.117L228.298 69.323L228.931 70.384L230.541 72.26L234.79 76.07L236.98 77.305L238.097 77.631L240.578 77.911L242.927 77.888L243.534 78.016L244.115 78.319L244.616 78.651L246.648 79.629L247.211 80.147L247.968 81.766L248.61 82.47L250.563 84.217L251.487 86.01L251.091 87.157L250.22 88.111L249.164 88.955L247.756 90.59L247.211 91.067L246.463 91.486L245.645 92.208L244.88 93.372L244.168 94.914L240.579 106.584L239.629 108.351L238.697 109.63L237.641 110.531L236.427 111.124L230.621 112.687L227.419 114.244L226.152 115.278L224.991 116.765L224.965 117.869L225.229 118.984L225.73 120.32L226.627 123.264L227.287 124.57L228.633 128.924L228.475 142L223.487 142.777L221.692 142.823L213.581 142.058L206.605 139.854L198.098 135.364L196.99 135.068L195.75 135.143L192.425 136.646L191.053 136.89L189.434 136.142L186.636 134.251L182.413 134.588L168.197 138.277L167.353 134.82L166.139 133.219L164.978 131.942L160.694 129.296L151.747 125.599L149.046 124.92L146.723 124.804L145.905 124.943L145.298 125.251L144.77 125.779L143.503 127.7L142.21 128.89L140.38 129.906L137.424 130.504L135.629 130.272L134.257 129.668L133.412 128.763L131.741 126.592L130.448 125.303L129.392 124.746L128.231 124.549L127.413 124.584L125.196 125.077L118.088 125.356L116.927 124.979L115.555 124.352L115.027 123.411L113.866 120.572L112.696 118.923L111.482 118.174L105.465 117.303L104.172 116.432L103.292 115.183L102.87 113.719L102.237 112.005L101.445 110.32L100.073 107.972L99.572 106.449V105.031L100.839 102.705L101.076 102.1L102.448 95.994L102.87 94.772L103.372 93.719L103.557 93.504L103.821 93.26L104.243 93.091L104.771 93.062L105.44 93.26L108.185 94.743L109.373 94.987L110.666 94.911L112.038 94.469L113.041 93.748L113.71 92.666L113.921 90.269L114.203 88.744L114.819 87.487L116.772 85.613L117.432 84.466L118.699 77.252L118.409 76.437L117.908 76.053L114.046 76.263L110.219 75.774L109.058 75.349L108.029 74.72L107.079 73.607L106.815 72.71L107 71.848L107.449 71.265L108.953 70.205L109.613 69.494L110.141 68.492L110.299 66.825L110.141 65.869L109.798 65.146L109.323 64.761L106.235 62.75L104.915 61.473L103.481 59.735L100.34 54.615L99.284 53.268L98.439 52.609L94.48 50.993L93.284 50.357L91.806 48.968L91.305 47.999L91.199 46.692L93.152 29.822L93.186 29.508L93.255 29.483Z"
-                    fill="white" stroke="black" id="Лори" className={getClusterClassName("Լոռի")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Լոռի")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
                 <text x="150" y="100" fontSize="10" fill="black" textAnchor="middle">
                     Լոռի
                 </text>
+
+                {/* Շիրակ */}
                 <path
+                    data-region="Շիրակ"
                     d="M1.709 42.599L3.416 43.031L5.09599 43.066L6.767 42.692L15.96 38.932L23.191 38.652L50.955 42.575L55.116 42.225L58.45 40.812L66.385 33.804L73.687 30.755L89.452 30.416L93.181 29.5L93.147 29.814L91.194 46.684L91.3 47.991L91.801 48.96L93.279 50.349L94.475 50.985L98.434 52.601L99.279 53.26L100.335 54.607L103.476 59.727L104.91 61.465L106.23 62.742L109.318 64.753L109.793 65.138L110.136 65.861L110.294 66.817L110.136 68.484L109.608 69.486L108.948 70.197L107.444 71.257L106.995 71.84L106.81 72.702L107.074 73.599L108.024 74.712L109.053 75.341L110.214 75.766L114.041 76.255L117.903 76.045L118.404 76.429L118.694 77.244L117.427 84.458L116.767 85.605L114.814 87.479L114.198 88.736L113.916 90.261L113.705 92.658L113.036 93.74L112.033 94.461L110.661 94.903L109.368 94.979L108.18 94.735L105.435 93.252L104.766 93.054L104.238 93.083L103.816 93.252L103.552 93.496L103.367 93.711L102.865 94.764L102.443 95.986L101.071 102.092L100.834 102.697L99.567 105.023V106.441L100.068 107.964L101.44 110.312L102.232 111.997L102.865 113.711L103.287 115.175L104.167 116.424L105.46 117.295L111.477 118.166L112.691 118.915L113.861 120.564L115.022 123.403L115.55 124.344L116.922 124.971L118.083 125.348L125.191 125.069L119.534 136.194L116.71 140.063L110.948 145.688L110.473 146.726L110.579 147.532L113.192 149.601L114.679 151.091L115.867 152.661L116.949 154.55L117.398 155.581L117.794 156.74L118.295 159.295L118.585 160.077L119.113 160.552L119.826 160.697L122.28 160.61L127.725 159.672L128.728 159.747L129.625 160.344L129.783 161.247L129.598 162.463L127.882 168.195L127.328 171.222V172.79L127.618 173.936L128.093 174.538L128.621 174.984L130.416 176.031L130.944 176.424L130.786 176.679L129.519 177.454L128.859 178.021L127.988 179.178L127.407 179.652L125.85 180.485L125.032 181.289L124.32 181.792L123.396 182.156L120.511 182.515L119.719 182.764L119.033 183.105L116.447 185.308L111.846 187.106L107.228 190.095L106.119 190.557L105.142 190.707L104.324 190.591L103.576 190.204L102.89 189.609L102.204 188.753L99.486 184.07L98.457 182.624L98.114 182.254L97.771 181.976L90.716 181.6L89.66 181.826L89.159 182.404L88.895 183.225L88.631 184.422L88.05 185.052L87.1 185.434L80.045 185.631L77.221 185.377L76.35 185.111L75.418 184.579L71.908 181.913L70.931 181.462L69.849 181.202L67.764 181.063L66.893 180.803L64.192 179.195L63.031 179.085L61.738 179.467L56.556 182.729L55.052 183.377L50.301 184.649L48.005 185.753L46.897 186.823L46.228 188.118L45.911 189.401L45.489 190.615L44.592 192.303L43.378 193.424L39.894 195.446L38.706 196.573L37.43 198.335L36.691 199.017L35.978 199.306L33.033 198.899L33.18 198.405V196.88L26.292 190.974L22.676 186.916L21.972 183.967L27.796 177.003L31.473 174.446L35.502 173.96L35.045 172.351L34.764 171.68L34.227 170.766L35.265 171.148L36.022 171.322L36.779 171.623L37.808 172.433L37.632 167.062L39.902 162.43L47.116 153.938L45.814 148.861L46.852 147.47L50.388 141.139L50.889 139.318L50 123.766L49.402 120.05L47.819 115.833L40.746 104.478L39.004 100.013L38.089 94.895L37.711 90.38L36.981 86.073L35.028 81.649L29.697 74.929L22.985 69.336L15.657 65.653L8.373 64.604L5.118 61.503L2.408 55.053L1 47.877L1.709 42.599Z"
-                    fill="white" stroke="black" id="Ширак" className={getClusterClassName("Շիրակ")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Շիրակ")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
                 <text x="75" y="120" fill="black" fontSize="10" textAnchor="middle">Շիրակ</text>
 
+                {/* Գեղարքունիք */}
                 <path
+                    data-region="Գեղարքունիք"
                     d="M330.803 145.109L330.795 149.278L333.223 154.482L336.496 157.715L339.936 160.437L342.901 164.155L343.57 166.367L343.957 171.322L344.74 173.729L346.315 175.5L349.843 177.837L351.277 180.44L356.784 192.212L366.866 201.676L406.524 224.22L406.657 224.367L413.896 232.373L417.309 232.557L418.463 232.218L420.881 231.508L424.611 231.277L427.092 232.591L429.538 234.977L433.91 240.773L434.227 242.063L434.341 243.376L434.227 244.701L431.139 259.024L429.063 264.478L425.817 268.849L422.043 272.161L421.41 273.851L419.404 284.079L418.243 286.446L415.956 288.376L404.062 289.547L376.087 284.895L365.31 291.901L365.534 294.103L365.512 294.1L364.896 294.031L363.365 293.015L362.494 291.844L362.089 291.385L361.561 290.937L360.928 290.753L360.163 290.822L359.107 291.809L358.526 292.487L356.758 295.277L354.356 297.424L348.356 300.603L345.479 301.51L333.884 303.518L329.626 303.501L324.365 304.471L311.847 303.783L310.29 304.104L304.924 306.192L302.813 307.362L300.702 308.83L293.911 315.126L285.853 320.342L284.401 316.995L284.163 315.482L283.82 310.7L283.398 308.716L282.369 306.164L281.762 304.242L281.419 302.246L281.551 297.242L281.366 295.807L280.68 295.049L278.806 294.205L278.357 293.861L277.961 293.327L277.591 292.535L276.958 290.56L269.718 272.893L269.401 270.754L269.533 267.948L271.433 260.603L272.278 254.204L269.718 250.324L258.123 236.679L257.507 235.244L257.384 233.797L257.806 231.295L258.73 229.86L260.287 228.004L259.97 225.409L252.017 195.779L251.436 194.259L250.037 192.751L245.014 189.323L244.433 188.462L244.143 187.404L244.433 185.797L245.145 183.021L245.435 181.465L245.224 179.556L244.485 177.526L242.664 174.5L241.45 172.99L240.447 172.122L239.523 171.937L235.661 172.122L234.579 171.937L233.708 170.872L232.995 169.182L231.148 157.201L231.122 155.133L231.439 153.267L232.574 150.972L233.075 149.732L232.574 145.384L252.808 141.093L255.315 141.853L257.831 143.227L259.019 144.149L261.13 146.172L262.159 146.891L264.086 147.761L265.379 148.051L266.672 148.173L273.807 146.73L276.314 145.768L277.326 145.165L278.197 144.464L278.91 143.612L279.517 142.58L281.549 137.268L282.182 136.131L283 135.191L283.924 134.483L290.478 131.721L291.903 130.885L296.873 126.973L298.061 126.59L299.117 126.729L302.495 127.727L308.389 128.307L309.972 128.841L310.975 129.735L314.881 134.621L315.787 135.306L316.737 135.706L319.746 136.535L320.802 137.069L321.91 137.823L323.837 139.656L325.376 141.767L327.514 143.889L330.76 145.095L330.803 145.109ZM354.654 156.174L348.795 154.413L347.774 152.257L347.44 149.916L347.792 147.574L348.795 145.348L350.924 143.806L353.273 143.11L355.763 143.064L358.226 143.4L362.66 145.928L360.355 151.782L354.654 156.174Z"
-                    fill="white" stroke="black" className={getClusterClassName("Գեղարքունիք")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={330}
-                    y={240}
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Գեղարքունիք")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={330} y={240} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Գեղարքունիք
                 </text>
+
+                {/* Վայոց ձոր */}
                 <path
+                    data-region="Վայոց ձոր"
                     d="M365.531 294.103L365.843 297.171L371.245 299.616L388.998 301.452L393.652 303.758L397.338 307.854L404.948 323.567L401.957 325.28L399.388 328.408L390.362 343.785L388.902 347.092L388.506 349.506L391.735 355.51L391.814 358.929L391.154 363.627L386.579 381.469L386.737 382.645L386.948 383.552L387.766 385.789L387.889 386.092L387.914 386.152L367.04 391.237L362.483 393.131L348.795 401.878L346.983 402.653L345.083 403.622L343.148 404.01L341.23 403.714L339.4 402.642L339.376 402.617L333.999 397.112L331.025 395.55L322.967 394.797L320.486 393.793L318.771 391.306L316.756 386.719L312.522 380.741L311.46 379.242L306.903 380.783L302.064 385.292L295.792 386.787L292.458 384.641L291.789 381.422L293.461 373.463L293.742 368.3L293.003 364.209L291.252 360.517L279.973 346.039L280.467 341.198V333.825L280.599 333.035L281.813 329.433L285.851 320.341L293.909 315.125L300.7 308.829L302.811 307.361L304.922 306.191L310.288 304.103L311.845 303.782L324.363 304.47L329.624 303.5L333.882 303.517L345.477 301.509L348.354 300.602L354.354 297.423L356.756 295.276L358.524 292.486L359.105 291.808L360.161 290.821L360.926 290.752L361.559 290.936L362.087 291.384L362.492 291.843L363.363 293.014L364.894 294.03L365.51 294.099L365.531 294.103Z"
-                    fill="white" stroke="black" className={getClusterClassName("Վայոց ձոր")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={340}
-                    y={350}
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Վայոց ձոր")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={340} y={350} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Վայոց ձոր
                 </text>
+
+                {/* Սյունիք */}
                 <path
+                    data-region="Սյունիք"
                     d="M404.947 323.568L406.258 326.243L413.929 333.917L417.556 335.778L423.166 338.657L433.907 341.908L438.561 346.463L445.124 359.821L450.473 364.119L456.93 365.993L459.86 367.65L462.314 370.677L466.308 378.272L468.806 380.67L472.589 381.846L478.501 380.613L490.131 374.641L495.955 375.064L498.365 377.04L502.377 382.486L504.928 384.335L508.289 384.917L519.039 383.89L521.784 384.495L524.608 386.344L526.693 389.197L527.203 392.836L525.672 395.642L523.191 397.182L521.203 399.006L521.15 402.654L522.32 404.979L522.258 407.042L521.097 408.66L519.039 409.663L518.978 409.675L506.512 412.022L501.11 415.371L498.876 421.042L501.216 427.963L506.793 432.299L519.039 437.782L521.757 440.034L523.015 443.229L523.912 446.73L525.566 449.969L529.683 454.321L536.949 459.438L538.075 460.472L539.219 461.789L539.438 462.358L540.029 463.896L538.533 464.634L534.953 464.77L527.062 470.412L524.968 470.718L514.622 465.451L508.658 464.679L504.734 468.357L504.901 475.11L509.256 479.455L514.921 482.682L519.038 486.01L521.184 493.219L522.134 499.44L521.641 505.579L519.407 512.536L519.284 513.227L519.038 513.855L518.44 516.515L518.15 519.225L518.317 521.889L519.038 524.445L524.95 536.96L521.889 536.107L504.154 528.171L501.831 527.656L500.019 527.893L495.893 529.239L489.286 529.505L487.034 530.014L483.735 531.625L474.885 538.056L471.912 539.502L460.572 541L450.649 522.013L441.781 497.197L438.333 490.25L433.908 483.89L430.31 477.947L428.762 472.177L429.8 466.587L433.908 461.16L435.06 459.678L435.412 458.094L435.025 456.436L433.908 454.709L430.433 451.38L420.723 446.61L418.24 445.39L414.176 442.229L410.939 438.704L407.438 435.838L397.779 433.347L397.331 432.302L396.354 430.025L397.436 425.62L403.163 416.158L403.92 412.684L402.38 402.61V402.587L402.934 396.977L402.899 393.236L401.368 390.452L397.515 387.668L392.817 385.854L388.867 385.922L387.915 386.154L387.89 386.094L387.767 385.791L386.949 383.554L386.738 382.647L386.58 381.471L391.155 363.629L391.815 358.931L391.736 355.512L388.507 349.508L388.903 347.094L390.363 343.787L399.389 328.41L401.958 325.282L404.947 323.568Z"
-                    fill="white" stroke="black" className={getClusterClassName("Սյունիք")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={470}
-                    y={440}
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Սյունիք")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={470} y={440} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Սյունիք
                 </text>
 
+                {/* Արարատ */}
                 <path
+                    data-region="Արարատ"
                     d="M279.973 346.04L278.698 344.403L272.909 341.485L266.522 343.682L260.241 348.545L259.24 349.107L254.804 351.599L248.998 352.994L241.555 352.88L233.655 354.321L228.825 356.448L226.195 351.954L215.753 338.188L214.776 336.471L213.949 335.727L213.14 335.544L211.24 335.842L210.378 335.727L207.229 333.792L201.071 326.656L198.801 328.054L198.168 326.771L198.115 324.273L197.587 322.107L195.018 320.216L193.575 318.737L192.942 316.811L192.15 313.44L190.232 310.206L185.86 305.308L176.016 296.701L161.815 288.365L161.817 288.319L161.826 288.152L161.703 284.459L161.298 282.23L159.794 278.013L156.759 272.093L156.944 271.093L157.788 269.702L160.058 267.609L162.6 263.422L163.761 262.099L165.371 261.075L170.042 259.188L171.573 258.313L171.951 256.425L174.01 255.93L174.749 256.252L175.937 257.311L176.333 258.111L176.491 259.13L176.412 260.131L175.937 262.823L175.858 264.106L175.937 264.882L176.148 265.825L176.544 266.78L177.072 267.677L177.705 268.396L178.127 268.804L178.549 269.068L184.522 270.442L186.211 271.235L187.372 272.264L188.876 275.868L189.246 276.414L189.774 276.966L191.498 278.357L192.105 278.518L193.055 278.472L195.14 277.943L199.741 274.851L207.21 264.829L208.82 265.652L210.465 269.568L211.653 270.747L213.712 271.862L214.873 272.023L223.353 270.517L230.303 268.24L243.085 261.004L247.95 258.973L254.126 257.183L260.733 254.444L265.906 253.834L272.275 254.202L271.43 260.601L269.53 267.946L269.398 270.752L269.715 272.891L276.955 290.558L277.588 292.533L277.958 293.325L278.354 293.859L278.803 294.203L280.677 295.047L281.363 295.805L281.548 297.24L281.416 302.244L281.759 304.24L282.366 306.162L283.395 308.714L283.817 310.698L284.16 315.48L284.398 316.993L285.85 320.34L281.812 329.432L280.598 333.034L280.466 333.824V341.197L279.973 346.04Z"
-                    fill="white" stroke="black" className={getClusterClassName("Արարատ")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={230}
-                    y={320}
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Արարատ")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={230} y={320} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Արարատ
                 </text>
 
+                {/* Արագածոտն */}
                 <path
+                    data-region="Արագածոտն"
                     d="M44.255 237.017L41.807 231.324L34.233 221.429L29.632 217.079L27.89 213.582L29.051 209.923L30.503 207.429L33.039 198.902L35.984 199.309L36.697 199.02L37.436 198.338L38.712 196.576L39.9 195.449L43.384 193.427L44.598 192.306L45.495 190.618L45.917 189.404L46.234 188.121L46.903 186.826L48.011 185.756L50.307 184.652L55.058 183.38L56.562 182.732L61.744 179.47L63.037 179.088L64.198 179.198L66.899 180.806L67.77 181.066L69.855 181.205L70.937 181.465L71.914 181.916L75.424 184.582L76.356 185.114L77.227 185.38L80.051 185.634L87.106 185.437L88.056 185.055L88.637 184.425L88.901 183.228L89.165 182.407L89.666 181.829L90.722 181.603L97.777 181.979L98.12 182.257L98.463 182.627L99.492 184.073L102.21 188.756L102.896 189.612L103.582 190.207L104.33 190.594L105.148 190.71L106.125 190.56L107.234 190.098L111.852 187.109L116.453 185.311L119.039 183.108L119.725 182.767L120.517 182.518L123.402 182.159L124.326 181.795L125.038 181.292L125.856 180.488L127.413 179.655L127.994 179.181L128.865 178.024L129.525 177.457L130.792 176.682L130.95 176.427L130.422 176.034L128.627 174.987L128.099 174.541L127.624 173.939L127.334 172.793V171.225L127.888 168.198L129.604 162.466L129.789 161.25L129.631 160.347L128.734 159.75L127.731 159.675L122.286 160.613L119.832 160.7L119.119 160.555L118.591 160.08L118.301 159.298L117.8 156.743L117.404 155.584L116.955 154.553L115.873 152.664L114.685 151.094L113.198 149.604L110.585 147.535L110.479 146.729L110.954 145.691L116.716 140.066L119.54 136.197L125.197 125.072L127.414 124.579L128.232 124.544L129.393 124.741L130.449 125.298L131.742 126.587L133.413 128.758L134.258 129.663L135.63 130.267L137.425 130.499L140.381 129.901L142.211 128.885L143.504 127.695L144.771 125.774L145.299 125.246L145.906 124.938L146.724 124.799L149.047 124.915L151.748 125.594L160.695 129.291L164.979 131.937L166.14 133.214L167.354 134.815L168.198 138.272L169.412 145.973V148.025L168.647 151.143L168.752 152.047L169.94 153.606L180.884 161.733L182.388 162.416L188.828 163.482L189.998 163.94L191.159 164.635L191.027 168.091L189.751 173.832L181.543 197.746L181.833 199.722L183.205 202.749L183.337 204.256L182.862 205.844L181.305 207.282L178.763 208.893L172.455 220.181L170.942 221.704L169.49 222.569L168.223 222.892L167.088 223.377L166.481 224.461L166.586 225.822L167.906 228.071L169.041 229.172L170.976 230.608L171.363 231.45L171.293 232.401L170.545 233.548L169.621 234.309L167.483 235.698L167.034 236.591V238.164L167.324 240.67L169.488 245.854L168.195 248.422L158.21 246.222L154.489 244.471L151.392 242.075L150.6 241.66L149.676 241.32L146.878 239.724L145.902 238.456L144.978 237.471L143.711 236.97L141.855 237.028L138.398 237.886L136.445 238.975L134.994 240.012L134.017 240.519L132.9 240.496L131.686 239.701L130.234 237.852L129.574 237.212L128.729 236.843L127.752 236.624L126.696 236.509L125.667 236.647L124.638 237.523L124.506 238.854L124.77 240.369L125.667 243.681L125.799 245.835L123.837 247.833L120.195 249.336L99.988 249.192L98.695 248.749L97.375 247.903L94.753 245.715L92.114 242.628L90.504 241.637L84.003 239.333L81.601 237.939L77.273 234.309L76.587 233.894L75.347 233.45L70.904 232.568L69.373 231.945L68.449 231.294L66.338 227.962L65.564 227.172L64.64 227.091L63.479 227.621L61.79 229.668L60.787 231.161L59.679 232.291L58.518 232.441L56.715 231.467L55.448 230.464L54.023 230.193L52.651 230.781L48.719 234.424L44.461 236.994L44.255 237.017Z"
-                    fill="white" stroke="black" className={getClusterClassName("Արագածոտն")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={85}   // Adjust the x-position as needed
-                    y={210}  // Adjust the y-position as needed
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Արագածոտն")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={85} y={210} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Արագածոտն
                 </text>
 
+                {/* Արմավիր */}
                 <path
+                    data-region="Արմավիր"
                     d="M40.012 266.043L37.813 259.623L40.171 257.413L47.877 255.733L49.54 252.855L48.44 250.345L43.126 243.78L41.314 239.851L44.428 237.42L44.254 237.016L44.463 236.994L48.721 234.424L52.653 230.781L54.025 230.193L55.45 230.464L56.717 231.467L58.52 232.441L59.681 232.291L60.789 231.161L61.792 229.668L63.481 227.621L64.642 227.091L65.566 227.172L66.34 227.962L68.451 231.294L69.375 231.945L70.906 232.568L75.349 233.45L76.589 233.894L77.275 234.309L81.603 237.939L84.005 239.333L90.506 241.637L92.116 242.628L94.755 245.715L97.377 247.903L98.697 248.749L99.99 249.192L120.197 249.336L123.839 247.833L125.801 245.835L125.669 243.681L124.772 240.369L124.508 238.854L124.64 237.523L125.669 236.647L126.698 236.509L127.754 236.624L128.731 236.843L129.576 237.212L130.236 237.852L131.688 239.701L132.902 240.496L134.019 240.519L134.996 240.012L136.447 238.975L138.4 237.886L141.857 237.028L143.713 236.97L144.98 237.471L145.904 238.456L146.88 239.724L149.678 241.32L150.602 241.66L151.394 242.075L154.491 244.471L158.212 246.222L168.197 248.422L169.754 250.65L170.044 253.615L170.282 254.542L171.953 256.424L171.575 258.312L170.044 259.187L165.373 261.074L163.763 262.098L162.602 263.421L160.06 267.608L157.79 269.701L156.946 271.092L156.761 272.092L159.796 278.012L161.3 282.229L161.705 284.458L161.828 288.151L161.819 288.318L161.817 288.364L152.406 282.838L146.178 280.896H140.425L130.168 283.7L125.294 284.309L121.81 285.343L120.033 285.584L118.59 285.101L116.425 283L114.753 282.552L111.12 283.517L105.199 287.687L102.489 288.629L82.009 285.137L63.394 274.817L47.805 270.367L40.012 266.043Z"
-                    fill="white" stroke="black" className={getClusterClassName("Արմավիր")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={80}   // Adjust the x-position as needed
-                    y={260}  // Adjust the y-position as needed
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Արմավիր")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={80} y={260} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Արմավիր
                 </text>
 
+                {/* Կոտայք */}
                 <path
+                    data-region="Կոտայք"
                     d="M228.475 141.997L232.575 145.383L233.076 149.731L232.575 150.971L231.44 153.266L231.123 155.132L231.149 157.2L232.996 169.181L233.709 170.871L234.58 171.936L235.662 172.121L239.524 171.936L240.448 172.121L241.451 172.989L242.665 174.499L244.486 177.525L245.225 179.555L245.436 181.464L245.146 183.02L244.434 185.796L244.144 187.403L244.434 188.461L245.015 189.322L250.038 192.75L251.437 194.258L252.018 195.778L259.971 225.408L260.288 228.003L258.731 229.859L257.807 231.294L257.385 233.796L257.508 235.243L258.124 236.678L269.719 250.323L272.279 254.203L265.91 253.835L260.737 254.445L254.13 257.184L247.954 258.974L243.089 261.005L230.307 268.241L223.357 270.518L214.877 272.024L213.716 271.863L211.657 270.748L210.469 269.569L208.824 265.653L207.214 264.83L205.894 261.476L204.786 260.693L203.678 260.29L200.344 260.75L197.467 260.531L196.306 259.691L195.857 258.419L196.147 256.923L196.622 255.363L197.15 253.976L197.757 252.802L198.285 252.008L201.039 249.026L201.751 248.087L202.2 247.131L201.989 246.567L201.171 245.553L199.711 244.217L197.257 240.934L195.674 239.972L194.328 239.528L192.401 240.075L187.615 242.466L186.559 242.748L179.926 243.37L177.841 242.823L177.313 242.846L176.838 243.076L175.756 243.767L175.228 243.974L174.331 244.112L173.381 244.054L171.665 243.72L171.084 243.783L170.679 243.973L170.336 244.267L170.099 244.595L169.941 244.848L169.492 245.85L167.328 240.666L167.038 238.16V236.587L167.487 235.694L169.625 234.305L170.549 233.544L171.297 232.397L171.367 231.446L170.98 230.604L169.045 229.168L167.91 228.067L166.59 225.818L166.485 224.457L167.092 223.373L168.227 222.888L169.494 222.565L170.946 221.7L172.459 220.177L178.767 208.889L181.309 207.278L182.866 205.84L183.341 204.252L183.209 202.745L181.837 199.718L181.547 197.742L189.755 173.828L191.031 168.087L191.163 164.631L190.002 163.936L188.832 163.478L182.392 162.412L180.888 161.729L169.944 153.602L168.756 152.043L168.651 151.139L169.416 148.021V145.969L168.202 138.268L182.418 134.579L186.641 134.242L189.439 136.133L191.058 136.881L192.43 136.637L195.755 135.134L196.995 135.059L198.103 135.355L206.61 139.845L213.586 142.049L221.697 142.814L223.492 142.768L228.475 141.997Z"
-                    fill="white" stroke="black" className={getClusterClassName("Կոտայք")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={215}   // Adjust the x-position as needed
-                    y={190}   // Adjust the y-position as needed
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Կոտայք")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={215} y={190} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Կոտայք
                 </text>
+
+                {/* Երևան */}
                 <path
+                    data-region="Երևան"
                     d="M169.49 245.854L169.939 244.852L170.097 244.599L170.334 244.271L170.677 243.977L171.082 243.787L171.663 243.724L173.379 244.058L174.329 244.116L175.226 243.978L175.754 243.771L176.836 243.08L177.311 242.85L177.839 242.827L179.924 243.374L186.557 242.752L187.613 242.47L192.399 240.079L194.326 239.532L195.672 239.976L197.255 240.938L199.709 244.221L201.169 245.557L201.987 246.571L202.198 247.135L201.749 248.091L201.037 249.03L198.283 252.012L197.755 252.806L197.148 253.98L196.62 255.367L196.145 256.927L195.855 258.423L196.304 259.695L197.465 260.535L200.342 260.754L203.676 260.294L204.784 260.697L205.892 261.48L207.212 264.834L199.743 274.856L195.142 277.948L193.057 278.477L192.107 278.523L191.5 278.362L189.776 276.971L189.248 276.419L188.878 275.873L187.374 272.269L186.213 271.24L184.524 270.447L178.551 269.073L178.129 268.809L177.707 268.401L177.074 267.682L176.546 266.785L176.15 265.83L175.939 264.887L175.86 264.111L175.939 262.828L176.414 260.136L176.493 259.135L176.335 258.116L175.939 257.316L174.751 256.257L174.012 255.935L171.953 256.43L170.282 254.548L170.044 253.621L169.754 250.656L168.197 248.428L169.49 245.854Z"
-                    fill="white" stroke="black" className={getClusterClassName("Երևան")} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text
-                    x={175}   // Adjust x-position
-                    y={260}   // Adjust y-position
-                    fill="black"
-                    fontSize="12"
-                    fontFamily="Arial"
-                    textAnchor="middle"
-                    pointerEvents="none"
-                >
+                    fill="white"
+                    stroke="black"
+                    className={getClusterClassName("Երևան")}
+                    strokeWidth="0.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <text x={175} y={260} fill="black" fontSize="12" fontFamily="Arial" textAnchor="middle" pointerEvents="none">
                     Երևան
                 </text>
             </svg>
-
         </div>
     );
 }
