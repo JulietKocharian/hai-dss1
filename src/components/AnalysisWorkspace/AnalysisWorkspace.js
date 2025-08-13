@@ -156,6 +156,7 @@ const AnalysisWorkspace = ({
             <div className="mb-4 lg:mb-6 overflow-hidden">
                 <div className="overflow-x-auto scrollbar-hide">
                     <TabNavigation
+                        projectPhase={projectData?.workflowData?.currentPhase}
                         activeTab={activeTab}
                         onTabChange={handleTabChange}
                     />
