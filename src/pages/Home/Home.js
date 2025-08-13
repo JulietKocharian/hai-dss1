@@ -5,7 +5,7 @@ import carousel1 from '../../assets/img/carousel1.png';
 import carousel2 from '../../assets/img/carousel2.webp';
 import carousel3 from '../../assets/img/carousel3.jpg';
 import { ActivitySVG, AnalystWorkSVG, ClusteringSVG, DataVisualizationSVG, DecisionMakingSVG, ExpertAnalysisSVG, HeroBackgroundSVG, ManagerDecisionSVG, SecuritySVG, SyntheticDataSVG, TargetingSVG, TeamSVG } from './assets';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MetricsSection from '../../components/MetricsSection/Metrics';
 
 const Home = () => {
@@ -19,6 +19,7 @@ const Home = () => {
 
 
     const navigate = useNavigate();
+    const location = useLocation();
 
 
     const heroSlides = [
@@ -123,7 +124,10 @@ const Home = () => {
         if (!token) {
             navigate('/sign-in', { replace: true });
         } else {
-            navigate('/my-profile');
+            navigate('/my-profile', {
+                state: { from: location.pathname }
+            });
+
         }
     }
 
