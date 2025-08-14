@@ -236,7 +236,7 @@ const Home = () => {
                                 </div>
 
                                 {/* Clickable Progress Indicators */}
-                                <div className="flex justify-center mt-4 space-x-2">
+                                <div className="flex justify-center mt-4 space-x-2 relative z-10">
                                     {heroSlides.map((_, index) => (
                                         <button
                                             key={index}

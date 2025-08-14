@@ -330,7 +330,7 @@ export default function Map() {
 
 
     return (
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full map">
             {/* Վերնագիր */}
             <h2 className="text-2xl font-bold mb-4 text-center">
                 🗺️ Հայաստանի մարզերի կլաստերացման  քարտեզ

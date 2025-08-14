@@ -59,12 +59,12 @@
 }
 
 /* Базовые стили для SVG */
-svg {
+.map svg {
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-svg path {
+.map svg path {
     stroke: #333;
     stroke-width: 1;
     transition: all 0.3s ease;

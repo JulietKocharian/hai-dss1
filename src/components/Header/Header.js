@@ -92,8 +92,6 @@ const Header = () => {
     };
 
     // Handle auth action (login or logout)
-
-    // Handle auth action (login or logout)
     const handleAuthAction = () => {
         if (isLoggedIn) {
             handleLogout();
@@ -106,10 +104,10 @@ const Header = () => {
     return (
         <>
             <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-                ? 'bg-slate-900/95 backdrop-blur-md shadow-2xl shadow-bg-slate-900/95'
+                ? 'bg-slate-900/95 backdrop-blur-md shadow-2xl'
                 : 'bg-transparent'
                 }`}>
-                <div className=" mx-auto px-4">
+                <div className="mx-auto px-4">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
                         <Link to="/">
@@ -128,38 +126,36 @@ const Header = () => {
                                 </div>
                             </div>
                         </Link>
+
                         {/* Desktop Menu */}
                         <nav className="hidden md:flex items-center space-x-8">
                             <button
                                 onClick={() => handleSectionNavigation('about')}
-                                className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
+                                className="group flex items-center space-x-2 hover:text-[#1c92d2] transition-colors duration-300"
                             >
-                                <Info className={`w-4 h-4 ${scrolled
-                                    ? 'text-white group-hover:text-[#1c92d2]'
-                                    : 'text-slate-800 group-hover:text-[#1c92d2]'
-                                    } transition-colors duration-500`} />
-                                <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
+                                <Info className={`w-4 h-4 transition-colors duration-300 ${scrolled
+                                        ? '!text-white group-hover:!text-[#1c92d2]'
+                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                    }`} />
+                                <span className={`relative font-medium transition-colors duration-300 ${scrolled ? '!text-white' : 'text-slate-800'
+                                    }`}>
                                     Մեր մասին
-                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
-                                        ? 'from-white to-[#0ea5e9]'
-                                        : 'from-slate-800 to-slate-600'
-                                        } group-hover:w-full transition-all duration-300`}></span>
+                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] group-hover:w-full transition-all duration-300`}></span>
                                 </span>
                             </button>
+
                             <button
                                 onClick={() => handleSectionNavigation('services')}
-                                className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
+                                className="group flex items-center space-x-2 hover:text-[#1c92d2] transition-colors duration-300"
                             >
-                                <Users className={`w-4 h-4 ${scrolled
-                                    ? 'text-white group-hover:text-[#1c92d2]'
-                                    : 'text-slate-800 group-hover:text-[#1c92d2]'
-                                    } transition-colors duration-500`} />
-                                <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
+                                <Users className={`w-4 h-4 transition-colors duration-300 ${scrolled
+                                        ? '!text-white group-hover:!text-[#1c92d2]'
+                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                    }`} />
+                                <span className={`relative font-medium transition-colors duration-300 ${scrolled ? '!text-white' : 'text-slate-800'
+                                    }`}>
                                     Ծառայություններ
-                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
-                                        ? 'from-white to-[#0ea5e9]'
-                                        : 'from-slate-800 to-slate-600'
-                                        } group-hover:w-full transition-all duration-300`}></span>
+                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] group-hover:w-full transition-all duration-300`}></span>
                                 </span>
                             </button>
 
@@ -167,18 +163,16 @@ const Header = () => {
                             {isLoggedIn && (
                                 <button
                                     onClick={handleProfileClick}
-                                    className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
+                                    className="group flex items-center space-x-2 hover:text-[#1c92d2] transition-colors duration-300"
                                 >
-                                    <User className={`w-4 h-4 ${scrolled
-                                        ? 'text-white group-hover:text-[#1c92d2]'
-                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
-                                        } transition-colors duration-500`} />
-                                    <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
+                                    <User className={`w-4 h-4 transition-colors duration-300 ${scrolled
+                                            ? '!text-white group-hover:!text-[#1c92d2]'
+                                            : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                        }`} />
+                                    <span className={`relative font-medium transition-colors duration-300 ${scrolled ? '!text-white' : 'text-slate-800'
+                                        }`}>
                                         {userData?.name || userData?.email || 'Պրոֆիլ'}
-                                        <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
-                                            ? 'from-[#1c92d2] to-[#0ea5e9]'
-                                            : 'from-slate-800 to-slate-600'
-                                            } group-hover:w-full transition-all duration-300`}></span>
+                                        <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] group-hover:w-full transition-all duration-300`}></span>
                                     </span>
                                 </button>
                             )}
@@ -186,25 +180,23 @@ const Header = () => {
                             {/* Dynamic Login/Logout Button */}
                             <button
                                 onClick={handleAuthAction}
-                                className="group flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-300"
+                                className="group flex items-center space-x-2 hover:text-[#1c92d2] transition-colors duration-300"
                             >
                                 {isLoggedIn ? (
-                                    <LogOut className={`w-4 h-4 ${scrolled
-                                        ? 'text-white group-hover:text-[#1c92d2]'
-                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
-                                        } transition-colors duration-500`} />
+                                    <LogOut className={`w-4 h-4 transition-colors duration-300 ${scrolled
+                                            ? '!text-white group-hover:!text-[#1c92d2]'
+                                            : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                        }`} />
                                 ) : (
-                                    <LogIn className={`w-4 h-4 ${scrolled
-                                        ? 'text-white group-hover:text-[#1c92d2]'
-                                        : 'text-slate-800 group-hover:text-[#1c92d2]'
-                                        } transition-colors duration-500`} />
+                                    <LogIn className={`w-4 h-4 transition-colors duration-300 ${scrolled
+                                            ? '!text-white group-hover:!text-[#1c92d2]'
+                                            : 'text-slate-800 group-hover:text-[#1c92d2]'
+                                        }`} />
                                 )}
-                                <span className={`relative ${scrolled ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}>
+                                <span className={`relative font-medium transition-colors duration-300 ${scrolled ? '!text-white' : 'text-slate-800'
+                                    }`}>
                                     {isLoggedIn ? 'Ելք' : 'Մուտք'}
-                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r ${scrolled
-                                        ? 'from-[#1c92d2] to-[#0ea5e9]'
-                                        : 'from-slate-800 to-slate-600'
-                                        } group-hover:w-full transition-all duration-300`}></span>
+                                    <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] group-hover:w-full transition-all duration-300`}></span>
                                 </span>
                             </button>
 
@@ -218,15 +210,15 @@ const Header = () => {
                         {/* Mobile Menu Button */}
                         <button
                             onClick={toggleMenu}
-                            className="md:hidden relative w-10 h-10 rounded-lg bg-gradient-to-br from-[#1c92d2]/20 to-[#0ea5e9]/20 backdrop-blur-sm border border-[#1c92d2]/20 flex items-center justify-center hover:from-[#1c92d2]/30 hover:to-[#0ea5e9]/30 transition-all duration-300"
+                            className="md:hidden relative w-10 h-10 rounded-lg bg-gradient-to-br from-[#1c92d2]/20 to-[#0ea5e9]/20 backdrop-blur-sm border border-[#1c92d2]/30 flex items-center justify-center hover:from-[#1c92d2]/30 hover:to-[#0ea5e9]/30 transition-all duration-300"
                         >
                             <div className="relative w-6 h-6">
-                                <span className={`absolute top-1.5 left-0 w-6 h-0.5 ${scrolled ? 'bg-white' : 'bg-slate-800'} rounded-full transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-1.5' : ''
-                                    }`}></span>
-                                <span className={`absolute top-3 left-0 w-6 h-0.5 ${scrolled ? 'bg-white' : 'bg-slate-800'} rounded-full transition-all duration-300 ${menuOpen ? 'opacity-0' : ''
-                                    }`}></span>
-                                <span className={`absolute top-4.5 left-0 w-6 h-0.5 ${scrolled ? 'bg-white' : 'bg-slate-800'} rounded-full transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''
-                                    }`}></span>
+                                <span className={`absolute top-1.5 left-0 w-6 h-0.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-white' : 'bg-slate-800'
+                                    } ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+                                <span className={`absolute top-3 left-0 w-6 h-0.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-white' : 'bg-slate-800'
+                                    } ${menuOpen ? 'opacity-0' : ''}`}></span>
+                                <span className={`absolute top-4.5 left-0 w-6 h-0.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-white' : 'bg-slate-800'
+                                    } ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
                             </div>
                         </button>
                     </div>
@@ -242,9 +234,20 @@ const Header = () => {
             )}
 
             {/* Mobile Menu */}
-            <nav className={`fixed top-0 right-0 h-full w-80 bg-gradient-to-br from-slate-900 via-[#1c92d2]/50 to-slate-800 backdrop-blur-xl border-l border-[#1c92d2]/20 z-50 transform transition-transform duration-500 md:hidden ${menuOpen ? 'translate-x-0' : 'translate-x-full'
+            <nav className={`fixed top-0 right-0 h-full w-80 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl border-l border-[#1c92d2]/20 z-50 transform transition-transform duration-500 md:hidden ${menuOpen ? 'translate-x-0' : 'translate-x-full'
                 }`}>
                 <div className="p-6">
+                    {/* Mobile Menu Header */}
+                    <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-white text-lg font-semibold">Մենյու</h3>
+                        <button
+                            onClick={toggleMenu}
+                            className="w-8 h-8 rounded-lg bg-slate-800/50 flex items-center justify-center hover:bg-slate-700/50 transition-colors"
+                        >
+                            <X className="w-4 h-4 text-white" />
+                        </button>
+                    </div>
+
                     {/* Mobile Menu Items */}
                     <div className="space-y-4">
                         <button
@@ -326,8 +329,8 @@ const Header = () => {
                 </div>
 
                 {/* Animated Background Elements */}
-                <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-[#1c92d2]/5 rounded-full blur-2xl"></div>
-                <div className="absolute bottom-1/4 left-1/4 w-32 h-32 bg-[#0ea5e9]/5 rounded-full blur-2xl"></div>
+                <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-[#1c92d2]/10 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-1/4 left-1/4 w-32 h-32 bg-[#0ea5e9]/10 rounded-full blur-2xl"></div>
             </nav>
         </>
     );
