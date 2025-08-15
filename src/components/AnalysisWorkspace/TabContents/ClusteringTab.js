@@ -1,6 +1,3 @@
-// src/components/AnalysisWorkspace/TabContents/ClusteringTab.js
-// Կլաստերիզացիայի վերլուծության տաբ
-
 import React, { useState, useMemo } from 'react';
 import { useData } from '../../../context/DataContext';
 import { ChartCard, ClusterCard } from '../../UI/Card';
@@ -8,34 +5,166 @@ import Button, { ButtonGroup } from '../../UI/Button';
 import Alert from '../../UI/Alert';
 import { performClustering } from '../../../utils/clustering';
 import ClusterCharts from '../../Charts/ClusterCharts';
-import ClusterPointsChart from '../../Charts/ClusterPointsChart';
 import ClusterScatterChart from '../../Charts/ClusteringScatter';
+import Papa from 'papaparse';
 
-import map from './map.png';
 import Map from '../../Map/Map';
 
-/**
- * ClusteringTab բաղադրիչ - կլաստերիզացիայի վերլուծության ինտերֆեյս
- * Ցուցադրում է տվյալների խմբավորման արդյունքները և կլաստերային վիճակագրությունը
- */
 const ClusteringTab = () => {
     const {
         currentData,
         clusterData,
         setClusterData,
-        syntheticData, // Added syntheticData from context
-        dataType
+        syntheticData,
+        dataType,
+        rawData,
+        clusteringSettings,
+        setClusteringSettings
     } = useData();
 
     const [showVisualization, setShowVisualization] = useState(false);
-
-    const [clusteringSettings, setClusteringSettings] = useState({
-        clusterCount: 4,
-        method: 'acas',
-        maxIterations: 100
-    });
-
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Парсинг CSV данных для карты (аналогично Map компоненту)
+    const parsedData = useMemo(() => {
+        if (!rawData) return null;
+
+        try {
+            const result = Papa.parse(rawData, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: true
+            });
+            return result.data;
+        } catch (error) {
+            console.error('Սխալ CSV-ի վերլուծության ժամանակ:', error);
+            return null;
+        }
+    }, [rawData]);
+
+    // Функции кластеризации (перенесены из Map компонента)
+    const normalizeFeatures = (features) => {
+        const numFeatures = features[0].length;
+        const mins = new Array(numFeatures).fill(Infinity);
+        const maxs = new Array(numFeatures).fill(-Infinity);
+
+        features.forEach(feature => {
+            feature.forEach((value, i) => {
+                mins[i] = Math.min(mins[i], value);
+                maxs[i] = Math.max(maxs[i], value);
+            });
+        });
+
+        return features.map(feature =>
+            feature.map((value, i) => {
+                const range = maxs[i] - mins[i];
+                return range === 0 ? 0 : (value - mins[i]) / range;
+            })
+        );
+    };
+
+    const euclideanDistance = (a, b) => {
+        return Math.sqrt(a.reduce((sum, val, i) => sum + Math.pow(val - b[i], 2), 0));
+    };
+
+    const kMeans = (data, k, maxIterations = 100) => {
+        const n = data.length;
+        const d = data[0].length;
+
+        let centroids = [];
+        for (let i = 0; i < k; i++) {
+            centroids.push(data[Math.floor(Math.random() * n)].slice());
+        }
+
+        let clusters = new Array(n);
+        let changed = true;
+        let iterations = 0;
+
+        while (changed && iterations < maxIterations) {
+            changed = false;
+            iterations++;
+
+            for (let i = 0; i < n; i++) {
+                let minDist = Infinity;
+                let closestCentroid = 0;
+
+                for (let j = 0; j < k; j++) {
+                    const dist = euclideanDistance(data[i], centroids[j]);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestCentroid = j;
+                    }
+                }
+
+                if (clusters[i] !== closestCentroid) {
+                    clusters[i] = closestCentroid;
+                    changed = true;
+                }
+            }
+
+            for (let j = 0; j < k; j++) {
+                const clusterPoints = data.filter((_, i) => clusters[i] === j);
+                if (clusterPoints.length > 0) {
+                    for (let dim = 0; dim < d; dim++) {
+                        centroids[j][dim] = clusterPoints.reduce((sum, point) => sum + point[dim], 0) / clusterPoints.length;
+                    }
+                }
+            }
+        }
+
+        return clusters;
+    };
+
+    const performMapClustering = (data, k = 4) => {
+        if (!data || data.length === 0) return [];
+
+        const features = data.map(row => {
+            const values = [];
+            Object.keys(row).forEach(key => {
+                if (key !== 'Регион' && typeof row[key] === 'number') {
+                    values.push(row[key]);
+                }
+            });
+            return values;
+        });
+
+        if (features.length === 0 || features[0].length === 0) return [];
+
+        const normalizedFeatures = normalizeFeatures(features);
+        const clusters = kMeans(normalizedFeatures, k);
+
+        return data.map((row, index) => ({
+            region: row['Регион'],
+            cluster: clusters[index] + 1,
+            data: row
+        }));
+    };
+
+    // Результаты кластеризации для карты
+    const regionClusters = useMemo(() => {
+        if (!parsedData || parsedData.length === 0) return [];
+
+        const clustered = performMapClustering(parsedData, clusteringSettings.clusterCount);
+
+        const regionNameMapping = {
+            'Арагацотн': 'Արագածոտն',
+            'Арарат': 'Արարատ',
+            'Армавир': 'Արմավիր',
+            'Гегаркуник': 'Գեղարքունիք',
+            'Лори': 'Լոռի',
+            'Котайк': 'Կոտայք',
+            'Ширак': 'Շիրակ',
+            'Сюник': 'Սյունիք',
+            'Вайоц Дзор': 'Վայոց ձոր',
+            'Тавуш': 'Տավուշ',
+            'Ереван': 'Երևան'
+        };
+
+        return clustered.map(item => ({
+            Claster: item.cluster,
+            Регион: regionNameMapping[item.region] || item.region
+        }));
+    }, [parsedData, clusteringSettings.clusterCount]);
 
     // Enhanced cluster data with synthetic data integrated
     const enhancedClusterData = useMemo(() => {
@@ -47,27 +176,21 @@ const ClusteringTab = () => {
             return clusterData;
         }
 
-        // Distribute synthetic data across clusters
         const syntheticPerCluster = Math.floor(syntheticData.length / clusterData.length);
         const remainingSynthetic = syntheticData.length % clusterData.length;
 
         return clusterData.map((cluster, index) => {
-            // Calculate how many synthetic points this cluster gets
             const syntheticCount = syntheticPerCluster + (index < remainingSynthetic ? 1 : 0);
             const startIndex = index * syntheticPerCluster + Math.min(index, remainingSynthetic);
             const clusterSyntheticData = syntheticData.slice(startIndex, startIndex + syntheticCount);
 
             return {
                 ...cluster,
-                // Add synthetic data points to this cluster
                 syntheticPoints: clusterSyntheticData,
-                // Update size to include synthetic data
                 originalSize: cluster.size,
                 size: cluster.size + syntheticCount,
-                // Enhanced properties
                 hasSyntheticData: syntheticCount > 0,
                 syntheticCount: syntheticCount,
-                // Recalculate quality with more data points
                 quality: Math.min(100, cluster.quality + (syntheticCount > 0 ? 5 : 0))
             };
         });
@@ -85,14 +208,10 @@ const ClusteringTab = () => {
         setIsProcessing(true);
 
         try {
-            // Սիմուլյացիայի հետաձգում
             await new Promise(resolve => setTimeout(resolve, 2000));
-
             const clusters = await performClustering(currentData, dataType, clusteringSettings);
             setClusterData(clusters);
-
             console.log('Կլաստերիզացիայի արդյունք:', clusters);
-
         } catch (error) {
             console.error('Կլաստերիզացիայի սխալ:', error);
             alert('Կլաստերիզացիայի ժամանակ սխալ առաջացավ');
@@ -119,7 +238,6 @@ const ClusteringTab = () => {
         );
     }
 
-    console.log(clusterData, 'clusterDataclusterData')
     return (
         <div className="space-y-6">
             {/* Վերնագիր */}
@@ -152,11 +270,8 @@ const ClusteringTab = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Կլաստերիզացիայի կարգավորումներ */}
-                <ChartCard
-                    title="Կլաստերացման կարգավորումներ"
-                >
+                <ChartCard title="Կլաստերացման կարգավորումներ">
                     <div className="space-y-4">
-                        {/* Կլաստերների քանակ */}
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">
                                 Կլաստերների քանակ
@@ -176,7 +291,6 @@ const ClusteringTab = () => {
                             </div>
                         </div>
 
-                        {/* Ալգորիթմի մեթոդ */}
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">
                                 Կլաստերացման մեթոդ
@@ -195,7 +309,6 @@ const ClusteringTab = () => {
                             </select>
                         </div>
 
-                        {/* Առավելագույն կրկնություններ */}
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">
                                 Առավելագույն կրկնություններ
@@ -211,7 +324,6 @@ const ClusteringTab = () => {
                             />
                         </div>
 
-                        {/* Կլաստերիզացիայի կոճակ */}
                         <div className="pt-4 border-t border-gray-200">
                             <Button
                                 onClick={startClustering}
@@ -228,11 +340,8 @@ const ClusteringTab = () => {
                 </ChartCard>
 
                 {/* Տվյալների նախապատրաստում */}
-                <ChartCard
-                    title="Տվյալների նախապատրաստում"
-                >
+                <ChartCard title="Տվյալների նախապատրաստում">
                     <div className="space-y-4">
-                        {/* Տվյալների վիճակագրություն */}
                         <div className="bg-gray-50 rounded-lg p-4">
                             <h5 className="font-bold text-gray-700 mb-3">📊 Տվյալների ամփոփում</h5>
                             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -259,7 +368,6 @@ const ClusteringTab = () => {
                             </div>
                         </div>
 
-                        {/* Մեթոդի ընտրության առաջարկություն */}
                         <div className="bg-blue-50 rounded-lg p-4">
                             <h5 className="font-bold text-blue-700 mb-2">🤖 Առաջարկվող մեթոդ</h5>
                             <div className="text-sm text-blue-600">
@@ -267,7 +375,6 @@ const ClusteringTab = () => {
                             </div>
                         </div>
 
-                        {/* Կանխատեսված ժամանակ */}
                         <div className="bg-yellow-50 rounded-lg p-4">
                             <h5 className="font-bold text-yellow-700 mb-2">⏱️ Գնահատված ժամանակ</h5>
                             <div className="text-sm text-yellow-600">
@@ -276,7 +383,6 @@ const ClusteringTab = () => {
                             </div>
                         </div>
 
-                        {/* Նախապայմաններ */}
                         <div className="text-xs text-gray-500">
                             <strong>💡 Հուշումներ:</strong>
                             <ul className="list-disc list-inside mt-1 space-y-1">
@@ -312,7 +418,6 @@ const ClusteringTab = () => {
                         </div>
                     </ChartCard>
 
-                    {/* Կլաստերների վիճակագրություն */}
                     <ChartCard title="Խմբավորման վիճակագրություն">
                         <ClusterStatistics
                             clusters={enhancedClusterData}
@@ -321,7 +426,6 @@ const ClusteringTab = () => {
                         />
                     </ChartCard>
 
-                    {/* Գործողությունների կոճակներ */}
                     <div className="text-center">
                         <ButtonGroup>
                             <Button
@@ -352,7 +456,6 @@ const ClusteringTab = () => {
                 </>
             )}
 
-            {/* Կլաստերիզացիայի վերլուծության ծանուցում */}
             {enhancedClusterData && enhancedClusterData.length > 0 && (
                 <Alert type="success" title="🎯 Կլաստերացումը հաջողությամբ ավարտվել է">
                     <div className="space-y-2 text-sm">
@@ -378,31 +481,34 @@ const ClusteringTab = () => {
                 </Alert>
             )}
 
-            {/* Enhanced Visualizations with Integrated Synthetic Data */}
-            {showVisualization && enhancedClusterData.length > 0 && (
+            {/* Enhanced Visualizations with Map Integration */}
+            {(showVisualization || regionClusters.length > 0) && enhancedClusterData && enhancedClusterData.length > 0 && (
                 <>
-                    <Map/>
-                    <ClusterCharts
-                        clusters={enhancedClusterData}
-                    />
-                    <ClusterScatterChart
-                        clusters={enhancedClusterData}
-                    />
+                    {/* Քարտեզի ցուցադրում */}
+                    {regionClusters.length > 0 && (
+                        <ChartCard title="🗺️ Մարզային կլաստերացման քարտեզ">
+                            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                                <p className="text-sm text-blue-700">
+                                    <strong>Քարտեզի տեղեկություն:</strong> Քարտեզը ցուցադրում է Հայաստանի մարզերի կլաստերացման արդյունքները։
+                                    Յուրաքանչյուր գույնը ներկայացնում է տարբեր կլաստեր։
+                                    Կլաստերների քանակ՝ <strong>{clusteringSettings.clusterCount}</strong>
+                                </p>
+                            </div>
+                            <Map clusterCount={clusteringSettings.clusterCount} />
+                        </ChartCard>
+                    )}
+
+                    <ClusterCharts clusters={enhancedClusterData} />
+                    <ClusterScatterChart clusters={enhancedClusterData} />
                 </>
             )}
         </div>
     );
 
-    /**
-     * Տվյալների չափեր (dimensions)
-     */
     function getDimensionality() {
         return Object.keys(currentData[0]).length;
     }
 
-    /**
-     * Կլաստերիզացիայի հարմարության գնահատակ
-     */
     function getClusterabilityScore() {
         const size = currentData.length + (syntheticData?.length || 0);
         const dimensions = getDimensionality();
@@ -413,9 +519,6 @@ const ClusteringTab = () => {
         return 90;
     }
 
-    /**
-     * Առաջարկվող մեթոդի ստացում
-     */
     function getRecommendedMethod() {
         const size = currentData.length + (syntheticData?.length || 0);
         const dimensions = getDimensionality();
@@ -429,9 +532,6 @@ const ClusteringTab = () => {
         }
     }
 
-    /**
-     * Գնահատված ժամանակի ստացում
-     */
     function getEstimatedTime() {
         const size = currentData.length + (syntheticData?.length || 0);
         if (size < 100) return '1-2 վայրկյան';
@@ -439,9 +539,6 @@ const ClusteringTab = () => {
         return '5-10 վայրկյան';
     }
 
-    /**
-     * Բարդության ստացում
-     */
     function getComplexity() {
         const size = currentData.length + (syntheticData?.length || 0);
         const clusters = clusteringSettings.clusterCount;
@@ -451,26 +548,17 @@ const ClusteringTab = () => {
         return 'Բարձր';
     }
 
-    /**
-     * Կլաստերային տվյալների արտահանում
-     */
     function exportClusterData() {
         console.log('Արտահանում կլաստերները...', enhancedClusterData);
         alert('Կլաստերները արտահանվել են CSV ֆայլի մեջ');
     }
 
-    /**
-     * Կլաստերների վիզուալիզացիա
-     */
     function visualizeClusters() {
         console.log('Վիզուալիզացման մեկնարկ...', enhancedClusterData);
         setShowVisualization(true);
     }
 };
 
-/**
- * Կլաստերների վիճակագրության բաղադրիչ - Updated to include synthetic data
- */
 const ClusterStatistics = ({ clusters, totalData, syntheticData }) => {
     const totalClustered = clusters.reduce((sum, cluster) => sum + cluster.size, 0);
     const avgClusterSize = totalClustered / clusters.length;

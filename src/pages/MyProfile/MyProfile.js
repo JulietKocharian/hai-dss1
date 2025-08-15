@@ -37,7 +37,7 @@ import {
     ChevronLeft
 } from 'lucide-react';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ManagerPhase from '../../components/WorkflowPhases/ManagerPhase';
 import AnalystPhase from '../../components/WorkflowPhases/AnalystPhase';
 import ExpertPhase from '../../components/WorkflowPhases/ExpertPhase';
@@ -102,7 +102,15 @@ const MyProfile = () => {
     const [uploadedCSV, setUploadedCSV] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const navigate = useNavigate();
+    const location = useLocation();
+    const fromPath = location.state?.from;
+
+    useEffect(() => {
+        if (fromPath && fromPath == '/') {
+            setActiveTab('new-project');
+        }
+    }, [fromPath])
+
 
     const [currentPage, setCurrentPage] = useState(1);
     const [isNavigating, setIsNavigating] = useState(false);

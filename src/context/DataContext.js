@@ -27,6 +27,14 @@ export const useData = () => {
  */
 export const DataProvider = ({ children }) => {
     // Հիմնական տվյալներ
+
+    // Кластеризация — настройки
+    const [clusteringSettings, setClusteringSettings] = useState({
+        clusterCount: 4,        // дефолт
+        method: 'acas',
+        maxIterations: 100
+    });
+
     const [currentData, setCurrentData] = useState(null);
     const [syntheticData, setSyntheticData] = useState(null);
     const [cleanedData, setCleanedData] = useState(null);
@@ -155,6 +163,9 @@ export const DataProvider = ({ children }) => {
         setDecisionResults,
         finalRecommendations,
         setFinalRecommendations,
+        clusteringSettings,
+        setClusteringSettings,
+
     };
 
     return (

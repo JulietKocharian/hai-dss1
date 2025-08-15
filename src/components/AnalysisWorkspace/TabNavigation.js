@@ -1,23 +1,63 @@
-// src/components/AnalysisWorkspace/TabNavigation.js
-// Տաբերի նավիգացիայի բաղադրիչ
-
 import React from 'react';
 import { useData } from '../../context/DataContext';
-
 /**
  * TabNavigation բաղադրիչ - վերլուծական տաբերի նավիգացիա
  * @param {Object} props - Բաղադրիչի պրոպսեր
  * @param {string} props.activeTab - Ակտիվ տաբ
  * @param {Function} props.onTabChange - Տաբի փոփոխության ֆունկցիա
+ * @param {number} props.projectPhase - Ընթացիկ նախագծի փուլ
  */
-const TabNavigation = ({ activeTab, onTabChange }) => {
+const TabNavigation = ({ activeTab, onTabChange, projectPhase }) => {
     const {
         currentData,
         syntheticData,
         fuzzyResults,
         clusterData,
-        scenarios
+        scenarios,
     } = useData();
+
+    /**
+     * Ֆունկցիա enabled-ի հաշվարկման համար՝ projectPhase-ի հիման վրա
+     * @param {string} tabId - Տաբի ID
+     * @returns {boolean} Մատչելի է թե ոչ
+     */
+    const getTabEnabled = (tabId) => {
+        // Եթե projectPhase չկա, օգտագործում ենք հին տրամաբանությունը
+        if (projectPhase === undefined || projectPhase === null) {
+            switch (tabId) {
+                case 'analysis':
+                    return true;
+                case 'synthetic':
+                case 'fuzzy':
+                case 'clustering':
+                    return currentData && currentData.length > 0;
+                case 'scenarios':
+                    return fuzzyResults !== null && clusterData && clusterData.length > 0;
+                case 'results':
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        // Նոր տրամաբանություն projectPhase-ի հիման վրա
+        switch (tabId) {
+            case 'analysis':
+                return projectPhase >= 0; // Միշտ մատչելի
+            case 'synthetic':
+                return projectPhase >= 0; // Մատչելի 0 փուլից
+            case 'fuzzy':
+                return projectPhase > 1; // Մատչելի 1 փուլից
+            case 'clustering':
+                return projectPhase > 2; // Մատչելի 2 փուլից
+            case 'scenarios':
+                return projectPhase >= 3; // Մատչելի 3 փուլից
+            case 'results':
+                return projectPhase >= 3; // Մատչելի 4 փուլից (ամփոփում)
+            default:
+                return false;
+        }
+    };
 
     /**
      * Տաբերի կոնֆիգուրացիա
@@ -28,7 +68,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             label: 'Առաջնային վերլուծություն',
             icon: '📈',
             description: 'Տվյալների որակի գնահատում',
-            enabled: true,
+            enabled: getTabEnabled('analysis'),
             completed: currentData && currentData.length > 0
         },
         {
@@ -36,7 +76,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             label: 'Սինթետիկ տվյալներ',
             icon: '🧬',
             description: 'Արհեստական տվյալների գեներացում',
-            enabled: currentData && currentData.length > 0,
+            enabled: getTabEnabled('synthetic'),
             completed: syntheticData && syntheticData.length > 0
         },
         {
@@ -44,7 +84,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             label: 'Անորոշ տրամաբանություն',
             icon: '🔮',
             description: 'Վստահության մակարդակի գնահատում',
-            enabled: currentData && currentData.length > 0,
+            enabled: getTabEnabled('fuzzy'),
             completed: fuzzyResults !== null
         },
         {
@@ -52,7 +92,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             label: 'Կլաստերացում',
             icon: '🎯',
             description: 'Տվյալների խմբավորում',
-            enabled: currentData && currentData.length > 0,
+            enabled: getTabEnabled('clustering'),
             completed: clusterData && clusterData.length > 0
         },
         {
@@ -60,7 +100,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             label: 'Սցենարներ',
             icon: '📋',
             description: 'Որոշումային սցենարների գեներացիա',
-            enabled: fuzzyResults !== null && clusterData && clusterData.length > 0,
+            enabled: getTabEnabled('scenarios'),
             completed: scenarios && scenarios.length > 0
         },
         {
@@ -68,7 +108,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             label: 'Արդյունքներ',
             icon: '📊',
             description: 'Վերջնական տեղեկագիր',
-            enabled: true,
+            enabled: getTabEnabled('results'),
             completed: currentData && currentData.length > 0
         }
     ];
@@ -198,9 +238,6 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
                         <TabStatistics activeTab={activeTab} />
                     </div>
                 </div>
-
-                {/* Ընթացիկ տաբի հուշումներ */}
-                <TabHints activeTab={activeTab} />
             </div>
         </div>
     );
@@ -286,54 +323,6 @@ const TabStatistics = ({ activeTab }) => {
  * @param {Object} props - Պրոպսեր
  * @param {string} props.activeTab - Ակտիվ տաբ
  */
-const TabHints = ({ activeTab }) => {
-    // const hints = {
-    //     'analysis': [
-    //         'Ստուգեք տվյալների որակի չափանիշները',
-    //         'Գտեք բացակայող և ոչ ստանդարտ արժեքները'
-    //     ],
-    //     'synthetic': [
-    //         'Գեներացրեք լրացուցիչ տվյալներ վերլուծության համար',
-    //         'Դիտեք ստեղծված տվյալների նմուշը'
-    //     ],
-    //     'fuzzy': [
-    //         'Գնահատեք տվյալների վստահության մակարդակը',
-    //         'Վերլուծեք անորոշության գործոնները'
-    //     ],
-    //     'clustering': [
-    //         'Բացահայտեք տվյալների թաքնված խմբերը',
-    //         'Ընտրեք հարմար կլաստերացման մեթոդ'
-    //     ],
-    //     'scenarios': [
-    //         'Ստեղծեք գործնական որոշումային սցենարներ',
-    //         'Դիտարկեք առաջնահերթությունները'
-    //     ],
-    //     'results': [
-    //         'Արտահանեք վերջնական արդյունքները',
-    //         'Ուղարկեք տեղեկագիրը մենեջերին'
-    //     ]
-    // };
 
-    // const currentHints = hints[activeTab] || [];
-
-    // if (currentHints.length === 0) return null;
-
-    return (
-        // <div className="mt-3 pt-3 border-t border-gray-200">
-        //     <div className="text-xs text-gray-600">
-        //         <div className="font-medium mb-1">💡 Հուշումներ:</div>
-        //         <ul className="space-y-1">
-        //             {currentHints.map((hint, index) => (
-        //                 <li key={index} className="flex items-start">
-        //                     <span className="text-blue-500 mr-1">•</span>
-        //                     <span>{hint}</span>
-        //                 </li>
-        //             ))}
-        //         </ul>
-        //     </div>
-        // </div>
-        <></>
-    );
-};
 
 export default TabNavigation;
