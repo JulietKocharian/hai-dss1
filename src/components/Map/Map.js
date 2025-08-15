@@ -19,11 +19,11 @@ const regionNameMapping = {
     'Ереван': 'Երևան'
 };
 
-export default function Map() {
+export default function Map({ clusterCount = 4, clusteringMethod = 'kmeans' }) {
     const tooltipRef = useRef(null);
     const { dataType, rawData } = useData();
 
-
+    console.log(clusterCount, 'clusterCountclusterCount')
     // Парсинг CSV данных
     const parsedData = useMemo(() => {
         if (!rawData) return null;
@@ -36,49 +36,17 @@ export default function Map() {
             });
             return result.data;
         } catch (error) {
-            console.error('Error parsing CSV:', error);
+            console.error('Սխալ CSV-ի վերլուծության ժամանակ:', error);
             return null;
         }
     }, [rawData]);
 
-    // Функция для выполнения K-means кластеризации
-    const performClustering = (data, k = 4) => {
-        if (!data || data.length === 0) return [];
-
-        // Извлекаем числовые показатели (исключая регион)
-        const features = data.map(row => {
-            const values = [];
-            Object.keys(row).forEach(key => {
-                if (key !== 'Регион' && typeof row[key] === 'number') {
-                    values.push(row[key]);
-                }
-            });
-            return values;
-        });
-
-        if (features.length === 0 || features[0].length === 0) return [];
-
-        // Нормализация данных
-        const normalizedFeatures = normalizeFeatures(features);
-
-        // Выполнение K-means
-        const clusters = kMeans(normalizedFeatures, k);
-
-        // Возвращаем результат с названиями регионов
-        return data.map((row, index) => ({
-            region: row['Регион'],
-            cluster: clusters[index] + 1, // +1 чтобы кластеры начинались с 1
-            data: row
-        }));
-    };
-
-    // Нормализация признаков
+    // Функции кластеризации
     const normalizeFeatures = (features) => {
         const numFeatures = features[0].length;
         const mins = new Array(numFeatures).fill(Infinity);
         const maxs = new Array(numFeatures).fill(-Infinity);
 
-        // Находим min и max для каждого признака
         features.forEach(feature => {
             feature.forEach((value, i) => {
                 mins[i] = Math.min(mins[i], value);
@@ -86,7 +54,6 @@ export default function Map() {
             });
         });
 
-        // Нормализуем
         return features.map(feature =>
             feature.map((value, i) => {
                 const range = maxs[i] - mins[i];
@@ -95,12 +62,14 @@ export default function Map() {
         );
     };
 
-    // Простая реализация K-means
+    const euclideanDistance = (a, b) => {
+        return Math.sqrt(a.reduce((sum, val, i) => sum + Math.pow(val - b[i], 2), 0));
+    };
+
     const kMeans = (data, k, maxIterations = 100) => {
         const n = data.length;
         const d = data[0].length;
 
-        // Инициализация центроидов случайным образом
         let centroids = [];
         for (let i = 0; i < k; i++) {
             centroids.push(data[Math.floor(Math.random() * n)].slice());
@@ -114,7 +83,6 @@ export default function Map() {
             changed = false;
             iterations++;
 
-            // Назначение точек к ближайшим центроидам
             for (let i = 0; i < n; i++) {
                 let minDist = Infinity;
                 let closestCentroid = 0;
@@ -133,7 +101,6 @@ export default function Map() {
                 }
             }
 
-            // Обновление центроидов
             for (let j = 0; j < k; j++) {
                 const clusterPoints = data.filter((_, i) => clusters[i] === j);
                 if (clusterPoints.length > 0) {
@@ -147,23 +114,43 @@ export default function Map() {
         return clusters;
     };
 
-    // Евклидово расстояние
-    const euclideanDistance = (a, b) => {
-        return Math.sqrt(a.reduce((sum, val, i) => sum + Math.pow(val - b[i], 2), 0));
+    // Функция для выполнения кластеризации
+    const performClustering = (data, k = 4) => {
+        if (!data || data.length === 0) return [];
+
+        const features = data.map(row => {
+            const values = [];
+            Object.keys(row).forEach(key => {
+                if (key !== 'Регион' && typeof row[key] === 'number') {
+                    values.push(row[key]);
+                }
+            });
+            return values;
+        });
+
+        if (features.length === 0 || features[0].length === 0) return [];
+
+        const normalizedFeatures = normalizeFeatures(features);
+        const clusters = kMeans(normalizedFeatures, k);
+
+        return data.map((row, index) => ({
+            region: row['Регион'],
+            cluster: clusters[index] + 1,
+            data: row
+        }));
     };
 
-    // Выполнение кластеризации
+    // Выполнение кластеризации с переданными параметрами
     const regionClusters = useMemo(() => {
         if (!parsedData || parsedData.length === 0) return [];
 
-        const clustered = performClustering(parsedData);
+        const clustered = performClustering(parsedData, clusterCount);
 
-        // Преобразуем в нужный формат с армянскими названиями
         return clustered.map(item => ({
             Claster: item.cluster,
             Регион: regionNameMapping[item.region] || item.region
         }));
-    }, [parsedData]);
+    }, [parsedData, clusterCount]);
 
     useEffect(() => {
         const svgElement = document.querySelector("svg");
@@ -172,7 +159,6 @@ export default function Map() {
         const handleMouseEnter = (event) => {
             const target = event.target;
 
-            // Проверяем, что это path элемент региона
             if (target.tagName === 'path' && target.hasAttribute('data-region')) {
                 const regionName = target.getAttribute('data-region');
                 const info = getClusterInfo(regionName);
@@ -196,7 +182,6 @@ export default function Map() {
             let left = event.pageX + 10;
             let top = event.pageY - 30;
 
-            // Проверяем, не выходит ли подсказка за границы экрана
             if (left + tooltipRect.width > viewportWidth) {
                 left = event.pageX - tooltipRect.width - 10;
             }
@@ -231,8 +216,6 @@ export default function Map() {
         };
     }, [regionClusters, parsedData]);
 
-    // Если нет данных или регионов, не показываем карту
-
     const validRegionClusters = regionClusters.filter(r => r.Регион);
     if (!rawData || !parsedData || parsedData.length === 0 || regionClusters.length === 0 || validRegionClusters?.length === 0) {
         return (
@@ -263,12 +246,20 @@ export default function Map() {
                 return "Three";
             case 4:
                 return "Four";
+            case 5:
+                return "Five";
+            case 6:
+                return "Six";
+            case 7:
+                return "Seven";
+            case 8:
+                return "Eight";
             default:
                 return '';
         }
     };
 
-    // Функция для получения информации о кластере на армянском
+    // Функция для получения информации о кластере
     const getClusterInfo = (regionName) => {
         const region = regionClusters.find(r => r.Регион === regionName);
         if (!region) return `${regionName} — կլաստերը չի որոշված`;
@@ -277,10 +268,13 @@ export default function Map() {
             1: 'Առաջին',
             2: 'Երկրորդ',
             3: 'Երրորդ',
-            4: 'Չորրորդ'
+            4: 'Չորրորդ',
+            5: 'Հինգերորդ',
+            6: 'Վեցերորդ',
+            7: 'Յոթերորդ',
+            8: 'Ութերորդ'
         };
 
-        // Найдем исходные данные для этого региона
         const russianName = Object.keys(regionNameMapping).find(key => regionNameMapping[key] === regionName);
         const regionData = parsedData.find(row => row['Регион'] === russianName);
 
@@ -304,7 +298,11 @@ export default function Map() {
             1: '#0eb74a', // Зеленый
             2: '#fbfb04', // Желтый
             3: '#f77271', // Красно-розовый
-            4: '#8b5cf6'  // Фиолетовый
+            4: '#8b5cf6', // Фиолетовый
+            5: '#06b6d4', // Циан
+            6: '#f59e0b', // Оранжевый
+            7: '#ef4444', // Красный
+            8: '#84cc16'  // Лайм
         };
         return colors[clusterNumber] || '#cccccc';
     };
@@ -328,16 +326,15 @@ export default function Map() {
     const clusterStats = getClusterStats();
     const uniqueClusters = [...new Set(regionClusters.map(r => r.Claster))].sort();
 
-
     return (
         <div className="flex flex-col items-center w-full map">
             {/* Վերնագիր */}
             <h2 className="text-2xl font-bold mb-4 text-center">
-                🗺️ Հայաստանի մարզերի կլաստերացման  քարտեզ
+                🗺️ Հայաստանի մարզերի կլաստերացման քարտեզ
             </h2>
 
             {/* Ծանուցագիր */}
-            <div className="cluster-legend">
+            <div className="cluster-legend mb-4">
                 {uniqueClusters.map(clusterNum => (
                     <div key={clusterNum} className="legend-item">
                         <div
@@ -352,7 +349,7 @@ export default function Map() {
             </div>
 
             {/* Կլաստերների մանրամասն վիճակագրություն */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg w-full">
                 <h3 className="text-lg font-semibold mb-3">📊 Կլաստերների վիճակագրություն</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {uniqueClusters.map(clusterNum => (
@@ -367,7 +364,7 @@ export default function Map() {
                             <div className="text-sm text-gray-600">
                                 <div>Մարզեր՝ {clusterStats[clusterNum]?.count || 0}</div>
                                 {clusterStats[clusterNum]?.regions && (
-                                    <div className="mt-1">
+                                    <div className="mt-1 text-xs">
                                         {clusterStats[clusterNum].regions.join(', ')}
                                     </div>
                                 )}
@@ -393,7 +390,6 @@ export default function Map() {
                     zIndex: 1000
                 }}
             >
-                {/* Հուշակի տեքստը կթարմանա դինամիկ */}
             </div>
 
             {/* SVG քարտեզ */}

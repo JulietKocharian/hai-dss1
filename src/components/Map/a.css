@@ -43,7 +43,7 @@
     filter: brightness(1.1);
 }
 
-/* Кластер 4 - Фиолетовый (НОВЫЙ) */
+/* Кластер 4 - Фиолетовый */
 .Four {
     fill: #8b5cf6 !important;
     stroke: #7c3aed;
@@ -54,6 +54,66 @@
 .Four:hover {
     fill: #a855f7 !important;
     stroke: #6d28d9;
+    stroke-width: 2;
+    filter: brightness(1.1);
+}
+
+/* Кластер 5 - Циан */
+.Five {
+    fill: #06b6d4 !important;
+    stroke: #0891b2;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+}
+
+.Five:hover {
+    fill: #22d3ee !important;
+    stroke: #0e7490;
+    stroke-width: 2;
+    filter: brightness(1.1);
+}
+
+/* Кластер 6 - Оранжевый */
+.Six {
+    fill: #f59e0b !important;
+    stroke: #d97706;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+}
+
+.Six:hover {
+    fill: #fbbf24 !important;
+    stroke: #b45309;
+    stroke-width: 2;
+    filter: brightness(1.1);
+}
+
+/* Кластер 7 - Красный */
+.Seven {
+    fill: #ef4444 !important;
+    stroke: #dc2626;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+}
+
+.Seven:hover {
+    fill: #f87171 !important;
+    stroke: #b91c1c;
+    stroke-width: 2;
+    filter: brightness(1.1);
+}
+
+/* Кластер 8 - Лайм */
+.Eight {
+    fill: #84cc16 !important;
+    stroke: #65a30d;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+}
+
+.Eight:hover {
+    fill: #a3e635 !important;
+    stroke: #4d7c0f;
     stroke-width: 2;
     filter: brightness(1.1);
 }
@@ -126,4 +186,20 @@
 
 .legend-color.cluster-4 {
     background-color: #8b5cf6;
+}
+
+.legend-color.cluster-5 {
+    background-color: #06b6d4;
+}
+
+.legend-color.cluster-6 {
+    background-color: #f59e0b;
+}
+
+.legend-color.cluster-7 {
+    background-color: #ef4444;
+}
+
+.legend-color.cluster-8 {
+    background-color: #84cc16;
 }
