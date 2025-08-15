@@ -32,6 +32,7 @@ const ManagerPhase = ({
     const [showModal, setShowModal] = useState(false);
     const [selectedCriteria, setSelectedCriteria] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [csvColumns, setCsvColumns] = useState([]); // Новое состояние для столбцов CSV
 
     const saveCSVToLocalStorage = (csvData, fileName = null) => {
         if (projectId && csvData) {
@@ -76,6 +77,38 @@ const ManagerPhase = ({
         clearCSVFromLocalStorage();
         setRawData('');
         setCurrentData([]);
+        setCsvColumns([]); // Очищаем столбцы
+        setSelectedCriteria({}); // Очищаем выбранные критерии
+    };
+
+    // Функция для извлечения столбцов из CSV
+    const extractColumnsFromCSV = (csvData) => {
+        if (!csvData || !csvData.trim()) {
+            return [];
+        }
+
+        try {
+            const parsedData = parseCSV(csvData);
+            if (parsedData.length === 0) {
+                return [];
+            }
+
+            // Получаем все ключи из первой строки данных
+            const columns = Object.keys(parsedData[0]).filter(key => {
+                // Исключаем первый столбец (обычно это регион/название)
+                const firstColumnName = Object.keys(parsedData[0])[0];
+                return key !== firstColumnName;
+            });
+
+            return columns.map((column, index) => ({
+                id: column.toLowerCase().replace(/[^a-zA-Zа-яА-Я0-9]/g, '_'),
+                label: column,
+                originalName: column
+            }));
+        } catch (error) {
+            console.error('Ошибка извлечения столбцов из CSV:', error);
+            return [];
+        }
     };
 
     useEffect(() => {
@@ -101,15 +134,25 @@ const ManagerPhase = ({
         }
     }, [projectId, projectStorage]);
 
+    // Обновляем столбцы при изменении rawData
+    useEffect(() => {
+        if (rawData && rawData.trim()) {
+            const columns = extractColumnsFromCSV(rawData);
+            setCsvColumns(columns);
+        } else {
+            setCsvColumns([]);
+        }
+    }, [rawData]);
+
     useEffect(() => {
         const modalKey = `modal_shown_${projectId}_${dataType}`;
         const hasShownModal = localStorage.getItem(modalKey) === 'true';
 
-        if (dataType && rawData && !showModal && isActive && !isCompleted && !hasShownModal) {
+        if (dataType && rawData && csvColumns.length > 0 && !showModal && isActive && !isCompleted && !hasShownModal) {
             setShowModal(true);
             localStorage.setItem(modalKey, 'true');
         }
-    }, [rawData, dataType, isActive, isCompleted, projectId]);
+    }, [rawData, dataType, csvColumns, isActive, isCompleted, projectId]);
 
     useEffect(() => {
         if (dataType && rawData) {
@@ -117,48 +160,10 @@ const ManagerPhase = ({
             if (!loaded) {
                 setRawData('');
                 setCurrentData([]);
+                setCsvColumns([]);
             }
         }
     }, [dataType]);
-
-    const dataTypeCriteria = {
-        'demographic': [
-            { id: 'births', label: 'Ծնվածների քանակ' },
-            { id: 'immigration', label: 'Մեռելածինների քանակ' },
-            { id: 'deaths', label: 'Մահացածների քանակ' },
-            { id: 'infant_deaths', label: 'Մինչև 1 տարեկան մահացածների քանակ' },
-            { id: 'natural_increase', label: 'Բնական հավելաճ' },
-            { id: 'marriages', label: 'Ամուսնությունների քանակ' },
-            { id: 'divorces', label: 'Ամուսնալուծությունների քանակ' },
-        ],
-        'healthcare': [
-            { id: 'neonatal_diseases', label: 'Մունիցիպալ ամբուլատոր հիմնարկների թիվ' },
-            { id: 'doctors_per_10k', label: 'Բժիշկներ՝ 10 հազ. մարդու հաշվով' },
-            { id: 'nurses_per_10k', label: 'Մահճակալներ՝ 10 հազ. մարդու հաշվով' },
-            { id: 'healthcare_total_expenses', label: 'Առողջապահության ընդհանուր ծախսեր' },
-            { id: 'hospital_investments', label: 'Հիմնական միջոցների ներդրումներ' },
-            { id: 'impact_expenses', label: 'Աշխատավարձային ծախսեր' },
-            { id: 'covid19_mortality', label: 'COVID-19 բուժօգնության որակ' },
-        ],
-        'quality_of_life': [
-            { id: 'min_monthly_income', label: 'Մեկ շնչի միջին ամսական եկամուտ' },
-            { id: 'unemployment_rate', label: 'Աղքատության մակարդակ (%)' },
-            { id: 'poverty_rate', label: 'Աշխատանքազուրկության մակարդակ (%)' },
-            { id: 'education_years', label: 'Կրթության պարտադիր տևողություն (տարի)' },
-            { id: 'life_expectancy', label: 'Կյանքի տևողություն (տարի)' },
-            { id: 'healthcare_spending_per_capita', label: 'Առողջապահության ծախսեր մեկ շնչի հաշվով (USD)' },
-            { id: 'internet_penetration', label: 'Ինտերնետ հասանելիություն (%)' },
-        ],
-        'educational': [
-            { id: 'general_education_institutions', label: 'Նախադպրոցական հաստատություններ' },
-            { id: 'higher_education_students', label: 'Հանրակրթական դպրոցների աշակերտներ' },
-            { id: 'middle_vocational_institutions', label: 'Միջին մասնագիտական ուսանողներ' },
-            { id: 'technical_institutions', label: 'Բարձրագույն ուսումնական հաստատությունների ուսանողներ' },
-            { id: 'vocational_students', label: 'Ուսուցիչների ընդհանուր թիվ' },
-            { id: 'literacy_statistics', label: 'Մեկ ուսուցչի բաժին ընկնող աշակերտներ' },
-            { id: 'education_funding_gdp', label: 'Կրթության պետական ծախսեր ՀՆԱ-ում' },
-        ]
-    };
 
     const handleProjectNameChange = (e) => {
         const newName = e.target.value;
@@ -173,6 +178,7 @@ const ManagerPhase = ({
             clearCSVFromLocalStorage();
             setRawData('');
             setCurrentData([]);
+            setCsvColumns([]);
         }
         setDataType(typeValue);
         setSelectedCriteria({});
@@ -189,10 +195,9 @@ const ManagerPhase = ({
     };
 
     const handleSelectAll = (isChecked) => {
-        const currentCriteria = dataTypeCriteria[dataType] || [];
         const newSelection = {};
 
-        currentCriteria.forEach(criteria => {
+        csvColumns.forEach(criteria => {
             newSelection[criteria.id] = isChecked;
         });
 
@@ -203,18 +208,16 @@ const ManagerPhase = ({
     };
 
     const isAllSelected = () => {
-        const currentCriteria = dataTypeCriteria[dataType] || [];
         const currentSelection = selectedCriteria[dataType] || {};
 
-        return currentCriteria.length > 0 &&
-            currentCriteria.every(criteria => currentSelection[criteria.id]);
+        return csvColumns.length > 0 &&
+            csvColumns.every(criteria => currentSelection[criteria.id]);
     };
 
     const isSomeSelected = () => {
-        const currentCriteria = dataTypeCriteria[dataType] || [];
         const currentSelection = selectedCriteria[dataType] || {};
 
-        return currentCriteria.some(criteria => currentSelection[criteria.id]);
+        return csvColumns.some(criteria => currentSelection[criteria.id]);
     };
 
     const closeModal = () => {
@@ -279,6 +282,7 @@ const ManagerPhase = ({
     const handleCSVUpload = (csvData, fileName = null) => {
         setRawData(csvData);
         saveCSVToLocalStorage(csvData, fileName);
+        // Столбцы будут извлечены автоматически через useEffect
     };
 
     const getDataTypeLabel = (value) => {
@@ -464,6 +468,11 @@ const ManagerPhase = ({
                                             Տողերի քանակ: {rawData.split('\n').filter(line => line.trim()).length - 1}
                                             (առանց վերնագրերի)
                                         </div>
+                                        {csvColumns.length > 0 && (
+                                            <div className="text-xs text-white mt-2">
+                                                Ցուցանիշներ: {csvColumns.map(col => col.label).join(', ')}
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <CSVUploaderr
@@ -536,7 +545,7 @@ const ManagerPhase = ({
                 </div>
             </PhaseCard>
 
-            {showModal && !isCompleted && !isSubmitting && dataType && (
+            {showModal && !isCompleted && !isSubmitting && dataType && csvColumns.length > 0 && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" style={{ zIndex: 9999 }}>
                     <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-sm sm:max-w-2xl h-[90vh] sm:h-[85vh] flex flex-col shadow-2xl">
                         <div className="bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white p-4 sm:p-6 flex items-start sm:items-center justify-between flex-shrink-0">
@@ -580,7 +589,7 @@ const ManagerPhase = ({
                                             </div>
                                         </label>
 
-                                        {dataTypeCriteria[dataType]?.map((criteria, index) => (
+                                        {csvColumns.map((criteria, index) => (
                                             <label
                                                 key={criteria.id}
                                                 className={`flex items-start p-3 sm:p-4 border-2 rounded-lg sm:rounded-xl cursor-pointer transition-all duration-200 ${selectedCriteria[dataType]?.[criteria.id]
@@ -610,7 +619,7 @@ const ManagerPhase = ({
 
                         <div className="bg-gray-50 p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0 border-t border-gray-200">
                             <div className="text-sm text-gray-600 order-2 sm:order-1">
-                                Ընտրված: {Object.values(selectedCriteria[dataType] || {}).filter(Boolean).length} / {dataTypeCriteria[dataType]?.length || 0}
+                                Ընտրված: {Object.values(selectedCriteria[dataType] || {}).filter(Boolean).length} / {csvColumns.length}
                             </div>
                             <div className="flex space-x-3 order-1 sm:order-2">
                                 <button
