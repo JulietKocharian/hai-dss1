@@ -9,6 +9,9 @@ import ProgressBar, { CircularProgress } from '../../UI/ProgressBar';
 import Alert from '../../UI/Alert';
 import { applyFuzzyLogic } from '../../../utils/fuzzyLogic';
 import { getDataTypeLabel } from '../../../utils/dataHelpers';
+import { FuzzyEngine } from '../../../utils/fuzzyEngine';
+// import FuzzyLogic from '../../../libs/fuzzy-js/fuzzy';
+
 
 /**
  * FuzzyTab բաղադրիչ - անորոշ տրամաբանության վերլուծության ինտերֆեյս
@@ -20,10 +23,10 @@ const FuzzyTab = () => {
         fuzzyResults,
         setFuzzyResults,
         dataType,
-        rawData
+        rawData,
+        syntheticData
     } = useData();
-
-
+  
     /**
      * Անորոշ տրամաբանության կիրառում
      */
@@ -35,12 +38,15 @@ const FuzzyTab = () => {
 
         try {
             const results = await new Promise((resolve) => {
+
                 setTimeout(() => {
                     let fuzzyAnalysis;
 
                     if (rawData && typeof rawData === 'string') {
                         console.log('Օգտագործվում է նոր համակարգը CSV տվյալների համար');
-                        fuzzyAnalysis = applyFuzzyLogic(currentData, dataType);
+                        fuzzyAnalysis = applyFuzzyLogic(currentData, dataType, syntheticData);
+                        console.log(fuzzyAnalysis, 'fuzzyAnalysisfuzzyAnalysis');
+                        
                     }
                     resolve(fuzzyAnalysis);
                 }, 1500);
@@ -123,6 +129,7 @@ const FuzzyTab = () => {
                     {/* Վստահության բաշխում */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Շրջանակային գծապատկեր */}
+                        {/* Վստահության բաշխում */}
                         <ChartCard
                             title="Վստահության բաշխում"
                             subtitle="Տվյալների վստահության մակարդակների տարանջատում"

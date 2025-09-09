@@ -24,7 +24,13 @@ const ExpertPhase = ({
         setFuzzyResults,
         setClusterData,
         setScenarios,
-        setActiveTab
+        setActiveTab,
+        setCurrentData,
+        setSyntheticData,
+        setDecisionResults,
+        setFinalRecommendations,
+        setProjectName,
+        setDataType
     } = useData();
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -40,22 +46,70 @@ const ExpertPhase = ({
 
     // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
     useEffect(() => {
-        if (projectId && projectStorage) {
-            const project = projectStorage.getProject(projectId);
-            if (project && project.workflowData.phases.expert.completed) {
-                const expertData = project.workflowData.phases.expert.data;
-                if (expertData.fuzzyResults) {
-                    setFuzzyResults(expertData.fuzzyResults);
-                }
-                if (expertData.clusterData) {
-                    setClusterData(expertData.clusterData);
-                }
-                if (expertData.scenarios) {
-                    setScenarios(expertData.scenarios);
-                }
+        if (!projectId || !projectStorage) return;
+
+
+        const project = projectStorage.getProject(projectId);
+        if (!project) return;
+
+        const managerData = project.workflowData.phases.manager.data;
+
+        if (managerData) {
+            if (managerData.parsedData) {
+                setCurrentData(managerData.parsedData);
+            }
+            // Устанавливаем имя проекта и тип данных, как в ManagerPhase
+            if (managerData.projectName) {
+                setProjectName(managerData.projectName);
+            }
+            if (managerData.dataType) {
+                setDataType(managerData.dataType);
             }
         }
+
+        // --- 1. Подставляем данные аналитической фазы ---
+        const analystData = project.workflowData.phases.analyst?.data;
+        if (analystData?.dataPreview?.length > 0) {
+            if (!currentData || currentData.length === 0) {
+                // Подставляем dataPreview как текущие данные
+                setCurrentData(analystData.dataPreview);
+            }
+        }
+
+        // --- 2. Подставляем синтетические данные, если нужно ---
+        if (analystData?.syntheticDataGenerated) {
+            if (!syntheticData || syntheticData.length === 0) {
+                setSyntheticData(analystData.syntheticData || []);
+            }
+        }
+
+        // --- 3. Загружаем результаты DecisionPhase, если она завершена ---
+        const decisionData = project.workflowData.phases.decision?.data;
+        if (decisionData) {
+            if (decisionData.decisionMatrix && typeof setDecisionResults === 'function') {
+                setDecisionResults(decisionData.decisionMatrix);
+            }
+            if (decisionData.finalRecommendations && typeof setFinalRecommendations === 'function') {
+                setFinalRecommendations(decisionData.finalRecommendations);
+            }
+        }
+
+        // --- 4. Загружаем результаты ExpertPhase, если она завершена ---
+        const expertData = project.workflowData.phases.expert?.data;
+        if (expertData) {
+            if (expertData.fuzzyResults && typeof setFuzzyResults === 'function') {
+                setFuzzyResults(expertData.fuzzyResults);
+            }
+            if (expertData.clusterData && typeof setClusterData === 'function') {
+                setClusterData(expertData.clusterData);
+            }
+            if (expertData.scenarios && typeof setScenarios === 'function') {
+                setScenarios(expertData.scenarios);
+            }
+        }
+
     }, [projectId, projectStorage]);
+
 
     /**
      * Փորձագետի վերլուծության մեկնարկ

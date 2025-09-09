@@ -18,6 +18,7 @@ const ManagerPhase = ({
         projectName,
         setProjectName,
         dataType,
+        project,
         setDataType,
         dataSource,
         setDataSource,
@@ -28,6 +29,8 @@ const ManagerPhase = ({
         setAnalystActive,
         setAnalysisWorkspace,
     } = useData();
+
+    console.log(projectId, 'projectprojectblabbala', projectName);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedCriteria, setSelectedCriteria] = useState({});

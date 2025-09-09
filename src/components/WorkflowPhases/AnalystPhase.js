@@ -27,7 +27,10 @@ const AnalystPhase = ({
         dataType,
         setAnalysisWorkspace,
         setQualityMetrics,
-        setActiveTab
+        setActiveTab,
+        setCurrentData,
+        setProjectName,
+        setDataType
     } = useData();
 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -36,8 +39,27 @@ const AnalystPhase = ({
     useEffect(() => {
         if (projectId && projectStorage) {
             const project = projectStorage.getProject(projectId);
-            if (project && project.workflowData.phases.analyst.completed) {
-                const analystData = project.workflowData.phases.analyst.data;
+            if (!project) return;
+
+            // Подгружаем raw/parsed данные для анализа
+            const managerData = project.workflowData.phases.manager.data;
+
+            if (managerData) {
+                if (managerData.parsedData) {
+                    setCurrentData(managerData.parsedData);
+                }
+                // Устанавливаем имя проекта и тип данных, как в ManagerPhase
+                if (managerData.projectName) {
+                    setProjectName(managerData.projectName);
+                }
+                if (managerData.dataType) {
+                    setDataType(managerData.dataType);
+                }
+            }
+
+            // Если аналитик уже завершил фазу
+            const analystData = project.workflowData.phases.analyst.data;
+            if (analystData) {
                 if (analystData.qualityMetrics) {
                     setQualityMetrics(analystData.qualityMetrics);
                 }
@@ -47,6 +69,7 @@ const AnalystPhase = ({
             }
         }
     }, [projectId, projectStorage]);
+
 
     /**
      * Տվյալների վերլուծության սկիզբ

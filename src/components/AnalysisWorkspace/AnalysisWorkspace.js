@@ -30,6 +30,8 @@ const AnalysisWorkspace = ({
         clusterData,
         scenarios
     } = useData();
+    console.log(analysisWorkspace, 'analysisWorkspace');
+    
 
     const [projectData, setProjectData] = useState(null);
 

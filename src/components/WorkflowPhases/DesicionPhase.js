@@ -28,10 +28,12 @@ const DecisionLevelPhase = ({
         fuzzyResults = {},
         clusterData = {},
         scenarios = [],
-        projectName = 'Անանուն նախագիծ',
-        dataType = 'unknown',
+        projectName,
+        dataType,
         setDecisionResults,
-        setFinalRecommendations
+        setFinalRecommendations,
+        setProjectName,
+        setDataType
     } = dataContext || {};
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -40,19 +42,40 @@ const DecisionLevelPhase = ({
 
     // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
     useEffect(() => {
-        if (projectId && projectStorage) {
-            const project = projectStorage.getProject(projectId);
-            if (project && project.workflowData.phases.decision.completed) {
-                const decisionData = project.workflowData.phases.decision.data;
-                if (decisionData.decisionMatrix && setDecisionResults) {
-                    setDecisionResults(decisionData.decisionMatrix);
-                }
-                if (decisionData.finalRecommendations && setFinalRecommendations) {
-                    setFinalRecommendations(decisionData.finalRecommendations);
-                }
+        if (!projectId || !projectStorage) return;
+
+        const project = projectStorage.getProject(projectId);
+        if (!project) return;
+
+        // 1️⃣ Подгружаем исходные данные для анализа
+        const managerData = project.workflowData.phases.manager?.data;
+        if (managerData && managerData?.parsedData) {
+            dataContext.setCurrentData(managerData.parsedData);
+        }
+
+
+        if (managerData) {
+            // Устанавливаем имя проекта и тип данных, как в ManagerPhase
+            if (managerData.projectName) {
+                setProjectName(managerData.projectName);
+            }
+            if (managerData.dataType) {
+                setDataType(managerData.dataType);
+            }
+        }
+
+        // 2️⃣ Если фаза decision уже завершена, подгружаем ее результаты
+        if (project.workflowData.phases.decision?.completed) {
+            const decisionData = project.workflowData.phases.decision.data;
+            if (decisionData.decisionMatrix) {
+                dataContext.setDecisionResults(decisionData.decisionMatrix);
+            }
+            if (decisionData.finalRecommendations) {
+                dataContext.setFinalRecommendations(decisionData.finalRecommendations);
             }
         }
     }, [projectId, projectStorage]);
+
 
     /**
      * Validate context data and functions

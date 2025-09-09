@@ -429,6 +429,7 @@ const MyProfile = () => {
         setCompletedPhases(new Set());
         setAllPhasesCompleted(false);
 
+        // setProjectName('');
         // Update projects list
         const updatedProjects = projectStorage.getAllProjects();
         setProjects(updatedProjects);
@@ -441,8 +442,10 @@ const MyProfile = () => {
 
     // ADDED: Project management functions
     const handleOpenProject = (projectId) => {
+
         setCurrentProjectId(projectId);
         const project = projectStorage.getProject(projectId);
+        console.log(projectId, 'projectproject', project);
 
         if (project) {
             setCurrentPhase(project.workflowData.currentPhase);
@@ -560,7 +563,6 @@ const MyProfile = () => {
     const totalPages = Math.ceil(projects.length / projectsPerPage);
     const startIndex = (currentPage - 1) * projectsPerPage;
     const paginatedProjects = projects.slice(startIndex, startIndex + projectsPerPage);
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1c92d2] to-[#f2fcfe] p-2 sm:p-4" style={{ paddingTop: '5rem' }}>
             {/* Background */}
@@ -611,7 +613,12 @@ const MyProfile = () => {
                                             <button
                                                 key={tab.id}
                                                 onClick={() => {
-                                                    setActiveTab(tab.id);
+                                                    if (tab.id === 'new-project') {
+                                                        setActiveTab(tab.id);
+                                                        handleNewProject(); // вызываем функцию создания нового проекта
+                                                    } else {
+                                                        setActiveTab(tab.id); // переключаем вкладку как обычно
+                                                    }
                                                     setIsMobileMenuOpen(false);
                                                 }}
                                                 className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 text-sm ${activeTab === tab.id
@@ -659,7 +666,13 @@ const MyProfile = () => {
                                     {tabs.map((tab) => (
                                         <button
                                             key={tab.id}
-                                            onClick={() => setActiveTab(tab.id)}
+                                            onClick={() => {
+                                                if (tab.id === 'new-project') {
+                                                    handleNewProject(); // создаём новый проект
+                                                } else {
+                                                    setActiveTab(tab.id); // обычное переключение вкладки
+                                                }
+                                            }}
                                             className={`flex flex-col items-center justify-center space-y-1 px-4 py-3 rounded-lg transition-all duration-300 min-w-[80px] ${activeTab === tab.id
                                                 ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white shadow-lg transform scale-105'
                                                 : 'text-white/60 hover:text-white hover:bg-white/10 hover:scale-105'
@@ -688,9 +701,15 @@ const MyProfile = () => {
                                                 <button
                                                     key={tab.id}
                                                     onClick={() => {
-                                                        setActiveTab(tab.id);
-                                                        setIsMobileMenuOpen(false);
+                                                        if (tab.id === 'new-project') {
+                                                            setActiveTab(tab.id); // обычное переключение
+                                                            handleNewProject(); // создаём новый проект
+                                                        } else {
+                                                            setActiveTab(tab.id); // обычное переключение
+                                                        }
+                                                        setIsMobileMenuOpen(false); // закрываем меню в любом случае
                                                     }}
+
                                                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 text-left ${activeTab === tab.id
                                                         ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white'
                                                         : 'text-white/60 hover:text-white hover:bg-white/10'
@@ -888,22 +907,6 @@ const MyProfile = () => {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Mobile Stack Layout for smaller screens */}
-                            {/* <div className="lg:hidden mt-6">
-                                <div className="space-y-4">
-                                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
-                                            <BarChart3 className="w-5 h-5 mr-2" />
-                                            Աշխատանքային տիրույթ
-                                        </h4>
-                                        <AnalysisWorkspace
-                                            projectId={currentProjectId}
-                                            projectStorage={projectStorage}
-                                        />
-                                    </div>
-                                </div>
-                            </div> */}
                         </div>
                     </div>
                 ) : (
@@ -960,9 +963,15 @@ const MyProfile = () => {
                                                 <button
                                                     key={tab.id}
                                                     onClick={() => {
-                                                        setActiveTab(tab.id);
-                                                        setIsMobileMenuOpen(false);
+                                                        if (tab.id === 'new-project') {
+                                                            setActiveTab(tab.id); // обычное переключение
+                                                            handleNewProject(); // создаём новый проект
+                                                        } else {
+                                                            setActiveTab(tab.id); // обычное переключение
+                                                        }
+                                                        setIsMobileMenuOpen(false); // закрываем меню в любом случае
                                                     }}
+
                                                     disabled={isNavigating && tab.id === 'new-project'}
                                                     className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-300 ${activeTab === tab.id
                                                         ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white shadow-lg'
@@ -1021,7 +1030,14 @@ const MyProfile = () => {
                                         {tabs.map((tab) => (
                                             <button
                                                 key={tab.id}
-                                                onClick={() => setActiveTab(tab.id)}
+                                                onClick={() => {
+                                                    if (tab.id === 'new-project') {
+                                                        setActiveTab(tab.id); // обычное переключение
+                                                        handleNewProject(); // создаём новый проект
+                                                    } else {
+                                                        setActiveTab(tab.id); // обычное переключение
+                                                    }
+                                                }}
                                                 disabled={isNavigating && tab.id === 'new-project'}
                                                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === tab.id
                                                     ? 'bg-gradient-to-r from-[#1c92d2] to-[#0ea5e9] text-white shadow-lg'

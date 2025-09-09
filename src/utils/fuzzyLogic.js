@@ -678,8 +678,62 @@ class IntegratedFuzzyLogic {
  * @param {string} dataType - Տվյալների տեսակ
  * @returns {Object} Անորոշության վերլուծության արդյունք
  */
-export const applyFuzzyLogic = (data, dataType) => {
-    if (!data || data.length === 0) {
+// export const applyFuzzyLogic = (data, dataType) => {
+//     if (!data || data.length === 0) {
+//         return {
+//             low: 0,
+//             medium: 0,
+//             high: 0,
+//             analysis: 'Տվյալներ չեն գտնվել',
+//             confidenceDistribution: [],
+//             recommendations: []
+//         };
+//     }
+
+//     try {
+//         // Յուրաքանչյուր տողի վստահության գնահատում
+//         const rowConfidences = data.map((row, index) =>
+//             calculateRowConfidence(row, index, data)
+//         );
+
+//         // Վստահության մակարդակների բաշխում
+//         const distribution = categorizeConfidences(rowConfidences);
+
+//         // Խելացի վերլուծություն տվյալների տեսակի հիման վրա
+//         const analysis = generateFuzzyAnalysis(distribution, dataType, rowConfidences);
+
+//         // Առաջարկություններ
+//         const recommendations = generateFuzzyRecommendations(distribution, dataType);
+
+//         // Սոցիալական զարգացման գնահատում (բարձր վստահության դեպքում)
+//         const socialDevelopment = applySocialDevelopmentFuzzy(data, dataType, distribution);
+
+//         return {
+//             low: distribution.low,
+//             medium: distribution.medium,
+//             high: distribution.high,
+//             analysis: analysis.summary,
+//             confidenceDistribution: rowConfidences,
+//             patterns: analysis.patterns,
+//             recommendations,
+//             uncertaintyFactors: analysis.uncertaintyFactors,
+//             socialDevelopment: socialDevelopment
+//         };
+
+//     } catch (error) {
+//         console.error('Անորոշ տրամաբանության սխալ:', error);
+//         return {
+//             low: 33,
+//             medium: 34,
+//             high: 33,
+//             analysis: 'Վերլուծությունը ցանցիշ կատարվեց սխալի պատճառով',
+//             confidenceDistribution: [],
+//             recommendations: ['Ստուգեք տվյալների ֆորմատը']
+//         };
+//     }
+// };
+export const applyFuzzyLogic = (data, dataType, syntheticData = []) => {
+    if ((!data || data.length === 0) && (!syntheticData || syntheticData.length === 0)) {
         return {
             low: 0,
             medium: 0,
@@ -691,9 +745,12 @@ export const applyFuzzyLogic = (data, dataType) => {
     }
 
     try {
+        // Միավորել հիմնական և սինթետիկ տվյալները
+        const combinedData = [...(data || []), ...(syntheticData || [])];
+
         // Յուրաքանչյուր տողի վստահության գնահատում
-        const rowConfidences = data.map((row, index) =>
-            calculateRowConfidence(row, index, data)
+        const rowConfidences = combinedData.map((row, index) =>
+            calculateRowConfidence(row, index, combinedData)
         );
 
         // Վստահության մակարդակների բաշխում
@@ -706,7 +763,7 @@ export const applyFuzzyLogic = (data, dataType) => {
         const recommendations = generateFuzzyRecommendations(distribution, dataType);
 
         // Սոցիալական զարգացման գնահատում (բարձր վստահության դեպքում)
-        const socialDevelopment = applySocialDevelopmentFuzzy(data, dataType, distribution);
+        const socialDevelopment = applySocialDevelopmentFuzzy(combinedData, dataType, distribution);
 
         return {
             low: distribution.low,
@@ -726,12 +783,13 @@ export const applyFuzzyLogic = (data, dataType) => {
             low: 33,
             medium: 34,
             high: 33,
-            analysis: 'Վերլուծությունը ցանցիշ կատարվեց սխալի պատճառով',
+            analysis: 'Վերլուծությունը կատարվեց սխալի պատճառով',
             confidenceDistribution: [],
             recommendations: ['Ստուգեք տվյալների ֆորմատը']
         };
     }
 };
+
 
 /**
  * Սոցիալական զարգացման գնահատում ձեր կանոններով
