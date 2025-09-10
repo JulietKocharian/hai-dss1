@@ -3,6 +3,8 @@ import { useData } from '../../context/DataContext';
 import { PhaseCard } from '../UI/Card';
 import Button from '../UI/Button';
 import Alert from '../UI/Alert';
+import { useProjectStorage } from '../../store/ProjectStorageManager';
+import { generateAIScenarios } from '../../utils/scenarios';
 
 /**
  * DecisionLevelPhase բաղադրիչ - որոշումների ընդունման փուլ
@@ -19,6 +21,9 @@ const DecisionLevelPhase = ({
     onUpdateProject
 }) => {
     // Context data with fallback values
+
+    const { updateProject, getProject } = useProjectStorage();
+
     const dataContext = useData();
     const { setActiveTab } = useData();
 
@@ -33,29 +38,31 @@ const DecisionLevelPhase = ({
         setDecisionResults,
         setFinalRecommendations,
         setProjectName,
-        setDataType
+        setDataType,
+        setCurrentData,
+        setFuzzyResults,
+        setClusterData,
+        setScenarios,
+        setSyntheticData
     } = dataContext || {};
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [currentStep, setCurrentStep] = useState('');
     const [processingError, setProcessingError] = useState(null);
 
-    // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
     useEffect(() => {
         if (!projectId || !projectStorage) return;
 
+        // Получаем проект
         const project = projectStorage.getProject(projectId);
         if (!project) return;
 
-        // 1️⃣ Подгружаем исходные данные для анализа
+        // --- 1. Загружаем данные ManagerPhase ---
         const managerData = project.workflowData.phases.manager?.data;
-        if (managerData && managerData?.parsedData) {
-            dataContext.setCurrentData(managerData.parsedData);
-        }
-
-
         if (managerData) {
-            // Устанавливаем имя проекта и тип данных, как в ManagerPhase
+            if (managerData.parsedData) {
+                setCurrentData(managerData.parsedData);
+            }
             if (managerData.projectName) {
                 setProjectName(managerData.projectName);
             }
@@ -64,17 +71,58 @@ const DecisionLevelPhase = ({
             }
         }
 
-        // 2️⃣ Если фаза decision уже завершена, подгружаем ее результаты
-        if (project.workflowData.phases.decision?.completed) {
-            const decisionData = project.workflowData.phases.decision.data;
-            if (decisionData.decisionMatrix) {
-                dataContext.setDecisionResults(decisionData.decisionMatrix);
+        // --- 2. Загружаем данные AnalystPhase, если есть ---
+        const analystData = project.workflowData.phases.analyst?.data;
+        if (analystData) {
+            if (analystData.dataPreview?.length > 0 && (!currentData || currentData.length === 0)) {
+                setCurrentData(analystData.dataPreview);
             }
-            if (decisionData.finalRecommendations) {
-                dataContext.setFinalRecommendations(decisionData.finalRecommendations);
+            if (analystData.syntheticDataGenerated) {
+                setSyntheticData(analystData.syntheticData || []);
             }
         }
-    }, [projectId, projectStorage]);
+
+        // --- 3. Загружаем результаты DecisionPhase, если она завершена ---
+        const decisionData = project.workflowData.phases.decision?.data;
+        if (decisionData) {
+            if (decisionData.decisionMatrix && typeof setDecisionResults === 'function') {
+                setDecisionResults(decisionData.decisionMatrix);
+            }
+            if (decisionData.finalRecommendations && typeof setFinalRecommendations === 'function') {
+                setFinalRecommendations(decisionData.finalRecommendations);
+            }
+        }
+
+        // --- 4. Загружаем данные ExpertPhase, если она завершена ---
+        const expertData = project.workflowData.phases.expert?.data;
+        if (expertData) {
+            if (expertData.fuzzyResults && typeof setFuzzyResults === 'function') {
+                setFuzzyResults(expertData.fuzzyResults);
+            }
+            if (expertData.clusterData && typeof setClusterData === 'function') {
+                setClusterData(expertData.clusterData);
+            }
+            if (project.scenarios && typeof setScenarios === 'function') {
+                setScenarios(project.scenarios);
+            }
+        }
+
+    }, [
+        projectId,
+        projectStorage,
+        setCurrentData,
+        setProjectName,
+        setDataType,
+        setSyntheticData,
+        setDecisionResults,
+        setFinalRecommendations,
+        setFuzzyResults,
+        setClusterData,
+        setScenarios
+    ]);
+
+
+    // console.log(currentData, 1221212)
 
 
     /**
@@ -114,6 +162,8 @@ const DecisionLevelPhase = ({
             setFinalRecommendations: typeof setFinalRecommendations
         });
         console.log('=== Debug End ===');
+
+        startScenarioGeneration();
 
         // Reset any previous errors
         setProcessingError(null);
@@ -214,7 +264,7 @@ const DecisionLevelPhase = ({
             } else {
                 console.warn('onPhaseComplete callback not provided');
             }
-            setActiveTab('results');
+            setActiveTab('scenarios');
 
         } catch (error) {
             console.error('Decision analysis error details:', {
@@ -428,6 +478,55 @@ const DecisionLevelPhase = ({
             </PhaseCard>
         );
     }
+
+
+    const startScenarioGeneration = async () => {
+        if (!fuzzyResults && !clusterData) {
+            alert('Սցենարների գեներացման համար անհրաժեշտ է նախ կատարել անորոշ տրամաբանության և կլաստերիզացիայի վերլուծություն');
+            return;
+        }
+
+        try {
+            // Prepare analysis results for AI
+            const numericValues = currentData?.map(item => {
+                if (typeof item === 'object') {
+                    // Берем первое числовое поле из объекта
+                    const value = Object.values(item).find(v => !isNaN(parseFloat(v)));
+                    return value ? parseFloat(value) : 0;
+                }
+                return Number(item) || 0;
+            }) || [];
+
+            const statistics = {
+                mean: numericValues.length ? numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length : 0,
+                stdDev: 0, // если нужно, потом можно посчитать
+                min: numericValues.length ? Math.min(...numericValues) : 0,
+                max: numericValues.length ? Math.max(...numericValues) : 0
+            };
+            const analysisResults = {
+                fuzzyResults: fuzzyResults,
+                statistics
+            };
+
+            const generatedScenarios = await generateAIScenarios(
+                dataType,
+                analysisResults,
+                clusterData
+            );
+
+            console.log(generatedScenarios, 'generatedScenariosgeneratedScenarios');
+
+            setScenarios(generatedScenarios);
+            updateProject(projectId, {
+                scenarios: generatedScenarios
+            });
+
+
+        } catch (error) {
+            console.error('Սցենարների գեներացիայի սխալ:', error);
+            alert('Սցենարների գեներացման ժամանակ սխալ առաջացավ: ' + error.message);
+        }
+    };
 
     const summary = getDecisionSummary();
 

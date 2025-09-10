@@ -151,7 +151,7 @@ const ManagerPhase = ({
         const modalKey = `modal_shown_${projectId}_${dataType}`;
         const hasShownModal = localStorage.getItem(modalKey) === 'true';
 
-        if (dataType && rawData && csvColumns.length > 0 && !showModal && isActive && !isCompleted && !hasShownModal) {
+        if (rawData && csvColumns.length > 0 && !showModal && isActive && !isCompleted && !hasShownModal) {
             setShowModal(true);
             localStorage.setItem(modalKey, 'true');
         }

@@ -9,6 +9,7 @@ import ProgressBar from '../../UI/ProgressBar';
 import Alert from '../../UI/Alert';
 import { generateSyntheticDataset } from '../../../utils/dataGenerator';
 import { useFileDownload } from '../../../hooks/useFileDownload';
+import { applyFuzzyLogic } from '../../../utils/fuzzyLogic';
 
 /**
  * SyntheticTab բաղադրիչ - սինթետիկ տվյալների գեներացման ինտերֆեյս
@@ -23,7 +24,10 @@ const SyntheticTab = () => {
         setSyntheticStatus,
         syntheticProgress,
         setSyntheticProgress,
-        setExpertActive
+        setExpertActive,
+        rawData,
+        setFuzzyResults,
+        dataType
     } = useData();
 
     const [generationSettings, setGenerationSettings] = useState({
@@ -39,12 +43,52 @@ const SyntheticTab = () => {
     /**
      * Սինթետիկ տվյալների գեներացման սկիզբ
      */
+
+    console.log(currentData, 'currentData', rawData, 'rawDataa');
+    
+        const applyFuzzyAnalysis = async () => {
+            if (!rawData && (!currentData || currentData.length === 0)) {
+                alert('Տվյալները բացակայում են անորոշ տրամաբանության վերլուծության համար');
+                return;
+            }
+    
+            try {
+                const results = await new Promise((resolve) => {
+    
+                    setTimeout(() => {
+                        let fuzzyAnalysis;
+    
+                        if (rawData && typeof rawData === 'string') {
+                            console.log('Օգտագործվում է նոր համակարգը CSV տվյալների համար');
+                            fuzzyAnalysis = applyFuzzyLogic(
+                                (currentData && currentData.length > 0) ? currentData : [],
+                                dataType,
+                                (syntheticData && syntheticData.length > 0) ? syntheticData : []
+                            );
+    
+                            console.log(fuzzyAnalysis, 'fuzzyAnalysisfuzzyAnalysis');
+    
+                        }
+                        resolve(fuzzyAnalysis);
+                    }, 1500);
+                });
+    
+                setFuzzyResults(results);
+                console.log('Անորոշ տրամաբանության արդյունք:', results);
+    
+            } catch (error) {
+                console.error('Անորոշ տրամաբանության սխալ:', error);
+                alert('Վերլուծության ժամանակ սխալ առաջացավ');
+            }
+        };
+    
     const startGeneration = async () => {
         if (!currentData || currentData.length === 0) {
             alert('Նախ պետք է մուտքագրել բնօրինակ տվյալները');
             return;
         }
 
+        applyFuzzyAnalysis();
         setSyntheticStatus('Գեներացում...');
         setSyntheticProgress(0);
 

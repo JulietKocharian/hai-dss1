@@ -221,7 +221,7 @@ export const ExpertAnalysisSVG = () => (
 
         {/* Analysis Method Hexagons - Unique geometric style */}
         {[
-            { x: 100, y: 70, label: 'ԱՏ', method: 'Անորոշ տրամաբանություն' },
+            { x: 100, y: 70, label: 'ԱՏ', method: 'Ոչ հստակ տրամաբանություն' },
             { x: 300, y: 70, label: 'ԿԱ', method: 'Կլաստերացում' },
             { x: 320, y: 200, label: 'ՍՑ', method: 'Սցենարային մոդելավորում' },
             { x: 80, y: 200, label: 'ՎՏ', method: 'Վիճակագրական տվյալներ' }

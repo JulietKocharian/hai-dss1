@@ -182,7 +182,7 @@ const ResultsTab = () => {
                         {/* Անորոշ տրամաբանություն */}
                         {fuzzyResults && (
                             <div className="bg-purple-50 rounded-lg p-4">
-                                <h5 className="font-bold text-purple-800 mb-2">🔮 Անորոշ տրամաբանություն</h5>
+                                <h5 className="font-bold text-purple-800 mb-2">🔮 Ոչ հստակ տրամաբանություն</h5>
                                 <div className="text-sm text-purple-700">
                                     <div>Բարձր վստահություն: <strong>{fuzzyResults.high}%</strong></div>
                                     <div>Միջին վստահություն: <strong>{fuzzyResults.medium}%</strong></div>
@@ -225,7 +225,7 @@ const ResultsTab = () => {
                         icon="📊"
                         title="Տվյալների որակ"
                         finding={getDataQualityFinding()}
-                        impact="high" 
+                        impact="high"
                     />
 
                     {fuzzyResults && (
@@ -496,11 +496,11 @@ const ResultsTab = () => {
         alert('Մաքրված տվյալները ներբեռնվել են');
     }
 
-    async function sendToManager () {
+    async function sendToManager() {
         const managerReport = generateManagerReport();
         // Հետագա իրականացում - էլ. փոստով ուղարկում
         console.log('Ուղարկում մենեջերին:', managerReport);
-         const reportContent = generateDetailedReport();
+        const reportContent = generateDetailedReport();
         await downloadFile(reportContent, 'manager_report.txt', 'text');
         alert('Տեղեկագիրը ներբեռնվել է, կարող եք ուղարկել մենեջերին');
     }
@@ -591,10 +591,10 @@ const KeyFindingItem = ({ icon, title, finding, impact }) => {
                     <p className="text-gray-700 mt-1">{finding}</p>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-bold ${impact === 'high' ? 'bg-red-200 text-red-800' :
-                        impact === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                            'bg-green-200 text-green-800'
+                    impact === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                        'bg-green-200 text-green-800'
                     }`}>
-                     {impactLabels[impact]}
+                    {impactLabels[impact]}
                 </span>
             </div>
         </div>

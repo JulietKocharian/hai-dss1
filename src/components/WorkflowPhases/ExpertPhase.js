@@ -32,6 +32,7 @@ const ExpertPhase = ({
         setProjectName,
         setDataType
     } = useData();
+    
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [currentStep, setCurrentStep] = useState('');
@@ -103,8 +104,8 @@ const ExpertPhase = ({
             if (expertData.clusterData && typeof setClusterData === 'function') {
                 setClusterData(expertData.clusterData);
             }
-            if (expertData.scenarios && typeof setScenarios === 'function') {
-                setScenarios(expertData.scenarios);
+            if (project.scenarios && typeof setScenarios === 'function') {
+                setScenarios(project.scenarios);
             }
         }
 
@@ -128,7 +129,7 @@ const ExpertPhase = ({
             setCurrentStep('Անորոշ տրամաբանության վերլուծություն...');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const fuzzyAnalysis = applyFuzzyLogic(currentData, dataType);
+            const fuzzyAnalysis = applyFuzzyLogic(currentData, dataType, syntheticData);
             setFuzzyResults(fuzzyAnalysis);
             console.log('Անորոշ տրամաբանության վերլուծություն:', fuzzyAnalysis);
 
@@ -151,25 +152,15 @@ const ExpertPhase = ({
                 }
             };
 
-            // Context data for AI
-            const contextData = {
-                region: 'Կոտայքի մարզ',
-                timeframe: 'միջնաժամկետ',
-                budget: '2-5 միլիոն դրամ',
-                projectName: projectName
-            };
-
             // AI սցենարների գեներացիա
-            setCurrentStep('Սցենարների գեներացիա...');
+            setCurrentStep('Սցենարների գեներացում...');
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             const userId = getCurrentUserId();
             const generatedScenarios = await generateAIScenarios(
                 dataType,
                 analysisResults,
-                clusters,
-                contextData,
-                userId
+                clusters
             );
             setScenarios(generatedScenarios);
             setCurrentStep('Վերլուծությունը ամփոփվում է...');
@@ -183,9 +174,7 @@ const ExpertPhase = ({
                     clusterData: clusters,
                     scenarios: generatedScenarios,
                     expertSummary: summary,
-                    processingSteps: ['fuzzy', 'clustering', 'scenarios'],
-                    userId: userId,
-                    contextData: contextData
+                    processingSteps: ['fuzzy', 'clustering', 'scenarios']
                 });
             }
 
@@ -266,7 +255,7 @@ const ExpertPhase = ({
                     <div className="mt-2 text-xs sm:text-sm">
                         <strong>Փորձագետի մեթոդաբանություն</strong>
                         <ul className="list-disc list-inside mt-1 space-y-1">
-                            <li>🔮 Անորոշ տրամաբանության կիրառում</li>
+                            <li>🔮 Ոչ հստակ տրամաբանության կիրառում</li>
                             <li>🎯 Խելացի կլաստերացում</li>
                             <li>📊 Գծապատկերային վերլուծություն</li>
                             <li>🤖 Կանխատեսման մոդելներ</li>
@@ -331,7 +320,7 @@ const ExpertPhase = ({
                 </Alert>
 
                 {/* Processing Status */}
-                {isProcessing && currentStep && (
+                {/* {isProcessing && currentStep && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
                         <div className="flex items-start sm:items-center space-x-3">
                             <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0 mt-0.5 sm:mt-0"></div>
@@ -343,13 +332,13 @@ const ExpertPhase = ({
                             </div>
                         </div>
                     </div>
-                )}
+                )} */}
 
                 {/* Փորձագետի վերլուծական գործիքակազմ */}
                 <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
                     <h4 className="font-bold text-sm text-purple-800 mb-2 sm:mb-3">🧠  Փորձագիտական փուլի գործիքակազմ</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
-                        <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('Անորոշ') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
+                        <div className={`bg-white rounded p-2 sm:p-3 shadow-sm transition-all duration-300 ${isProcessing && currentStep.includes('Ոչ հստակ') ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                             }`}>
                             <div className="font-bold text-purple-700 text-xs sm:text-sm">🔮 Fuzzy Logic</div>
                             <div className="text-purple-600 text-xs break-words">Անորոշության մոդելավորում</div>
@@ -393,7 +382,7 @@ const ExpertPhase = ({
                     </summary>
                     <div className="mt-3 text-xs sm:text-sm text-gray-600 space-y-2">
                         <div>
-                            <strong className="block sm:inline">1. Անորոշ տրամաբանություն (Fuzzy Logic):</strong>
+                            <strong className="block sm:inline">1. Ոչ հստակ տրամաբանություն (Fuzzy Logic):</strong>
                             <span className="block sm:inline sm:ml-1">Մշակում է տվյալների անորոշությունը և վստահության մակարդակները:</span>
                         </div>
                         <div>

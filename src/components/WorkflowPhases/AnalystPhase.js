@@ -30,46 +30,87 @@ const AnalystPhase = ({
         setActiveTab,
         setCurrentData,
         setProjectName,
-        setDataType
+        setDataType,
+        setScenarios,
+        setSyntheticData,
+        setFinalRecommendations,
+        setClusterData,
+        setDecisionResults,
+        setFuzzyResults,
     } = useData();
 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // НОВОЕ: Загружаем данные проекта из localStorage при монтировании
     useEffect(() => {
-        if (projectId && projectStorage) {
-            const project = projectStorage.getProject(projectId);
-            if (!project) return;
+        if (!projectId || !projectStorage) return;
 
-            // Подгружаем raw/parsed данные для анализа
-            const managerData = project.workflowData.phases.manager.data;
+        // Получаем проект
+        const project = projectStorage.getProject(projectId);
+        if (!project) return;
 
-            if (managerData) {
-                if (managerData.parsedData) {
-                    setCurrentData(managerData.parsedData);
-                }
-                // Устанавливаем имя проекта и тип данных, как в ManagerPhase
-                if (managerData.projectName) {
-                    setProjectName(managerData.projectName);
-                }
-                if (managerData.dataType) {
-                    setDataType(managerData.dataType);
-                }
+        // --- 1. Загружаем данные ManagerPhase ---
+        const managerData = project.workflowData.phases.manager?.data;
+        if (managerData) {
+            if (managerData.parsedData) {
+                setCurrentData(managerData.parsedData);
             }
-
-            // Если аналитик уже завершил фазу
-            const analystData = project.workflowData.phases.analyst.data;
-            if (analystData) {
-                if (analystData.qualityMetrics) {
-                    setQualityMetrics(analystData.qualityMetrics);
-                }
-                if (analystData.analysisStatus === 'completed') {
-                    setAnalysisWorkspace(true);
-                }
+            if (managerData.projectName) {
+                setProjectName(managerData.projectName);
+            }
+            if (managerData.dataType) {
+                setDataType(managerData.dataType);
             }
         }
-    }, [projectId, projectStorage]);
 
+        // --- 2. Загружаем данные AnalystPhase, если есть ---
+        const analystData = project.workflowData.phases.analyst?.data;
+        if (analystData) {
+            if (analystData.dataPreview?.length > 0 && (!currentData || currentData.length === 0)) {
+                setCurrentData(analystData.dataPreview);
+            }
+            if (analystData.syntheticDataGenerated) {
+                setSyntheticData(analystData.syntheticData || []);
+            }
+        }
+
+        // --- 3. Загружаем результаты DecisionPhase, если она завершена ---
+        const decisionData = project.workflowData.phases.decision?.data;
+        if (decisionData) {
+            if (decisionData.decisionMatrix && typeof setDecisionResults === 'function') {
+                setDecisionResults(decisionData.decisionMatrix);
+            }
+            if (decisionData.finalRecommendations && typeof setFinalRecommendations === 'function') {
+                setFinalRecommendations(decisionData.finalRecommendations);
+            }
+        }
+
+        // --- 4. Загружаем данные ExpertPhase, если она завершена ---
+        const expertData = project.workflowData.phases.expert?.data;
+        if (expertData) {
+            if (expertData.fuzzyResults && typeof setFuzzyResults === 'function') {
+                setFuzzyResults(expertData.fuzzyResults);
+            }
+            if (expertData.clusterData && typeof setClusterData === 'function') {
+                setClusterData(expertData.clusterData);
+            }
+            if (project.scenarios && typeof setScenarios === 'function') {
+                setScenarios(project.scenarios);
+            }
+        }
+
+    }, [
+        projectId,
+        projectStorage,
+        setCurrentData,
+        setProjectName,
+        setDataType,
+        setSyntheticData,
+        setDecisionResults,
+        setFinalRecommendations,
+        setFuzzyResults,
+        setClusterData,
+        setScenarios
+    ]);
 
     /**
      * Տվյալների վերլուծության սկիզբ

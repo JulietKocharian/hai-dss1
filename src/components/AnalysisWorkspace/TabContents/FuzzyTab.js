@@ -26,7 +26,7 @@ const FuzzyTab = () => {
         rawData,
         syntheticData
     } = useData();
-  
+
     /**
      * Անորոշ տրամաբանության կիրառում
      */
@@ -44,9 +44,14 @@ const FuzzyTab = () => {
 
                     if (rawData && typeof rawData === 'string') {
                         console.log('Օգտագործվում է նոր համակարգը CSV տվյալների համար');
-                        fuzzyAnalysis = applyFuzzyLogic(currentData, dataType, syntheticData);
+                        fuzzyAnalysis = applyFuzzyLogic(
+                            (currentData && currentData.length > 0) ? currentData : [],
+                            dataType,
+                            (syntheticData && syntheticData.length > 0) ? syntheticData : []
+                        );
+
                         console.log(fuzzyAnalysis, 'fuzzyAnalysisfuzzyAnalysis');
-                        
+
                     }
                     resolve(fuzzyAnalysis);
                 }, 1500);
@@ -74,7 +79,7 @@ const FuzzyTab = () => {
             {/* Վերնագիր */}
             <div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                    🔮 Անորոշ տրամաբանության կիրառում
+                    🔮 Ոչ հստակ տրամաբանության կիրառում
                 </h3>
                 <p className="text-gray-600">
                     Տվյալների վստահության մակարդակի գնահատում և անորոշության գործոնների վերլուծություն
@@ -83,7 +88,7 @@ const FuzzyTab = () => {
 
             {/* Մեթոդաբանական տեղեկություններ */}
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h4 className="font-bold text-purple-800 mb-2">🧠 Անորոշ տրամաբանության մասին</h4>
+                <h4 className="font-bold text-purple-800 mb-2">🧠 Ոչ հստակ տրամաբանության մասին</h4>
                 <div className="text-sm text-purple-700 space-y-2">
                     <p>
                         <strong>Fuzzy Logic</strong>-ը թույլ է տալիս գնահատել տվյալների որակը 0-ից 100 պարամետրերով,
@@ -115,7 +120,7 @@ const FuzzyTab = () => {
                         size="lg"
                         className="px-8"
                     >
-                        🔮 Կիրառել անորոշ տրամաբանություն
+                        🔮 Կիրառել ոչ հստակ տրամաբանություն
                     </Button>
                     <p className="text-sm text-gray-500 mt-2">
                         Վերլուծությունը կտևի 1-2 վայրկյան

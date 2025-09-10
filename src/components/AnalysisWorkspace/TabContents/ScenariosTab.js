@@ -1,20 +1,21 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useData } from '../../../context/DataContext';
 import { ChartCard, ScenarioCard } from '../../UI/Card';
 import Button, { ButtonGroup } from '../../UI/Button';
 import Alert from '../../UI/Alert';
-import { generateAIScenarios } from '../../../utils/scenarios';
 import Map from '../../Map/Map';
 import ClusterCharts from '../../Charts/ClusterCharts';
 import ClusterScatterChart from '../../Charts/ClusteringScatter';
 import Papa from 'papaparse';
+import { generateAIScenarios } from '../../../utils/scenarios';
+import { useProjectStorage } from '../../../store/ProjectStorageManager';
 
 
 /**
  * ScenariosTab բաղադրիչ - որոշումային սցենարների գեներացման ինտերֆեյս
  * Ստեղծում է գործնական գործողությունների սցենարներ մենեջերների համար
  */
-const ScenariosTab = () => {
+const ScenariosTab = ({ projectId }) => {
     const {
         currentData,
         fuzzyResults,
@@ -28,13 +29,39 @@ const ScenariosTab = () => {
         rawData,
         clusteringSettings,
         setClusteringSettings,
-        syntheticData
+        syntheticData,
+        analysisResults,
+        expertData,
+        project,
+        projectData
     } = useData();
 
+
+    const { updateProject, getProject } = useProjectStorage();
 
     const [isGenerating, setIsGenerating] = useState(false);
     const [selectedScenario, setSelectedScenario] = useState(null);
     const [filterPriority, setFilterPriority] = useState('all');
+
+    function updateProjectDataById(projectId, newData) {
+        const existingProject = getProject(projectId);
+        console.log(existingProject);
+
+
+        if (!existingProject) {
+            console.warn('Проект не найден', projectId);
+            return null;
+        }
+
+        // Объединяем старые данные и новые
+        const updatedProject = updateProject(projectId, {
+            ...existingProject, // сохраняем старые поля
+            ...newData          // перезаписываем новые поля
+        });
+
+        console.log('Проект обновлён:', updatedProject);
+        return updatedProject;
+    }
 
     const enhancedClusterData = useMemo(() => {
         if (!clusterData || clusterData.length === 0) {
@@ -221,6 +248,8 @@ const ScenariosTab = () => {
     /**
      * Սցենարների գեներացիայի մեկնարկ
      */
+
+
     const startScenarioGeneration = async () => {
         if (!fuzzyResults && !clusterData) {
             alert('Սցենարների գեներացման համար անհրաժեշտ է նախ կատարել անորոշ տրամաբանության և կլաստերիզացիայի վերլուծություն');
@@ -231,37 +260,39 @@ const ScenariosTab = () => {
 
         try {
             // Prepare analysis results for AI
+            const numericValues = currentData?.map(item => {
+                if (typeof item === 'object') {
+                    // Берем первое числовое поле из объекта
+                    const value = Object.values(item).find(v => !isNaN(parseFloat(v)));
+                    return value ? parseFloat(value) : 0;
+                }
+                return Number(item) || 0;
+            }) || [];
+
+            const statistics = {
+                mean: numericValues.length ? numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length : 0,
+                stdDev: 0, // если нужно, потом можно посчитать
+                min: numericValues.length ? Math.min(...numericValues) : 0,
+                max: numericValues.length ? Math.max(...numericValues) : 0
+            };
             const analysisResults = {
                 fuzzyResults: fuzzyResults,
-                statistics: {
-                    mean: currentData?.reduce((sum, item) => sum + (typeof item === 'object' ? Object.values(item)[0] : item), 0) / currentData?.length || 0,
-                    stdDev: 0, // You can calculate this properly if needed
-                    min: Math.min(...currentData?.map(item => typeof item === 'object' ? Object.values(item)[0] : item) || [0]),
-                    max: Math.max(...currentData?.map(item => typeof item === 'object' ? Object.values(item)[0] : item) || [0])
-                }
+                statistics
             };
 
-            // Context data for AI
-            const contextData = {
-                region: 'Կոտայքի մարզ', // You can make this dynamic
-                timeframe: 'միջնաժամկետ',
-                budget: '2-5 միլիոն դրամ'
-            };
-
-            // Get current user ID (you can get this from your auth context)
-            const userId = getCurrentUserId();
-
-            // Generate scenarios using AI
             const generatedScenarios = await generateAIScenarios(
                 dataType,
                 analysisResults,
-                clusterData,
-                contextData,
-                userId
+                clusterData
             );
 
+            console.log(generatedScenarios, 'generatedScenariosgeneratedScenarios');
+
             setScenarios(generatedScenarios);
-            console.log('Գեներացված AI սցենարներ:', generatedScenarios);
+            updateProject(projectId, {
+                scenarios: generatedScenarios   
+            });
+
 
         } catch (error) {
             console.error('Սցենարների գեներացիայի սխալ:', error);
@@ -270,6 +301,8 @@ const ScenariosTab = () => {
             setIsGenerating(false);
         }
     };
+    console.log(scenarios);
+
 
     /**
      * Get current user ID - implement based on your auth system
@@ -286,6 +319,9 @@ const ScenariosTab = () => {
         if (filterPriority === 'all') return true;
         return scenario.priority === filterPriority;
     }) || [];
+
+    console.log(scenarios, 'բարելավման ծրագիր');
+
 
     /**
      * Սցենարի մանրամասների ցուցադրում
@@ -313,7 +349,7 @@ const ScenariosTab = () => {
             return;
         }
 
-        const content = generateAllScenariosReport(scenarios);
+        const content = generateAllScenariosReport(scenarios, dataType, projectName);
         const filename = `all_scenarios_${projectName?.replace(/[^a-zA-Z0-9\u0531-\u0587]/g, '_') || 'project'}_${new Date().toISOString().split('T')[0]}.txt`;
         downloadFile(content, filename);
         alert(`${scenarios.length} սցենար արտահանվել է`);
@@ -337,6 +373,14 @@ const ScenariosTab = () => {
         );
     }
     console.log(regionClusters, 'regionClusters');
+
+
+    console.log("DataType:", dataType);
+    console.log("Analysis Results:", analysisResults);
+    console.log("Cluster Data:", clusterData);
+
+
+    console.log(scenarios, 'jhjjhjhj');
 
 
     return (
@@ -391,7 +435,7 @@ const ScenariosTab = () => {
                                 ready={currentData && currentData.length > 0}
                             />
                             <ReadinessCheck
-                                label="Անորոշ տրամաբանություն"
+                                label="Ոչ հստակ տրամաբանություն"
                                 ready={fuzzyResults !== null}
                             />
                             <ReadinessCheck
@@ -456,11 +500,15 @@ const ScenariosTab = () => {
                         {filteredScenarios.map((scenario, index) => (
                             <div key={scenario.id || index} className="group">
                                 <ScenarioCard
+                                    id={scenario.id}
                                     title={scenario.title}
                                     description={scenario.description}
                                     priority={scenario.priority}
                                     priorityText={scenario.priorityText}
+                                    preconditions={scenario.preconditions}
+                                    risks={scenario.risks}
                                     actions={scenario.actions}
+                                    expectedOutcomes={scenario.expectedOutcomes}
                                     className="transition-all duration-300 hover:shadow-lg cursor-pointer"
                                     onClick={() => showScenarioDetails(scenario)}
                                 />
@@ -577,159 +625,167 @@ const ScenariosTab = () => {
     /**
      * Սցենարի տեղեկագիր
      */
+    // Для одного сценария
     function generateScenarioReport(scenario) {
+        const preconditions = (scenario.preconditions || [])
+            .map((p, i) => `${i + 1}. ${p}`)
+            .join("\n");
+
+        const risks = (scenario.risks || [])
+            .map(
+                (r, i) => `
+${i + 1}. ${r.title}
+   - Ազդեցություն (Impact): ${r.impact}
+   - Հավանականություն (Probability): ${r.probability}
+   ${r.response ? `- Պատասխան (Response): ${r.response}` : ""}
+   Քայլեր նվազեցման համար:
+   ${(r.mitigationSteps || []).map((s) => `   • ${s}`).join("\n")}`
+            )
+            .join("\n");
+
+        const actions = (scenario.actions || [])
+            .map(
+                (a, i) => `
+${i + 1}. Քայլ: ${a.step}
+   - Պատասխանատու: ${a.responsible}
+   - Ժամկետ: ${a.deadline}
+   - Հիմնավորում: ${a.justification}`
+            )
+            .join("\n");
+
+        const outcomes = (scenario.expectedOutcomes || [])
+            .map((o, i) => `${i + 1}. ${o}`)
+            .join("\n");
+
         return `
-ՍՑԵՆԱՐԻ ՄԱՆՐԱՄԱՍՆ ՏԵՂԵԿԱԳԻՐ
-===============================
+ՍՑԵՆԱՐ
+-------------------
+Անուն: ${scenario.title || "—"}
+Նկարագրություն: ${scenario.description || "—"}
 
-Սցենարի անվանում: ${scenario.title}
-Առաջնահերթություն: ${scenario.priorityText}
-Գեներացման ամսաթիվ: ${new Date().toLocaleDateString('hy-AM')}
-Նախագիծ: ${projectName || 'Անանուն'}
-Տվյալների տեսակ: ${getDataTypeLabel(dataType)}
-${scenario.metadata?.aiGenerated ? 'AI-ով գեներացված: Այո' : ''}
+ԿԱՆԽԱԴՐՈՒՅԹՆԵՐ
+====================
+${preconditions || "—"}
 
-ՆԿԱՐԱԳՐՈՒԹՅՈՒՆ
-==============
-${scenario.description}
-
-ԱՌԱՋԱՐԿՎՈՂ ԳՈՐԾՈՂՈՒԹՅՈՒՆՆԵՐ
-==========================
-${scenario.actions.map((action, index) => `${index + 1}. ${action}`).join('\n')}
-
-${scenario.indicators ? `
-ՉԱՓԱՆԻՇՆԵՐ
-===========
-${scenario.indicators.map((indicator, index) => `${index + 1}. ${indicator}`).join('\n')}
-` : ''}
-
-${scenario.risks ? `
 ՌԻՍԿԵՐ
 =======
-${scenario.risks.map((risk, index) => `${index + 1}. ${risk}`).join('\n')}
-` : ''}
+${risks || "—"}
 
-${scenario.estimatedBudget ? `
-ԳՆԱՀԱՏՎՈՂ ԲՅՈՒՋԵՏ
-==================
-${scenario.estimatedBudget}
-` : ''}
-
-${scenario.expectedOutcomes ? `
-ԱԿՆԿԱԼՎՈՂ ԱՐԴՅՈՒՆՔՆԵՐ
+ԳՈՐԾՈՂՈՒԹՅՈՒՆՆԵՐ
 ====================
-${scenario.expectedOutcomes.map((outcome, index) => `${index + 1}. ${outcome}`).join('\n')}
-` : ''}
+${actions || "—"}
 
-${scenario.metadata ? `
-ԼՐԱՑՈՒՑԻՉ ՏԵՂԵԿՈՒԹՅՈՒՆՆԵՐ
-========================
-Գեներացման ամսաթիվ: ${new Date(scenario.metadata.generatedAt).toLocaleDateString('hy-AM')}
-Տվյալների տեսակ: ${scenario.metadata.dataType}
-${scenario.metadata.aiGenerated ? 'AI-ով գեներացված: Այո' : ''}
-${scenario.confidenceText ? 'Վստահություն: ' + scenario.confidenceText : ''}
-${scenario.feasibilityText ? 'Իրականացվելիություն: ' + scenario.feasibilityText : ''}
-` : ''}
+ՍՊԱՍՎՈՂ ԱՐԴՅՈՒՆՔՆԵՐ
+====================
+${outcomes || "—"}
 
----
-Տեղեկագիրը գեներացվել է ${new Date().toLocaleString('hy-AM')} ամսաթվին
-    `.trim();
-    }
+ԱՌԱՋՆԱՀԵՐԹՈՒԹՅՈՒՆ
+====================
+${scenario.priorityText || scenario.priority || "—"}
+`;
+    };
+
+
+
 
     /**
      * Բոլոր սցենարների տեղեկագիր
      */
-    function generateAllScenariosReport(scenarios) {
-        const priorityCounts = scenarios.reduce((acc, scenario) => {
-            acc[scenario.priority] = (acc[scenario.priority] || 0) + 1;
-            return acc;
-        }, {});
-
-        const aiGeneratedCount = scenarios.filter(s => s.metadata?.aiGenerated).length;
-
+    function generateAllScenariosReport(scenarios, dataType, projectName) {
         return `
-ՍՑԵՆԱՐՆԵՐԻ ԱՄԲՈՂՋԱԿԱՆ ՏԵՂԵԿԱԳԻՐ
-=================================
+Նախագիծ: ${projectName || "—"}
+Տվյալների տեսակ: ${dataType || "—"}
 
-Նախագիծ: ${projectName || 'Անանուն'}
-Տվյալների տեսակ: ${getDataTypeLabel(dataType)}
-Գեներացման ամսաթիվ: ${new Date().toLocaleDateString('hy-AM')}
+Ընդհանուր սցենարների քանակը: ${scenarios.length}
+Բարձր առաջնահերթություն: ${scenarios.filter((s) => s.priority === "high").length}
+Միջին առաջնահերթություն: ${scenarios.filter((s) => s.priority === "medium").length}
+Ցածր առաջնահերթություն: ${scenarios.filter((s) => s.priority === "low").length}
 
-ԱՄՓՈՓ ՎԻՃԱԿԱԳՐՈՒԹՅՈՒՆ
-=====================
-Ընդհանուր սցենարներ: ${scenarios.length}
-Բարձր առաջնահերթություն: ${priorityCounts.high || 0}
-Միջին առաջնահերթություն: ${priorityCounts.medium || 0}
-Ցածր առաջնահերթություն: ${priorityCounts.low || 0}
-AI-ով գեներացված: ${aiGeneratedCount}
+====================================
+ՍՑԵՆԱՐՆԵՐ
+====================================
 
-ՄԱՆՐԱՄԱՍՆ ՍՑԵՆԱՐՆԵՐ
-===================
-
-${scenarios.map((scenario, index) => `
-${index + 1}. ${scenario.title}
-${'-'.repeat(scenario.title.length + 3)}
-Առաջնահերթություն: ${scenario.priorityText}
-${scenario.metadata?.aiGenerated ? 'գեներացված: Այո' : ''}
-Նկարագրություն: ${scenario.description}
+${scenarios
+                .map(
+                    (s, idx) => `
+Սցենար ${idx + 1}: ${s.title || "—"}
+Նկարագրություն: ${s.description || "—"}
 
 Գործողություններ:
-${scenario.actions.map((action, actionIndex) => `  ${actionIndex + 1}. ${action}`).join('\n')}
-`).join('\n')}
+${(s.actions || [])
+                            .map(
+                                (a, i) =>
+                                    `${i + 1}. ${a.step} (Պատասխանատու: ${a.responsible}, Ժամկետ: ${a.deadline})`
+                            )
+                            .join("\n") || "—"}
 
----
-Տեղեկագիրը գեներացվել է ${new Date().toLocaleString('hy-AM')} ամսաթվին
-    `.trim();
-    }
+Ռիսկեր:
+${(s.risks || [])
+                            .map(
+                                (r, i) =>
+                                    `${i + 1}. ${r.title} (Ազդեցություն: ${r.impact}, Հավանականություն: ${r.probability})`
+                            )
+                            .join("\n") || "—"}
+`
+                )
+                .join("\n")}
+`;
+    };
+
 
     /**
      * Կիրառման պլանի գեներացում
      */
     function generateImplementationPlan(scenario) {
+        const actions = (scenario.actions || [])
+            .map(
+                (a, i) => `
+${i + 1}. Քայլ: ${a.step}
+   - Պատասխանատու: ${a.responsible}
+   - Ժամկետ: ${a.deadline}
+   - Հիմնավորում: ${a.justification}`
+            )
+            .join("\n");
+
+        const risks = (scenario.risks || [])
+            .map(
+                (r, i) => `
+${i + 1}. Ռիսկ: ${r.title}
+   - Ազդեցություն: ${r.impact}
+   - Հավանականություն: ${r.probability}
+   ${(r.mitigationSteps || []).map((s) => `   • ${s}`).join("\n")}`
+            )
+            .join("\n");
+
         return `
-ԿԻՐԱՌՄԱՆ ՊԼԱՆ
-=============
+Կիրառման պլան սցենարի համար: ${scenario.title || "—"}
+======================================================
 
-Սցենարի անվանում: ${scenario.title}
-Առաջնահերթություն: ${scenario.priorityText}
-Նախագիծ: ${projectName || 'Անանուն'}
-${scenario.metadata?.aiGenerated ? 'գեներացված: Այո' : ''}
+Քայլեր:
+${actions || "—"}
 
-ԻՐԱԿԱՆԱՑՄԱՆ ՔԱՅԼԵՐ
-===================
+Ռիսկեր և նվազեցման քայլեր:
+${risks || "—"}
 
-${scenario.actions.map((action, index) => `
-Քայլ ${index + 1}: ${action}
-  □ Մեկնարկի ամսաթիվ: ___________
-  □ Ավարտի ամսաթիվ: ___________
-  □ Պատասխանատու: ___________
-  □ Ռեսուրսներ: ___________
-  □ Կարգավիճակ: □ Սկսված □ Ընթացքում □ Ավարտված
-`).join('\n')}
+Սպասվող արդյունքներ:
+${(scenario.expectedOutcomes || [])
+                .map((o, i) => `${i + 1}. ${o}`)
+                .join("\n") || "—"}
 
-ՄՈՆԻՏՈՐԻՆԳ ԵՎ ԳՆԱՀԱՏՈՒՄ
-========================
-□ Հաջողության ցուցանիշներ սահմանված են
-□ Իրականացման ժամանակացույց պատրաստ է
-□ Ռիսկերի գնահատումը կատարված է
-□ Հետադարձ կապի մեխանիզմները կարգավորված են
+Պատասխանատու կողմեր:
+${(scenario.actions || [])
+                .map((a, i) => `${i + 1}. ${a.responsible}`)
+                .join("\n") || "—"}
 
-${scenario.estimatedBudget ? `
-ԲՅՈՒՋԵՏ
-=======
-Գնահատվող ծախսեր: ${scenario.estimatedBudget}
-` : ''}
+Ժամկետներ:
+${(scenario.actions || [])
+                .map((a, i) => `${i + 1}. ${a.deadline}`)
+                .join("\n") || "—"}
 
-ԾԱՆՈԹԱԳՐՈՒԹՅՈՒՆՆԵՐ
-==================
-_________________________________________________
-_________________________________________________
-_________________________________________________
-
----
-Պլանը կազմվել է ${new Date().toLocaleString('hy-AM')} ամսաթվին
-    `.trim();
-    }
+Բյուջե:
+${scenario.budget || "—"}
+`;
+    };
 
     /**
      * Գլխավոր ուղղությունների ստացում
@@ -796,6 +852,31 @@ const ScenarioStatistics = ({ scenarios }) => {
         </div>
     );
 };
+
+// Маппер: backend → frontend
+const mapBackendScenarioToFrontend = (scenario) => {
+    return {
+        name: scenario["անուն"],
+        description: scenario["նկարագրություն"],
+        assumptions: scenario["կանխադրույթներ"] || [],
+        risks: scenario["ռիսկեր"]?.map(r => ({
+            title: r["վերնագիր"],
+            impact: r["ազդեցություն"],
+            probability: r["հավանականություն"],
+            response: r["մշակում"],
+            mitigationSteps: r["մեղմացման_քայլեր"] || []
+        })) || [],
+        actions: scenario["առաջարկվող_գործողություններ"]?.map(a => ({
+            step: a["քայլ"],
+            responsible: a["պատասխանատու"],
+            deadline: a["ժամկետ"],
+            justification: a["փաստարկ"]
+        })) || [],
+        expectedResults: scenario["սպասվող_չափելի_արդյունքներ"] || []
+    };
+};
+
+
 
 /**
  * Սցենարի մանրամասների մոդալ

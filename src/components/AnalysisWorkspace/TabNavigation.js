@@ -1,6 +1,5 @@
 import React from 'react';
 import { useData } from '../../context/DataContext';
-import { useDataAnalysis } from '../../hooks/useDataAnalysis';
 /**
  * TabNavigation բաղադրիչ - վերլուծական տաբերի նավիգացիա
  * @param {Object} props - Բաղադրիչի պրոպսեր
@@ -82,7 +81,7 @@ const TabNavigation = ({ activeTab, onTabChange, projectPhase }) => {
         },
         {
             id: 'fuzzy',
-            label: 'Անորոշ տրամաբանություն',
+            label: ' տրամաբանություն',
             icon: '🔮',
             description: 'Վստահության մակարդակի գնահատում',
             enabled: getTabEnabled('fuzzy'),

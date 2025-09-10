@@ -733,62 +733,86 @@ class IntegratedFuzzyLogic {
 //     }
 // };
 export const applyFuzzyLogic = (data, dataType, syntheticData = []) => {
+    // Если нет данных вообще
     if ((!data || data.length === 0) && (!syntheticData || syntheticData.length === 0)) {
         return {
             low: 0,
             medium: 0,
             high: 0,
+            averageConfidence: 0,
             analysis: 'Տվյալներ չեն գտնվել',
             confidenceDistribution: [],
-            recommendations: []
+            recommendations: [],
+            patterns: [],
+            uncertaintyFactors: [],
+            socialDevelopment: null
         };
     }
 
     try {
-        // Միավորել հիմնական և սինթետիկ տվյալները
-        const combinedData = [...(data || []), ...(syntheticData || [])];
-
-        // Յուրաքանչյուր տողի վստահության գնահատում
-        const rowConfidences = combinedData.map((row, index) =>
-            calculateRowConfidence(row, index, combinedData)
+        // Рассчитываем доверие для каждой строки
+        const realConfidences = (data || []).map((row, index) =>
+            calculateRowConfidence(row, index, data, false) // реальные данные
         );
 
-        // Վստահության մակարդակների բաշխում
+        const syntheticConfidences = (syntheticData || []).map((row, index) =>
+            calculateRowConfidence(row, index, data, true) // синтетические данные
+        );
+
+        // Объединяем
+        const rowConfidences = [...realConfidences, ...syntheticConfidences];
+
+        // Средняя уверенность (учитываем все строки)
+        const averageConfidence = rowConfidences.length
+            ? rowConfidences.reduce((sum, r) => sum + r.confidence, 0) / rowConfidences.length
+            : 0;
+
+        // Категоризация по количеству строк
         const distribution = categorizeConfidences(rowConfidences);
 
-        // Խելացի վերլուծություն տվյալների տեսակի հիման վրա
+        // Анализ
         const analysis = generateFuzzyAnalysis(distribution, dataType, rowConfidences);
 
-        // Առաջարկություններ
+        // Рекомендации
         const recommendations = generateFuzzyRecommendations(distribution, dataType);
 
-        // Սոցիալական զարգացման գնահատում (բարձր վստահության դեպքում)
-        const socialDevelopment = applySocialDevelopmentFuzzy(combinedData, dataType, distribution);
+        // Социальное развитие
+        const socialDevelopment = rowConfidences.length > 0
+            ? applySocialDevelopmentFuzzy([...data, ...syntheticData], dataType, distribution)
+            : null;
 
         return {
-            low: distribution.low,
-            medium: distribution.medium,
-            high: distribution.high,
+            low: distribution.low,       // процент строк с низкой уверенностью
+            medium: distribution.medium, // процент строк с средней уверенностью
+            high: distribution.high,     // процент строк с высокой уверенностью
+            averageConfidence: Math.round(averageConfidence), // для прогресс-бара и цвета
             analysis: analysis.summary,
             confidenceDistribution: rowConfidences,
             patterns: analysis.patterns,
             recommendations,
             uncertaintyFactors: analysis.uncertaintyFactors,
-            socialDevelopment: socialDevelopment
+            socialDevelopment
         };
 
     } catch (error) {
         console.error('Անորոշ տրամաբանության սխալ:', error);
         return {
-            low: 33,
-            medium: 34,
-            high: 33,
+            low: 0,
+            medium: 0,
+            high: 0,
+            averageConfidence: 0,
             analysis: 'Վերլուծությունը կատարվեց սխալի պատճառով',
             confidenceDistribution: [],
-            recommendations: ['Ստուգեք տվյալների ֆորմատը']
+            recommendations: ['Ստուգեք տվյալների ֆորմատը'],
+            patterns: [],
+            uncertaintyFactors: [],
+            socialDevelopment: null
         };
     }
 };
+
+
+
 
 
 /**
@@ -1204,7 +1228,7 @@ const interpretSocialDevelopment = (score) => {
 /**
  * Տողի վստահության մակարդակի հաշվարկ
  */
-const calculateRowConfidence = (row, index, allData) => {
+const calculateRowConfidence = (row, index, allData, isSynthetic = false) => {
     const values = Object.values(row);
     const keys = Object.keys(row);
     let totalConfidence = 0;
@@ -1212,7 +1236,7 @@ const calculateRowConfidence = (row, index, allData) => {
 
     keys.forEach(key => {
         const value = row[key];
-        const fieldConfidence = calculateFieldConfidence(value, key, allData);
+        const fieldConfidence = calculateFieldConfidence(value, key, allData, isSynthetic);
         fieldConfidences[key] = fieldConfidence;
         totalConfidence += fieldConfidence;
     });
@@ -1232,72 +1256,72 @@ const calculateRowConfidence = (row, index, allData) => {
 /**
  * Դաշտի վստահության մակարդակի հաշվարկ
  */
-const calculateFieldConfidence = (value, fieldName, allData) => {
+const calculateFieldConfidence = (value, fieldName, allData, isSynthetic = false) => {
+    // Если значение пустое → 0
     if (value === null || value === undefined || value === '') {
         return 0;
     }
 
-    let confidence = 50;
+    // Базовая уверенность: для синтетических данных можно дать стартовый boost
+    let confidence = isSynthetic ? 70 : 0;
 
-    const fieldValues = allData.map(row => row[fieldName]).filter(v => v !== null && v !== undefined && v !== '');
+    // Фильтруем реальные значения для поля
+    const fieldValues = allData
+        .map(row => row[fieldName])
+        .filter(v => v !== null && v !== undefined && v !== '');
+
+    if (fieldValues.length === 0) {
+        // Нет данных для сравнения → доверие минимальное или базовое
+        return confidence;
+    }
+
+    // Определяем доминирующий тип среди данных
     const types = fieldValues.map(detectDataType);
     const dominantType = getMostFrequent(types);
     const currentType = detectDataType(value);
 
+    // Если тип совпадает с доминирующим → небольшое повышение
     if (currentType === dominantType) {
-        confidence += 20;
-    } else {
-        confidence -= 15;
+        confidence += 15;
     }
 
+    // Уникальность значения
     const uniqueValues = [...new Set(fieldValues)];
     const uniquenessRatio = uniqueValues.length / fieldValues.length;
-
     if (uniquenessRatio > 0.8) {
         confidence += 10;
     } else if (uniquenessRatio < 0.1) {
-        confidence -= 10;
-    } else {
-        confidence += 5;
+        confidence -= 5;
     }
 
-    if (currentType === 'number' || currentType === 'integer' || currentType === 'float') {
+    // Для числовых значений проверяем отклонения от среднего
+    if (['number', 'integer', 'float'].includes(currentType)) {
         const numericValues = fieldValues.map(v => parseFloat(v)).filter(v => !isNaN(v));
         if (numericValues.length > 1) {
             const mean = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
             const stdDev = Math.sqrt(numericValues.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / numericValues.length);
-
             const currentValue = parseFloat(value);
             const zScore = Math.abs((currentValue - mean) / stdDev);
 
-            if (zScore > 3) {
-                confidence -= 20;
-            } else if (zScore > 2) {
-                confidence -= 10;
-            } else {
-                confidence += 10;
-            }
+            if (zScore <= 1) confidence += 20; // близко к среднему → высокое доверие
+            else if (zScore <= 2) confidence += 10; // умеренное доверие
+            else confidence -= 10; // далеко от среднего → понижаем
         }
     }
 
+    // Для текстовых значений проверяем формат
     if (currentType === 'text' && typeof value === 'string') {
         const text = value.trim();
 
-        if (isValidFormat(text, fieldName)) {
-            confidence += 15;
-        }
-
-        if (text.length > 0 && text.length < 200) {
-            confidence += 5;
-        }
-
-        if (/^[a-zA-Z0-9\u0530-\u058F\s\-.,]+$/.test(text)) {
-            confidence += 5;
-        }
+        if (isValidFormat(text, fieldName)) confidence += 10;
+        if (text.length > 0 && text.length < 200) confidence += 5;
+        if (/^[a-zA-Z0-9\u0530-\u058F\s\-.,]+$/.test(text)) confidence += 5;
     }
 
+    // Ограничиваем 0–100
     return Math.max(0, Math.min(100, confidence));
 };
+
 
 
 const getMostFrequent = (array) => {
@@ -1336,22 +1360,25 @@ const isValidFormat = (text, fieldName) => {
 };
 
 
-const categorizeConfidences = (confidences) => {
+const categorizeConfidences = (confidences, onlyReal = true) => {
+    if (!confidences || confidences.length === 0) {
+        return { low: 0, medium: 0, high: 0, lowCount: 0, mediumCount: 0, highCount: 0, total: 0 };
+    }
+
+    // Если onlyReal, фильтруем синтетические строки
+    const dataToUse = onlyReal ? confidences.filter(c => !c.isSynthetic) : confidences;
+
     let lowCount = 0;
     let mediumCount = 0;
     let highCount = 0;
 
-    confidences.forEach(conf => {
-        if (conf.confidence < 40) {
-            lowCount++;
-        } else if (conf.confidence < 70) {
-            mediumCount++;
-        } else {
-            highCount++;
-        }
+    dataToUse.forEach(conf => {
+        if (conf.confidence < 40) lowCount++;
+        else if (conf.confidence < 70) mediumCount++;
+        else highCount++;
     });
 
-    const total = confidences.length;
+    const total = dataToUse.length || 1; // чтобы не делить на 0
 
     return {
         low: Math.round((lowCount / total) * 100),

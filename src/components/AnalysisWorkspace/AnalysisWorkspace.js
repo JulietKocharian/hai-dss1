@@ -327,7 +327,7 @@ const getTabLabel = (tabName) => {
     const labels = {
         'analysis': 'Առաջնային վերլուծություն',
         'synthetic': 'Սինթետիկ տվյալներ',
-        'fuzzy': 'Անորոշ տրամաբանություն',
+        'fuzzy': 'Ոչ հստակ տրամաբանություն',
         'clustering': 'Կլաստերացում',
         'scenarios': 'Սցենարներ',
         'results': 'Արդյունքներ'

@@ -95,7 +95,7 @@ export const PhaseCard = ({
                 <div className={`w-12 h-12 ${config.gradient} rounded-full flex items-center justify-center text-white text-2xl mr-4`}>
                     {icon}
                 </div>
-                <h3 className="text-xl font-bold text-white-800" style={{color: "#fff"}}>{title}</h3>
+                <h3 className="text-xl font-bold text-white-800" style={{ color: "#fff" }}>{title}</h3>
             </div>
 
             {/* Փուլի բովանդակություն */}
@@ -229,11 +229,15 @@ export const ClusterCard = ({
  * ScenarioCard բաղադրիչ - սցենարների ցուցադրման համար
  */
 export const ScenarioCard = ({
+    id,
     title = '',
     description = '',
     priority = 'medium',
     priorityText = '',
+    preconditions = [],
+    risks = [],
     actions = [],
+    expectedOutcomes = [],
     className = ''
 }) => {
 
@@ -243,40 +247,118 @@ export const ScenarioCard = ({
         low: 'bg-green-200 text-green-800'
     };
 
+    const priorityConfigTexts = {
+        high: 'Բարձր առաջնահերթության',
+        medium: 'Միջին առաջնահերթության',
+        low: 'Ցածր առաջնահերթության'
+    };
+    
+        const _priority = {
+        high: 'Բարձր',
+        medium: 'Միջին',
+        low: 'Ցածր'
+    };
+
     return (
         <div className={`
-      bg-gradient-to-r from-blue-50 to-blue-100 
-      border-l-4 border-blue-500 rounded-xl p-6
-      hover:shadow-lg transition-all duration-300
-      ${className}
-    `}>
+            bg-gradient-to-r from-blue-50 to-blue-100 
+            border-l-4 border-blue-500 rounded-xl p-6 mb-6
+            hover:shadow-lg transition-all duration-300
+            ${className}
+        `}>
             {/* Առաջնահերթություն */}
             <div className={`
-        inline-block px-3 py-1 rounded-full text-xs font-bold mb-3
-        ${priorityConfig[priority]}
-      `}>
-                {priorityText}
+                inline-block px-3 py-1 rounded-full text-xs font-bold mb-3
+                ${priorityConfig[risks[0].impact]}
+            `}>
+                {priorityConfigTexts[risks[0].impact]}
             </div>
 
             {/* Վերնագիր */}
-            <div className="font-bold text-blue-900 text-lg mb-2">{title}</div>
+            <div className="font-bold text-blue-900 text-lg mb-3">{title}</div>
 
             {/* Նկարագրություն */}
             <div className="text-gray-700 mb-4">{description}</div>
 
-            {/* Գործողություններ */}
-            {actions.length > 0 && (
-                <div className="bg-gray-100 rounded-lg p-4">
-                    <div className="font-bold mb-2">Առաջարկվող գործողություններ:</div>
+            {/* Կանխադրույթներ */}
+            {preconditions.length > 0 && (
+                <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                    <div className="font-bold text-blue-800 mb-2">🎯 Կանխադրույթներ:</div>
                     <ul className="list-disc list-inside space-y-1">
-                        {actions.map((action, index) => (
-                            <li key={index} className="text-sm">{action}</li>
+                        {preconditions.map((condition, index) => (
+                            <li key={index} className="text-sm text-blue-700">{condition}</li>
                         ))}
                     </ul>
                 </div>
             )}
+
+            {/* Ռիսկեր */}
+            {risks.length > 0 && (
+                <div className="bg-red-50 rounded-lg p-4 mb-4">
+                    <div className="font-bold text-red-800 mb-3">⚠️ Ռիսկեր:</div>
+                    {risks.map((risk, index) => (
+                        <div key={index} className="border-b border-red-200 last:border-b-0 pb-3 last:pb-0 mb-3 last:mb-0">
+                            <div className="font-semibold text-red-700 mb-1">{risk.title}</div>
+                            <div className="text-sm text-red-600 mb-2">
+                                <span className="font-medium">Ազդեցություն:</span> {_priority[risk.impact]} |
+                                <span className="font-medium ml-2">Հավանականություն:</span> {(risk.probability * 100).toFixed(0)}%
+                            </div>
+                            <div className="text-sm text-red-600 mb-2">
+                                <span className="font-medium">Լուծում:</span> {risk.response}
+                            </div>
+                            {risk.mitigationSteps?.length > 0 && (
+                                <div>
+                                    <div className="font-medium text-red-700 text-sm mb-1">Մեղմացման քայլեր:</div>
+                                    <ul className="list-disc list-inside text-xs text-red-600 ml-4">
+                                        {risk.mitigationSteps.map((step, stepIndex) => (
+                                            <li key={stepIndex}>{step}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Գործողություններ */}
+            {actions.length > 0 && (
+                <div className="bg-green-50 rounded-lg p-4 mb-4">
+                    <div className="font-bold text-green-800 mb-3">✅ Առաջարկվող գործողություններ:</div>
+                    {actions.map((action, index) => (
+                        <div key={index} className="border-b border-green-200 last:border-b-0 pb-3 last:pb-0 mb-3 last:mb-0">
+                            <div className="font-semibold text-green-700 mb-1">{action.step}</div>
+                            <div className="text-sm text-green-600 mb-1">
+                                <span className="font-medium">Պատասխանատու:</span> {action.responsible}
+                            </div>
+                            <div className="text-sm text-green-600">
+                                <span className="font-medium">Ժամկետ:</span> {action.deadline}
+                            </div>
+                            {action.justification && (
+                                <div className="text-sm text-green-600 mt-1">
+                                    <span className="font-medium">Հիմնավորում:</span> {action.justification}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Սպասվող արդյունքներ */}
+            {expectedOutcomes.length > 0 && (
+                <div className="bg-purple-50 rounded-lg p-4">
+                    <div className="font-bold text-purple-800 mb-2">🎯 Սպասվող արդյունքներ:</div>
+                    <ul className="list-disc list-inside space-y-1">
+                        {expectedOutcomes.map((outcome, index) => (
+                            <li key={index} className="text-sm text-purple-700">{outcome}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* ID ցուցադրման համար debug */}
+            <div className="text-xs text-gray-400 mt-4">ID: {id}</div>
         </div>
     );
 };
-
 export default Card;
